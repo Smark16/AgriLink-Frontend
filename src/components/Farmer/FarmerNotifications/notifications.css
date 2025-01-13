@@ -1,0 +1,131 @@
+:root{
+    --primary-color: #1bd914; 
+    --background-color: #04770e; 
+}
+
+.notifications{
+    height: 500px;
+    width: 400px;
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    z-index: 10000;
+    position: absolute;
+    top: 10%;
+    margin-left: 70%;
+    overflow-y: auto;
+}
+.message{
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+}
+.message:hover{
+    background-color:#f8f9fa;
+    cursor: pointer;
+}
+
+.notify_header{
+    border-bottom: 1px solid #ccc;
+}
+.icons{
+    display: flex;
+    gap: 3px;
+    font-size: 12px;
+}
+.icons .bi-0-circle-fill, .icon_text{
+    color: var(--primary-color);
+}
+.notify{
+    display: flex;
+    flex-direction: column;
+}
+.notify .msg_header{
+    justify-content: flex-start;
+}
+.notify{
+    transition: transform 0.3s ease;
+}
+.notify .msg_text {
+    max-height: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+.show{
+    max-height: 100px; /* Adjust as needed to fully display the message */
+  overflow: visible;
+  white-space: normal;
+  opacity: 1;
+    
+}
+.icons .bi-chevron-down{
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    color: #000;
+}
+.icons .bi-chevron-down.rotate {
+    transform: rotate(180deg);
+  }
+  .read {
+    font-weight: normal;
+  }
+  
+  .msg_header.read {
+    font-weight: normal;
+  }
+
+  @media screen and (max-width:768px) {
+    .notifications{
+        height: 100vh;
+        width: 100%;
+        background-color: white;
+        border: 1px solid #ccc;
+        z-index: 10000;
+        position: fixed;
+        top: 5%;
+        margin-left: 0;
+        overflow-y: auto;
+    }
+  }
+
+  /* iPad Mini and iPad Air in portrait */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: portrait) {
+  .notifications {
+      width: 90%; /* Almost full width for better visibility */
+      height: 70%; /* Adjust height to fit the screen better */
+      margin-left: 5%; /* Center the notification box */
+      top: 5%; /* Move it down a bit from the top */
+  }
+}
+
+/* iPad Mini and iPad Air in landscape */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: landscape) {
+  .notifications {
+      width: 60%; /* Wider in landscape */
+      height: 80%; /* More vertical space available */
+      margin-left: 20%; /* Center more in landscape */
+  }
+}
+
+/* iPad Pro 11-inch and iPad 9th gen and later in both orientations */
+@media only screen 
+and (min-device-width: 810px) 
+and (max-device-width: 1194px) {
+  .notifications {
+      width: 50%; /* Use less width on larger screens */
+      height: 75%; /* Adjust height for comfort */
+      margin-left: 25%; /* Center it */
+      top: 5%; /* Keep it from the top */
+  }
+}
+
+
+ 

@@ -1,0 +1,319 @@
+
+/* Introduction css */
+.intro{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction:column;
+  width: 100%;
+  margin-top: 70px;
+}
+.intro_text{
+  display: flex;
+  
+  align-items: center;
+  flex-direction:column;
+  position:absolute;
+  left: 10px;
+  top: 100px;
+}
+.intro_text .start{
+  color:#ffffff;
+  font-weight: bolder;
+}
+.intro_text div{
+  color: white;
+  background-color: #04770e;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bolder;
+}
+
+.intro_text h4{
+  font-size: 40px;
+  color: #1bd914;
+  text-align: center;
+}
+.gri{
+  color: #000;
+}
+.intro_img{
+  background: linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(../images/image.jpg);
+  background-position:center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
+}
+.intro img{
+  margin-top: 20px;
+  width: 800px;
+  height: 500px;
+  border-radius: 10px;
+}
+/* end introduction css */
+
+/* about us css */
+.about .head{
+  background-color: #04770e;
+  padding: 15px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
+}
+.delivery{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.delivery_image img{
+  width: 500px;
+  height: 300px;
+  border-radius: 10px;
+}
+.delivery_text{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+}
+.delivery_text h5{
+  font-size: 25px;
+}
+/* .delivery_text span{
+  font-size: 20px;
+} */
+.delivery_text .book{
+  color: #1bd914;
+  border: 1px solid #1bd914;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.ai_driven{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.driven_image img{
+  width: 400px;
+  border-radius: 10px;
+}
+
+.driven_text h4{
+ font-size: 20px;
+}
+
+.driven_text span{
+  display: flex;
+  justify-content: center;
+  color: #1bd914;
+  border: 1px solid #1bd914;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 200px;
+  margin: auto;
+}
+/* END ABOUT CSS */
+
+/* TESTMONY CSS */
+.testmony{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #d0ead2b2;
+  padding: 20px;
+}
+.testmony_text{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.testmony_text h3, h5{
+ display: flex;
+ justify-content: center;
+}
+.testmony_text .say{
+  color: #1bd914;
+  font-size: 20px;
+  margin-top: -15px;
+}
+.million_users {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.users {
+  position: relative; /* This ensures the child elements (images) position relative to this container */
+}
+
+.users img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  position: absolute; /* Set all images to be absolutely positioned */
+}
+
+.users .rec_1 {
+  left: 0; /* First image starts at the initial position */
+}
+
+.users .rec_2 {
+  left: 30px; /* Slightly shift the second image to overlap */
+}
+
+.users .rec_3 {
+  left: 60px; /* Further shift the third image */
+}
+
+.users .rec_4 {
+  left: 90px; /* Shift the fourth image */
+}
+
+.join {
+  margin-left: 150px; /* Adjust spacing for the join text */
+  text-align: center;
+}
+
+.join h4 {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.testmony_image img{
+  display: block;
+  width: 400px;
+}
+
+.testimonies{
+  gap: 15px;
+  display: flex;
+  position: relative;
+}
+.testimonies div{
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 20px;
+}
+.james{
+background-color: #1bd914;
+color: white;
+}
+.sarah{
+  color: white;
+  background-color: #04770e;
+  z-index: 10px;
+  margin-left: 20px;
+  object-fit: cover;
+}
+/* end testimonials css */
+
+/* footer css */
+footer{
+  background-color: #024407;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+footer h4{
+  color: #1bd914;
+}
+footer span{
+  color: #ffffff;
+}
+.social{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 80px;
+}
+footer ul li{
+  color:#ffffff ;
+}
+
+footer p{
+  color:#ffffff ;
+}
+
+/* end footer css */
+
+
+/* media screens */
+@media screen and (max-width:800px) {
+  /* intro css */
+  .intro{
+    width: 100%;
+  }
+  .intro_img{
+    width: 100%;
+  }
+  .intro_img img{
+    width: 100%;
+  }
+
+  /* about css */
+  .delivery_image{
+    width: 100%;
+  }
+  .delivery_image img{
+    width: 100%;
+  }
+.driven_image{
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* testmony css */
+.testmony{
+  width: 100%;
+  background-image: url(../images/image_4.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.testimonies{
+  display: flex;
+  flex-wrap: wrap;
+  }
+
+  .testmony_image{
+    width: 100%;
+    display: none;
+  }
+
+  .join h4{
+  z-index: 10;
+  }
+  .million_users{
+    margin-top: 5px;
+    padding: 5px;
+    border-radius: 10px;
+    background-color: #ffff;
+  }
+
+  /* footer */
+  .social{
+    width: 100%;
+    justify-content: center;
+  }
+  .links h4{
+    margin-top: 10px;
+  }
+}
+

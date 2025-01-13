@@ -1,0 +1,242 @@
+:root{
+  --primary-color: #1bd914; 
+  --background-color: #04770e; 
+}
+
+.stats{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+}
+.stats h6{
+  color: var(--primary-color);
+}
+
+.stats > div{
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+}
+.img_nums{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* period */
+.time{
+    display: flex;
+    background-color: #ffffff;
+}
+.time ul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.time ul li{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    list-style: none;
+    width: 200px;
+    flex: 1;
+    border-right: 1px solid #ccc;
+}
+
+/* General styling for the Market Insights section */
+.market-insights {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  .market-insights h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #43a047;
+    padding-bottom: 10px;
+  }
+  
+  .market-insights h5 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color:var(--primary-color);
+    margin-bottom: 10px;
+  }
+  
+  .market-insights ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .market-insights ul li {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 8px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .market-insights ul li:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* Styling for individual subsections */
+  .market-prices,
+  .buyer-listings,
+  .export-opportunities {
+    margin-bottom: 20px;
+  }
+  
+  .market-prices li {
+    border-left: 5px solid #43a047;
+    padding-left: 10px;
+  }
+  
+  .buyer-listings li {
+    border-left: 5px solid #1e88e5;
+    padding-left: 10px;
+  }
+  
+  .export-opportunities li {
+    border-left: 5px solid #d32f2f;
+    padding-left: 10px;
+  }
+
+  /* uploaded crops */
+  .recent_text{
+    display: flex;
+    border-bottom: 1px solid #ddd;
+  }
+  .recent_crops{
+    border: 1px solid #ccc;
+    border-radius: 10px;
+  }
+  .recent_crops .crop{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+  .crop_name{
+    color: var(--primary-color);
+  }
+  .recent_text h4{
+   color: var(--primary-color);
+  }
+  .show_all{
+    background-color: var(--background-color);
+    border-radius: 10px;
+    display: flex;
+    width: 150px;
+    cursor: pointer;
+    gap: 10px;
+  }
+
+  /* recent orders */
+  .recent_orders{
+    border: 1px solid #ccc;
+    border-radius: 10px;
+  }
+  .order_text{
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+  }
+  .recent_orders h4{
+    color: var(--primary-color);
+  }
+
+  /* loader css */
+  .crop_loader {
+    width: 50px;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    
+    aspect-ratio: 1;
+    display: grid;
+    border-radius: 50%;
+    background:
+      linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+      linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+    background-repeat: no-repeat;
+    animation: l23 1s infinite steps(12);
+  }
+  .crop_loader::before,
+  .crop_loader::after {
+     content: "";
+     grid-area: 1/1;
+     border-radius: 50%;
+     background: inherit;
+     opacity: 0.915;
+     transform: rotate(30deg);
+  }
+  .crop_loader::after {
+     opacity: 0.83;
+     transform: rotate(60deg);
+  }
+  @keyframes l23 {
+    100% {transform: rotate(1turn)}
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .market-insights h3 {
+      font-size: 1.6rem;
+    }
+  
+    .market-insights h5 {
+      font-size: 1.2rem;
+    }
+  
+    .market-insights ul li {
+      font-size: 1rem;
+    }
+
+    /* loader */
+    .crop_loader {
+      width: 50px;
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      
+      aspect-ratio: 1;
+      display: grid;
+      border-radius: 50%;
+      background:
+        linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+        linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+      background-repeat: no-repeat;
+      animation: l23 1s infinite steps(12);
+    }
+  }
+
+  /* media screens */
+  @media screen and (max-width:768px) {
+    .recent_crops{
+      width: 100%;
+    }
+    .crop{
+      width: 100%;
+    }
+    .crop_card{
+      margin-left: 23px;
+    }
+  }
+  

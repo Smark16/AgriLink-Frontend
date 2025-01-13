@@ -1,0 +1,136 @@
+:root {
+    --primary-color: #1bd914;
+    --background-color: #04770e;
+}
+
+/* Sidebar container */
+.sidebar-container {
+    position: fixed;
+    left: 0;
+    top: 65px;
+    height: calc(100vh - 70px); /* Adjusted for navbar height */
+    width: 250px;
+    background-color: #f4f4f4;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    transform: translateX(-250px); /* Start closed */
+}
+
+/* When sidebar is open */
+.sidebar-container.open {
+    transform: translateX(0);
+}
+
+/* Sidebar content area */
+.sidebar-content {
+    overflow-y: auto;
+    height: calc(100% - 50px); /* Adjust for button height */
+}
+
+/* .sidebar-container.closed + .content {
+    margin-left: 70px;
+} */
+
+/* Close Button */
+.btns {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 10px;
+    background-color: var(--background-color);
+    color: white;
+    border-bottom: 2px solid var(--primary-color);
+    cursor: pointer;
+    z-index: 1001;
+    position: sticky;
+    top: 0;
+}
+
+.btns .bi {
+    font-size: 35px;
+}
+
+/* List Styles */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+ul li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+ul li:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar-content ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-content ::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 5px;
+}
+
+.sidebar-content ::-webkit-scrollbar-track {
+    background-color: #f4f4f4;
+}
+
+/* Sidebar Open Button */
+.open_sidebar {
+    position: fixed;
+    left: 10px;
+    top: 30%;
+    font-size: 30px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 10px;
+    z-index: 1001;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.open_sidebar i {
+    color: var(--background-color);
+}
+
+/* Overlay for mobile */
+body.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 999; /* Below sidebar but above content */
+    display: block; /* Ensures the overlay is visible */
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar-container {
+        left: 0;
+    }
+    .open_sidebar {
+        left: 10px;
+    }
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+    .sidebar-container.closed + .content {
+        margin-left: 0px;
+    }
+}
+
+.links {
+    text-decoration: none;
+}

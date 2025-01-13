@@ -1,0 +1,89 @@
+:root{
+    --primary-color: #1bd914; 
+    --background-color: #04770e; 
+}
+/* .donut{
+    border:2px solid red
+} */
+ .sale_desc{
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 5px;
+ }
+ .sale_desc p{
+    color: var(--primary-color);
+ }
+ .sale_desc span{
+    font-weight: bolder;
+    font-size: 30px;
+ }
+ .overall_desc{
+    font-weight: bolder;
+    font-size: 20px;
+    color: var(--background-color);
+ }
+.crop_perfomance_metrics h5{
+  font-weight: bolder;
+   font-size: 30px;
+}
+
+ /* perfomance metrics */
+ .market_insight_header{
+   background-color: var(--primary-color);
+ }
+ .market_trend_header{
+  font-weight: bolder;
+  font-size: 30px;
+ }
+ .crop_perfomance_metrics{
+   display: flex;
+   width: 100%;
+   align-items: center;
+   gap: 20px;
+ }
+ .crop_perfomance_metrics > div{
+   background: #fff;
+   padding: 20px;
+   display: flex;
+   align-items: center;
+   flex-direction: column;
+   border-radius: 10px;
+   box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.2);
+ }
+
+ /* interaction logs */
+ .interaction_logs{
+   display: flex;
+   width: 100%;
+   align-items: center;
+   gap: 20px;
+ }
+ .interaction_logs > div{
+   background: #fff;
+   padding: 20px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 10px;
+   justify-content: center;
+   border-radius: 10px;
+   box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.2);
+ }
+
+ .interaction_logs > div h5{
+   font-weight: bolder;
+   font-size: 30px;
+ }
+
+
+ /* market trend */
+ .price{
+   width: 100%;
+ }
+ .average_price{
+   border-right: 1px solid #ccc;
+ }
+ .price > div h4{
+   border-bottom: 1px solid var(--background-color);
+ }

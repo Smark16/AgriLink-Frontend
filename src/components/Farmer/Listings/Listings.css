@@ -1,0 +1,219 @@
+:root{
+    --primary-color: #1bd914; 
+    --background-color: #04770e; 
+}
+
+/* card css */
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+  }
+  
+  .cards .MuiCard-root {
+    flex: 1 1 calc(33.33% - 10px); 
+    max-width: calc(33.33% - 10px); 
+    box-sizing: border-box; 
+  }
+
+  .farmer_crop_desc {
+    word-break: break-word;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    -webkit-line-clamp: 2; 
+    display: -webkit-box; 
+    -webkit-box-orient: vertical; 
+  }
+.no_crops{
+  border: 1px solid var(--primary-color);
+  border-radius: 20px;
+  padding: 10px;
+}
+  @media (max-width: 768px) {
+    .cards .MuiCard-root {
+      flex: 1 1 calc(50% - 10px); /* 2 cards per row on smaller screens */
+      max-width: calc(50% - 10px); 
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .cards .MuiCard-root {
+      flex: 1 1 100%; /* 1 card per row on very small screens */
+      max-width: 100%;
+    }
+  }
+  /* end card css */
+
+  /* upload image css */
+  .image_to_upload{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    border: 2px dotted #ccc;
+  }
+.image_bordering{
+  border-bottom: 2px solid var(--background-color);
+  padding: 10px;
+}
+.image-upload-container{
+  border: 1px dotted #000;
+  border-radius: 5px;
+}
+.uploaded_image{
+  width: 100%;
+}
+.crop_upload button{
+    background-color: var(--background-color);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.weights ul{
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+.weights ul li{
+  display: flex;
+  align-items: center;
+  border: none;
+}
+.weights ul li:hover{
+background-color: transparent;
+color: black;
+}
+/* end upload css */
+
+/* detail css */
+.detail_wrapper{
+  background-color: #ffffff;
+}
+.details{
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+.crop_image img{
+    max-width: 345px;
+}
+.summary_ul li{
+display: flex;
+align-items: center;
+gap: 20px;
+}
+.strs{
+    display: flex;
+    align-items: center;
+}
+.strs i{
+    color: orange;
+}
+.detail_btns{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.detail_btns .back{
+    border: 2px solid var(--primary-color);
+    padding: 10px;
+    border-radius: 10px;
+}
+.detail_btns .edit{
+    background-color: var(--background-color);
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    border: none;
+    outline: none;
+}
+.detail_btns .delete{
+    background-color: red;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    border: none;
+    outline: none;
+}
+/* pagination */
+.pagination{
+    display: flex;
+    justify-content: center;
+}
+.pagination li:hover{
+ background-color: transparent;
+}
+
+/* loader css */
+  .loader {
+    width: 100px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    
+    aspect-ratio: 1;
+    display: grid;
+    border-radius: 50%;
+    background:
+      linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+      linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+    background-repeat: no-repeat;
+    animation: l23 1s infinite steps(12);
+  }
+  .loader::before,
+  .loader::after {
+     content: "";
+     grid-area: 1/1;
+     border-radius: 50%;
+     background: inherit;
+     opacity: 0.915;
+     transform: rotate(30deg);
+  }
+  .loader::after {
+     opacity: 0.83;
+     transform: rotate(60deg);
+  }
+  @keyframes l23 {
+    100% {transform: rotate(1turn)}
+  }
+
+  /* edit css */
+  .upload_label{
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  @media screen and (max-width:768px) {
+    .crop_image img{
+      width: 100%;
+  }
+  .edit_weight ul{
+   width: 100%;
+   display: flex;
+   width: 100%;
+   gap: 0px
+  }
+
+  .loader {
+    width: 100px;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    
+    aspect-ratio: 1;
+    display: grid;
+    border-radius: 50%;
+    background:
+      linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+      linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+    background-repeat: no-repeat;
+    animation: l23 1s infinite steps(12);
+  }
+  }

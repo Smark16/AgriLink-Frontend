@@ -1,0 +1,49 @@
+/* farmer sidebar css */
+.window {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    position: relative;
+    margin-top: 80px;
+}
+
+
+/* Content area styles */
+.content {
+    width: 900px;
+    margin-left: 400px;
+    padding: 20px;
+    margin-top: -30px;
+    transition: margin-left 0.3s ease;
+}
+
+
+.window .content {
+    height: 100%;
+}
+
+@media screen and (max-width:768px) {
+    .content {
+        flex: 1;
+        margin-left: 300px;
+        padding: 20px;
+        margin-top: -30px;
+        transition: margin-left 0.3s ease;
+    }
+}
+
+/* iPad pro in portrait */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: portrait) {
+    .content {
+        width: 800px;
+        margin-left: 200px;
+        padding: 20px;
+        margin-top: -30px;
+        transition: margin-left 0.3s ease;
+    }
+}
+
+

@@ -1,0 +1,124 @@
+:root {
+    --primary-color: #1bd914;
+    --background-color: #04770e;
+}
+
+.actions{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* dropdown */
+a.button {
+    /* Frame */
+    display: inline-block;
+    padding: 20px 28px;
+    border-radius: 50px;
+    box-sizing: border-box;
+    
+    /* Style */
+    border: none;
+    background: var(--button-background);
+    color: var(--button-color);
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  a.button:active {
+    filter: brightness(75%);
+  }
+  
+  /* Dropdown styles */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  .dropdown-content p{
+    cursor: pointer;
+    padding: 5px;
+  }
+  .dropdown-content p:hover{
+    background-color: var(--primary-color);
+  }
+  /* end dropdown css */
+
+  .actions .bi{
+    cursor: pointer;
+  }
+  .status_change{
+    cursor: pointer;
+  }
+  .cust_orders .table th{
+   font-size: 15px;
+   background-color: #F4F4F9;
+  }
+  .loading-container{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  /* loader */
+  .order_loader {
+    width: 48px;
+    height: 48px;
+    border: 5px dotted black;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+    animation: rotation 2s linear infinite;
+  }
+  .card button{
+    font-size: 15px;
+  }
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } 
+
+  .crop_container{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+.moreDetail{
+  display: flex;
+  justify-content: space-between;
+  height: 100px;
+  flex-direction: column;
+}
+.crop_info h6{
+  font-size: 10px;
+  color: #92929e;
+}
+  .modalImg{
+    width: 100px;
+    height: 100px;
+  }
+  .crop_detail{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
