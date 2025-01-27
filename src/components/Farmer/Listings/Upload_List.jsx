@@ -5,21 +5,27 @@ import { AuthContext } from '../../Context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
-const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_categories';
+const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
 const post_crops_url = 'http://127.0.0.1:8000/agriLink/post_crops';
 
 function Upload_List() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
   const [crop, setCrop] = useState({
     user: user.user_id,
-    category: '',
+    specialisation: '',
     crop_name: '',
+    unit: '',
     description: '',
-    weight: [],
-    price_per_kg: 0,
-    availability: 0,
+    weight: [
+      { weight: '5kg', quantity: 0, available: 0 },
+      { weight: '10kg', quantity: 0, available: 0 },
+      { weight: '50kg', quantity: 0, available: 0 },
+      { weight: '100kg', quantity: 0, available: 0 }
+    ],
+    price_per_unit: 0,
+    InitialAvailability: 0,
     image: ''
   });
   const [imageUploaded, setImageUploaded] = useState('');
@@ -77,18 +83,16 @@ function Upload_List() {
     e.preventDefault();
     setLoading(true);
   
-    // Create FormData object to send data with the image
     const formData = new FormData();
     formData.append('user', crop.user);
-    formData.append('category', crop.category);
+    formData.append('specialisation', crop.specialisation);
     formData.append('crop_name', crop.crop_name);
+    formData.append('unit', crop.unit);
     formData.append('description', crop.description);
-    formData.append('price_per_kg', crop.price_per_kg);
-    formData.append('availability', crop.availability);
+    formData.append('price_per_unit', crop.price_per_unit);
+    formData.append('InitialAvailability', crop.InitialAvailability);
     formData.append('image', crop.image);
-    
-   // Append the entire weight array as a JSON string
-  formData.append('weight', JSON.stringify(crop.weight));
+    formData.append('weight', JSON.stringify(crop.weight.filter(w => w.available > 0)));
 
     try {
       const response = await axios.post(post_crops_url, formData, {
@@ -97,16 +101,15 @@ function Upload_List() {
         }
       });
       setLoading(false);
-      showSuccessAlert('crop uploaded sucessfully')
-      navigate('/farmer/listings')
+      showSuccessAlert('Crop uploaded successfully');
+      navigate('/farmer/listings');
     } catch (err) {
       setLoading(false);
-      showErrorAlert ('An error occurred while uploading the crop. Please try again.')
-      // console.log('Error uploading crop:', err);
+      showErrorAlert('An error occurred while uploading the crop. Please try again.');
     }
   };
-  
-  // show error alerts
+
+  // Show error alerts
   const showErrorAlert = (message) => {
     Swal.fire({
       title: message,
@@ -118,8 +121,8 @@ function Upload_List() {
     });
   };
 
-  // show success alert
-  const showSuccessAlert = (message) =>{
+  // Show success alert
+  const showSuccessAlert = (message) => {
     Swal.fire({
       title: message,
       icon: "success",
@@ -130,13 +133,21 @@ function Upload_List() {
     });
   }
 
+  const updateWeight = (weightString, available) => {
+    setCrop(prevState => ({
+      ...prevState,
+      weight: prevState.weight.map(w => 
+        w.weight === weightString ? { ...w, available: Number(available), quantity: 0 } : w
+      )
+    }));
+  };
+
   return (
     <>
       <h4>UPLOAD CROP</h4>
       <div className="crop_upload bg-white p-2">
         <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
           <div className="image_bordering">
-            {/* Hidden file input */}
             <input
               type="file"
               accept="image/*"
@@ -144,12 +155,11 @@ function Upload_List() {
               hidden
               onChange={handleImageChange}
             />
-            {/* Drop zone */}
             <div
               className="image-upload-container p-3 text-center"
-              onDragOver={handleDragOver} // Allow the drop
-              onDragLeave={handleDragLeave} // Revert styling when drag leaves the area
-              onDrop={handleDrop} // Handle the drop
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
               style={{
                 border: imageUploaded || dragging ? 'none' : '2px dashed #007bff',
                 borderRadius: '5px',
@@ -163,7 +173,7 @@ function Upload_List() {
             >
               {imageUploaded ? (
                 <img
-                  src={URL.createObjectURL(imageUploaded)} // Dynamically set the image source
+                  src={URL.createObjectURL(imageUploaded)}
                   alt="Uploaded"
                   className="uploaded_image"
                 />
@@ -186,7 +196,7 @@ function Upload_List() {
           </div>
 
           <div className="col-md-6">
-            <label htmlFor="cropName" className="form-label">Crop Name</label>
+            <label htmlFor="cropName" className="form-label">Product Name</label>
             <input
               type="text"
               className="form-control"
@@ -196,12 +206,12 @@ function Upload_List() {
             />
           </div>
           <div className="col-md-6">
-            <label htmlFor="category" className="form-label">Crop Category</label>
+            <label htmlFor="specialisation" className="form-label">Product Category</label>
             <select
               className="form-control"
-              id="category"
-              value={crop.category}
-              onChange={(e) => setCrop({ ...crop, category: parseInt(e.target.value) })}
+              id="specialisation"
+              value={crop.specialisation}
+              onChange={(e) => setCrop({ ...crop, specialisation: parseInt(e.target.value) })}
             >
               <option value="">Choose Crop Category</option>
               {categories.map((category) => (
@@ -211,14 +221,33 @@ function Upload_List() {
               ))}
             </select>
           </div>
+
           <div className="col-md-6">
-            <label htmlFor="pricePerKg" className="form-label">Price per kg</label>
+            <label htmlFor="unit" className="form-label">Product Unit</label>
+            <select
+              className="form-control"
+              id="unit"
+              value={crop.unit}
+              onChange={(e) => setCrop({ ...crop, unit: e.target.value })}
+            >
+              <option value="">Choose Unit</option>
+              <option value="Tray">Tray</option>
+              <option value="Kg">Kg</option>
+              <option value="Cluster">Cluster</option>
+              <option value="Litre">Litre</option>
+              <option value="(Bag/sack)">Bags/sacks</option>
+              <option value="Whole Item">Whole Item (cow, hen)</option>
+            </select>
+          </div>
+
+          <div className="col-md-6">
+            <label htmlFor="pricePerUnit" className="form-label">Price per {crop.unit || 'unit'}</label>
             <input
               type="number"
               className="form-control"
-              id="pricePerKg"
-              value={crop.price_per_kg}
-              onChange={(e) => setCrop({ ...crop, price_per_kg: e.target.value })}
+              id="pricePerUnit"
+              value={crop.price_per_unit}
+              onChange={(e) => setCrop({ ...crop, price_per_unit: e.target.value })}
             />
           </div>
           <div className="col-md-6">
@@ -235,78 +264,56 @@ function Upload_List() {
             <input
               type="number"
               className="form-control"
-              id="availability"
-              value={crop.availability}
-              onChange={(e) => setCrop({ ...crop, availability: e.target.value })}
+              id="InitialAvailability"
+              value={crop.InitialAvailability}
+              onChange={(e) => setCrop({ ...crop,  InitialAvailability: e.target.value })}
             />
           </div>
 
-          <div className="col-md-6">
-            <label className="form-label">Enter the available weights (sizes) for your product</label>
-            <div className="weights">
-              <ul>
-                
-                <li>
-                  <input
-                    type="checkbox"
-                    id="5kg"
-                    onChange={() => {
-                      const newWeight = crop.weight.includes('5kg') ? crop.weight.filter(w => w !== '5kg') : [...crop.weight, '5kg'];
-                      setCrop({ ...crop, weight: newWeight });
-                    }}
-                  />
-                  <span>5 kg</span>
-                </li>
-                <li>
-                  <input
-                    type="checkbox"
-                    id="10kg"
-                    onChange={() => {
-                      const newWeight = crop.weight.includes('10kg') ? crop.weight.filter(w => w !== '10kg') : [...crop.weight, '10kg'];
-                      setCrop({ ...crop, weight: newWeight });
-                    }}
-                  />
-                  <span>10 kg</span>
-                </li>
-
-                <li>
-                  <input
-                    type="checkbox"
-                    id="50kg"
-                    onChange={() => {
-                      const newWeight = crop.weight.includes('50kg') ? crop.weight.filter(w => w !== '50kg') : [...crop.weight, '50kg'];
-                      setCrop({ ...crop, weight: newWeight });
-                    }}
-                  />
-                  <span>50 kg</span>
-                </li>
-
-                <li>
-                  <input
-                    type="checkbox"
-                    id="100kg"
-                    onChange={() => {
-                      const newWeight = crop.weight.includes('100kg') ? crop.weight.filter(w => w !== '100kg') : [...crop.weight, '100kg'];
-                      setCrop({ ...crop, weight: newWeight });
-                    }}
-                  />
-                  <span>100 kg</span>
-                </li>
-
-              </ul>
+          {crop.unit === 'Kg' && (
+            <div className="col-md-6">
+              <label className="form-label">Enter the available weights (bags/sacks) for your product</label>
+              <div className="weights">
+                <ul>
+                  {crop.weight.map((w, index) => (
+                    <li key={index}>
+                      <input
+                        type="checkbox"
+                        id={w.weight}
+                        checked={w.available > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            // If checked, enable input
+                            updateWeight(w.weight, 0);
+                          } else {
+                            // If unchecked, set available to 0
+                            updateWeight(w.weight, 0);
+                          }
+                        }}
+                      />
+                      <span>{w.weight}</span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        style={{width: '70px', marginLeft: '10px'}}
+                        value={w.available}
+                        onChange={(e) => updateWeight(w.weight, e.target.value)}
+                        placeholder="Available"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
+          )}
 
-          
-            <button
-              type="submit"
-              // disabled={loading || !crop.category || !crop.crop_name || !crop.description || !crop.price_per_kg || !crop.availability || !crop.image}
-            >
-              {loading ? 'Uploading...' : 'Upload Crop'}
-            </button>
-          
+          <button
+            type="submit"
+            disabled={loading || !crop.crop_name || !crop.unit || !crop.description || !crop.price_per_unit || !crop.InitialAvailability || !crop.image}
+          >
+            {loading ? 'Uploading...' : 'Upload Crop'}
+          </button>
         </form>
-       
       </div>
     </>
   );

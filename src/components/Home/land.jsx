@@ -36,9 +36,9 @@ const MacbookPro = () => {
 <div className="intro_img">
     {/* <img src={image} alt='farmer_1'></img> */}
 </div>
+
     </section>
     {/* END INTRO */}
-
 
 {/* ABOUT */}
 <section className="about mt-3 bg-white">

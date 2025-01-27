@@ -29,7 +29,9 @@
     "react-apexcharts": "^1.7.0",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^18.3.1",
+    "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^7.0.2",
+    "react-select": "^5.9.0",
     "sweetalert2": "^11.15.9"
   },
   "devDependencies": {

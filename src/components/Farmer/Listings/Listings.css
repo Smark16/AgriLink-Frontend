@@ -25,10 +25,76 @@
     -webkit-box-orient: vertical; 
   }
 .no_crops{
-  border: 1px solid var(--primary-color);
   border-radius: 20px;
   padding: 10px;
 }
+
+/* dropdown css */
+.share-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.share-button {
+  font-size: 12px; /* Assuming small size */
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.share-button:hover {
+  background-color: #e0e0e0;
+}
+
+.share-options {
+  position: absolute;
+  top: -280%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 10px 0;
+  z-index: 100000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.share-button-container:hover .share-options,
+.share-button-container:focus-within .share-options {
+  opacity: 1;
+  visibility: visible;
+}
+
+.share-options::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+}
+
+.share-option {
+  display: block;
+  padding: 5px 20px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.share-option:hover {
+  background-color: #f0f0f0;
+}
+/* end drop down */
+
   @media (max-width: 768px) {
     .cards .MuiCard-root {
       flex: 1 1 calc(50% - 10px); /* 2 cards per row on smaller screens */
@@ -141,6 +207,11 @@ gap: 20px;
     border: none;
     outline: none;
 }
+.discount_active{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 /* pagination */
 .pagination{
     display: flex;
@@ -188,6 +259,17 @@ gap: 20px;
     display: flex;
     justify-content: center;
     cursor: pointer;
+  }
+
+  .outer{
+    background-color: #ccc;
+    border-radius: 10px;
+    height: 10px;
+    width: 100%;
+  }
+  .inner{
+    height: 100%;
+    background-color: var(--primary-color);
   }
   
   @media screen and (max-width:768px) {

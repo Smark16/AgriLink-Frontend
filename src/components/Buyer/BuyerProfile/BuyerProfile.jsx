@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import profile from '../../images/rec_4.png';
 import Avatar from '@mui/material/Avatar';
 import axios from 'axios';
 import { AuthContext } from '../../Context/AuthContext';
-import '../FarmerProfile/farmerProfile.css';
+import '../../Farmer/FarmerProfile/farmerProfile.css'
 import Swal from 'sweetalert2';
 import UseAxios from '../../AxiosInstance/AxiosInstance';
 import moment from 'moment';
 import UseHook from '../../CustomHook/UseHook';
+import '../BuyerProfile/buyerpro.css'
 
-function FarmerProfile() {
+function BuyerProfile() {
   const { user } = useContext(AuthContext);
   const {previewImage, formData, setFormData, setPreviewImage, fetch_profile} = UseHook()
   const axiosInstance = UseAxios()
@@ -114,7 +114,6 @@ function FarmerProfile() {
       console.log('err', err)
     }
    
-    console.log(formdata)
   };
 
   const showSuccessAlert = (message) => {
@@ -127,6 +126,8 @@ function FarmerProfile() {
 
   return (
     <>
+    <div className="profile_wrapper">
+
       <div className="green p-3">
         <h4 className="text-center text-white">View Profile</h4>
       </div>
@@ -147,14 +148,14 @@ function FarmerProfile() {
           <>
             <div className="col-md-6">
               <label htmlFor="inputEmail4" className="form-label">
-                Farm Name
+                Full Name
               </label>
               <input
                 type="text"
                 className="form-control"
                 id="inputEmail4"
                 readOnly
-                value={formData.farmName}
+                value={userData.get_full_name}
               />
             </div>
             <div className="col-md-6">
@@ -212,14 +213,14 @@ function FarmerProfile() {
 
             <div className="col-md-6">
               <label htmlFor="inputPassword4" className="form-label">
-                Specialisations
+                Buyer
               </label>
               <input
                 type="text"
                 className="form-control"
                 id="inputPassword4"
                 readOnly
-                value={formData.specialisation.map(special => special.name).join(', ')}
+                value={userData.is_buyer}
               />
             </div>
           </>
@@ -337,8 +338,9 @@ function FarmerProfile() {
           </div>
         </div>
       )}
+    </div>
     </>
   );
 }
 
-export default FarmerProfile;
+export default BuyerProfile;

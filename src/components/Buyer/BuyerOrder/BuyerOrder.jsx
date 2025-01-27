@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import "../Orders/order.css";
+import '../../Farmer/Orders/order.css';
 import axios from "axios";
 import $ from "jquery";
 import "datatables.net";
@@ -10,8 +10,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import UseAxios from "../../AxiosInstance/AxiosInstance";
 import UseHook from "../../CustomHook/UseHook";
+import '../BuyerOrder/buyerorder.css'
+import image from '../../images/cart_image.png'
 
-function Order() {
+function BuyerOrder() {
   const axiosInstance = UseAxios();
   const {FarmerOrders, loading, setFarmerOrders} = UseHook()
  
@@ -83,7 +85,9 @@ function Order() {
   }
 
   return (
-    <div className="container-fluid pt-5">
+    <div className="order_wrapper">
+
+    <div className="order-container">
       <h4>Orders</h4>
       {loading ? (
         <div className="loading-container">
@@ -93,19 +97,19 @@ function Order() {
           <p className="text-center">Fetching orders, please wait...</p>
         </div>
       ) : FarmerOrders.length === 0 ? (
-        <div className="no-orders-container text-center">
-          <h5 className="text-muted">No orders found</h5>
-          <i className="bi bi-box2-heart text-secondary" style={{ fontSize: "2rem" }}></i>
-        </div>
+        <div className="cart_zero">
+               <img src={image} alt='no item'></img>
+               <h5>You don't have any Orders</h5>
+               <span className='text-center'>Here you will be able to see all the orders that <br></br>you carry on</span>
+              </div>
       ) : (
-        <div className="row px-xl-5">
-        <div className="cust_orders bg-white p-2 col-lg-12 table-responsive mb-5">
-          <table id="myTable" className="table table-bordered mb-0">
+        <div className="cust_orders bg-white p-2">
+          <table id="myTable" className="table table-bordered">
             <thead>
               <tr>
                 <th scope="col">ORDER ID</th>
                 <th scope="col">Buyer Name</th>
-                <th scope="col">District</th>
+                <th scope="col">Shipping Address</th>
                 <th scope="col">Payment</th>
                 <th scope="col">Contact</th>
                 <th scope="col">Status</th>
@@ -115,13 +119,13 @@ function Order() {
             </thead>
             <tbody>
               {FarmerOrders.map((order) => {
-                const { order_id, buyer_name, status, district, contact, created_at } =
+                const { order_id, buyer_name, status, shipping_address, contact, created_at } =
                   order;
                 return (
                   <tr key={order_id}>
                     <td>{order_id}</td>
                     <td>{buyer_name}</td>
-                    <td>{district}</td>
+                    <td>{shipping_address}</td>
                     <td>{order.payment?.status}</td>
                     <td>{contact}</td>
                     <td>
@@ -164,8 +168,6 @@ function Order() {
             </tbody>
           </table>
         </div>
-
-        </div>
       )}
 
 {/* show modal */}
@@ -185,7 +187,7 @@ function Order() {
   ) : (
     usermadeItems.order_detail.map((orderDetail) => {
       return orderDetail.crop.map((crop) => {
-        const { id, image, quantity, crop_name, price_per_unit, unit } = crop;
+        const { id, image, quantity, crop_name, price_per_kg } = crop;
         return (
           <div key={id} className="order-items">
             <div className="crop_container">
@@ -201,7 +203,7 @@ function Order() {
                     <h6>{usermadeItems.created_at}</h6>
                   </div>
 
-                  <span>UGX {price_per_unit} / {unit}</span>
+                  <span>UGX {price_per_kg} / kg</span>
                 </div>
               </div>
 
@@ -213,7 +215,7 @@ function Order() {
 
                 <div className="total_price">
                 <h6>Total Price</h6>
-                <span className="p-3">UGX {price_per_unit * quantity}</span>
+                <span className="p-3">UGX {price_per_kg * quantity}</span>
                 </div>
               </div>
             </div>
@@ -228,9 +230,9 @@ function Order() {
       )}
       
     </div>
+    </div>
 
-    
   );
 }
 
-export default Order;
+export default BuyerOrder;

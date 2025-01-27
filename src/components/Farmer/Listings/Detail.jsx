@@ -6,111 +6,237 @@ import Swal from 'sweetalert2';
 function Detail() {
   const navigate = useNavigate();
   const { id } = useParams();
+
   const detail_url = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`;
+  const post_discount_url = 'http://127.0.0.1:8000/agriLink/post_discount';
+  const edit_discount_url = 'http://127.0.0.1:8000/agriLink/edit_discount';
+  const all_discounts_url = 'http://127.0.0.1:8000/agriLink/all_discounts';
 
-  const [cropDetail, setCropDetail] = useState({}); // Initialize as an object
+  const [cropDetail, setCropDetail] = useState({});
+  const [discount, setDiscount] = useState({
+    description: '',
+    discount_percent: 0,
+    crop: '',
+    active: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [allDiscounts, setAllDiscounts] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [currentDiscount, setCurrentDiscount] = useState(null);
 
-  // Fetch crop detail
-  const fetch_crop_detail = async () => {
+  // Fetch crop details
+  const fetchCropDetail = async () => {
     try {
       const response = await axios.get(detail_url);
-      const data = response.data;
-      console.log(data);
-      setCropDetail(data);
+      setCropDetail(response.data);
     } catch (err) {
-      console.error('An error occurred while fetching crop details:', err);
+      console.error('Error fetching crop details:', err);
+    }
+  };
+
+  // Fetch all discounts
+  const fetchAllDiscounts = async () => {
+    try {
+      const response = await axios.get(all_discounts_url);
+      setAllDiscounts(response.data);
+    } catch (err) {
+      console.error('Error fetching discounts:', err);
     }
   };
 
   useEffect(() => {
-    fetch_crop_detail();
+    fetchCropDetail();
+    fetchAllDiscounts();
   }, []);
 
-  // Render stars based on the average rating
-  const render_stars = (average_rating) => {
+  // Update current discount based on crop ID
+  useEffect(() => {
+    const discountForCrop = allDiscounts.find((d) => d.crop === parseInt(id));
+    setCurrentDiscount(discountForCrop);
+    if (!discountForCrop) setEditMode(false); // Reset edit mode if no discount exists
+  }, [id, allDiscounts]);
+
+  // Pre-fill discount form in edit mode
+  useEffect(() => {
+    if (editMode && currentDiscount) {
+      setDiscount({
+        description: currentDiscount.description,
+        discount_percent: currentDiscount.discount_percent,
+        crop: id,
+        active: currentDiscount.active,
+      });
+    }
+  }, [editMode, currentDiscount, id]);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = {
+      description: discount.description,
+      discount_percent: parseFloat(discount.discount_percent),
+      active: discount.active,
+      crop: id,
+    };
+
+    try {
+      if (editMode && currentDiscount) {
+        await axios.put(`${edit_discount_url}/${currentDiscount.id}`, formData);
+        showSuccessAlert('Discount updated successfully');
+      } else {
+        await axios.post(post_discount_url, formData);
+        showSuccessAlert('Discount applied successfully');
+      }
+
+      fetchAllDiscounts(); // Refresh discounts
+      setEditMode(false);
+      setDiscount({ description: '', discount_percent: 0, crop: '', active: false });
+    } catch (err) {
+      console.error('Error submitting discount:', err);
+      showErrorAlert('Error applying discount. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle delete crop
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/agriLink/delete_farmer_crop/${id}`);
+      showSuccessAlert('Crop deleted successfully');
+      navigate('/farmer/listings');
+    } catch (err) {
+      console.error('Error deleting crop:', err);
+      showErrorAlert('Error deleting crop. Please try again.');
+    }
+  };
+
+  // Success alert
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      title: message,
+      icon: 'success',
+      timer: 3000,
+      toast: true,
+      position: 'top',
+      timerProgressBar: true,
+    });
+  };
+
+  // Error alert
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      title: message,
+      icon: 'error',
+      timer: 3000,
+      toast: true,
+      position: 'top',
+      timerProgressBar: true,
+    });
+  };
+
+  // Render stars
+  const renderStars = (averageRating) => {
     const stars = [];
-    const ratedStars = Math.round(average_rating || 0);
+    const ratedStars = Math.round(averageRating || 0);
 
     for (let i = 0; i < 5; i++) {
       stars.push(
-        <i
-          key={i}
-          className={`bi ${i < ratedStars ? 'bi-star-fill' : 'bi-star'}`}
-        />
+        <i key={i} className={`bi ${i < ratedStars ? 'bi-star-fill' : 'bi-star'}`} />
       );
     }
 
     return stars;
   };
 
-  // Handle crop deletion
-  const handleDelete = async (cropId) => {
-    try {
-      await axios.delete(`http://127.0.0.1:8000/agriLink/delete_farmer_crop/${cropId}`);
-      showSuccessAlert('Deleted successfully');
-      navigate('/farmer/listings');
-    } catch (err) {
-        console.log('delete err', err)
-      showErrorAlert('Deleting Error. Please try again.');
-    }
-  };
-
-  // Show error alert
-  const showErrorAlert = (message) => {
-    Swal.fire({
-      title: message,
-      icon: 'error',
-      timer: 6000,
-      toast: true,
-      position: 'top',
-      timerProgressBar: true,
-    });
-  };
-
-  // Show success alert
-  const showSuccessAlert = (message) => {
-    Swal.fire({
-      title: message,
-      icon: 'success',
-      timer: 6000,
-      toast: true,
-      position: 'top',
-      timerProgressBar: true,
-    });
-  };
-
   return (
-    <>
+    <div>
       <h4>Product Detail Page</h4>
       <div className="detail_wrapper">
         <div className="row details">
           <div className="crop_image col-md-5 sm-12">
-            <img src={cropDetail.image || '/placeholder.jpg'} alt="crop" />
+            <img src={cropDetail.image || '/placeholder.jpg'} alt="Crop" />
+
+            <div className="farmer_discount mt-3">
+              <h5 className="text-white p-2 bg-success text-center">Discount</h5>
+              {editMode ? (
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label">Discount Percentage</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={discount.discount_percent}
+                      onChange={(e) =>
+                        setDiscount({ ...discount, discount_percent: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Description</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={discount.description}
+                      onChange={(e) =>
+                        setDiscount({ ...discount, description: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Activate Discount</label>
+                    <input
+                      type="checkbox"
+                      checked={discount.active}
+                      onChange={(e) =>
+                        setDiscount({ ...discount, active: e.target.checked })
+                      }
+                    />
+                  </div>
+                  <button className="btn btn-success" type="submit">
+                    {loading ? 'Saving...' : 'Save Discount'}
+                  </button>
+                </form>
+              ) : (
+                currentDiscount ? (
+                  <div>
+                    <p>Discount: {currentDiscount.discount_percent}%</p>
+                    <p>Description: {currentDiscount.description}</p>
+                    <button className="btn btn-success" onClick={() => setEditMode(true)}>
+                      Edit Discount
+                    </button>
+                  </div>
+                ) : (
+                  <button className="btn btn-success" onClick={() => setEditMode(true)}>
+                    Add Discount
+                  </button>
+                )
+              )}
+            </div>
           </div>
 
           <div className="summary col-md-6 sm-12">
             <ul className="summary_ul">
               <li>
                 <h5>Rating ({cropDetail.get_average_rating || 0}/5):</h5>
-                <div className="strs">{render_stars(cropDetail.get_average_rating)}</div>
+                <div className="strs">{renderStars(cropDetail.get_average_rating)}</div>
               </li>
-
               <li>
                 <h5>Crop Name:</h5>
                 <span>{cropDetail.crop_name || 'N/A'}</span>
               </li>
-
               <li>
-                <h5>Price Per Kg:</h5>
-                <span>UGX {cropDetail.price_per_kg || 'N/A'}</span>
+                <h5>Price Per {cropDetail.unit}:</h5>
+                <span>UGX {cropDetail.price_per_unit || 'N/A'}</span>
               </li>
-
+              {cropDetail.weight?.length ? (
               <li>
                 <h5>Weights:</h5>
                 {cropDetail.weight?.length ? (
-                  cropDetail.weight.map((kg, index) => (
+                  cropDetail.weight?.map((kg, index) => (
                     <span key={index}>
-                      {kg}
+                      {kg.weight}
                       {index < cropDetail.weight.length - 1 ? ', ' : ''}
                     </span>
                   ))
@@ -118,17 +244,25 @@ function Detail() {
                   <span>N/A</span>
                 )}
               </li>
-
-              <li>
-                <h5>Location:</h5>
-                <span>{cropDetail.location || 'Jinja'}</span>
-              </li>
+              ) : ''}
 
               <li>
                 <h5>Quantity Availability:</h5>
-                <span>{cropDetail.availability || 'N/A'} (bags/sacks)</span>
-              </li>
+                <span>
+  {cropDetail.availability === 0 ? cropDetail.InitialAvailability - cropDetail.availability : cropDetail.availability || 'N/A'} 
+  ({cropDetail.weight?.length 
+    ? 'bags/sacks' 
+    : `${cropDetail.unit}${cropDetail.InitialAvailability > 1 ? 's' : ''}`})
+</span>
+<div className="outer">
+  <div 
+    className="inner" 
+    style={{ width: `${cropDetail.InitialAvailability > 0 ? Math.floor(((cropDetail.availability === 0 ? cropDetail.InitialAvailability - cropDetail.availability : cropDetail.availability) / cropDetail.InitialAvailability) * 100) : 0}%` }}
+  >
 
+  </div>
+</div>
+              </li>
               <li>
                 <h5>Description:</h5>
                 <span>{cropDetail.description || 'No description available'}</span>
@@ -148,12 +282,12 @@ function Detail() {
               Edit <i className="bi bi-pen"></i>
             </Link>
           </button>
-          <button className="delete" onClick={() => handleDelete(cropDetail.id)}>
+          <button className="delete" onClick={handleDelete}>
             Delete <i className="bi bi-archive"></i>
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

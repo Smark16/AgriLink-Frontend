@@ -5,12 +5,13 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Chart from "react-apexcharts";
 import axios from "axios";
-import "./Dashboard.css";
+import '../../Farmer/Dashboard/Dashboard.css'
 import UseHook from "../../CustomHook/UseHook";
-import { AuthContext} from "../../Context/AuthContext";
+import { AuthContext } from "../../Context/AuthContext";
 import { Link } from "react-router-dom";
+import '../BuyerDasboard/buyerdash.css'
 
-function Dashboard() {
+function BuyerDashboard() {
   const {loader, filteredCrops, FarmerOrders, loading} = UseHook()
   const {user} = useContext(AuthContext)
   const encodedUserId = encodeURIComponent(user.user_id);
@@ -92,6 +93,8 @@ useEffect(()=>{
 
   return (
     <>
+
+<div className="row dashboard_wrapper">
       <h4 className='user_dashboard p-2'>Dashboard</h4>
 
       {/* Dashboard Stats */}
@@ -109,7 +112,7 @@ useEffect(()=>{
             <i className="bi bi-tree-fill text-success"></i>
             <span><strong>{filteredCrops.length}</strong></span>
           </div>
-          <h6>Total Crops</h6>
+          <h6>Total Spent</h6>
         </div>
 
         <div className="stat_sales col-md-3 sm-12">
@@ -117,7 +120,7 @@ useEffect(()=>{
             <i className="bi bi-currency-exchange text-success"></i>
             <span><strong>12,000/=</strong></span>
           </div>
-          <h6>Total Sales</h6>
+          <h6>Total Purchases</h6>
         </div>
       </div>
 
@@ -221,13 +224,13 @@ useEffect(()=>{
           <i className="bi bi-box2-heart text-secondary" style={{ fontSize: "2rem" }}></i>
         </div>
       ) : (
-        <div className="cust_orders bg-white table-responsive mb-5 p-2">
+        <div className="cust_orders bg-white p-2">
           <table id="myTable" className="table table-bordered">
             <thead>
               <tr>
                 <th scope="col">ORDER ID</th>
                 <th scope="col">Buyer Name</th>
-                <th scope="col">District</th>
+                <th scope="col">Shipping Address</th>
                 <th scope="col">Payment</th>
                 <th scope="col">Contact</th>
                 <th scope="col">Status</th>
@@ -236,13 +239,13 @@ useEffect(()=>{
             </thead>
             <tbody>
               {FarmerOrders.slice(0,5).map((order) => {
-                const { order_id, buyer_name, status, district, contact, created_at } =
+                const { order_id, buyer_name, status, shipping_address, contact, created_at } =
                   order;
                 return (
                   <tr key={order_id}>
                     <td>{order_id}</td>
                     <td>{buyer_name}</td>
-                    <td>{district}</td>
+                    <td>{shipping_address}</td>
                     <td>{order.payment?.status}</td>
                     <td>{contact}</td>
                     <td>
@@ -304,8 +307,9 @@ useEffect(()=>{
           </>)}
         </div>
       </div>
+</div>
     </>
   );
 }
 
-export default Dashboard;
+export default BuyerDashboard;

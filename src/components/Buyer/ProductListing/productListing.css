@@ -1,0 +1,83 @@
+:root{
+    --primary-color: #1bd914; 
+    --background-color: #04770e; 
+}
+
+.buyer_product_listing{
+    margin-left: 12%;
+}
+.img-fluid{
+height: 175px;
+}
+.muted_price{
+    display: flex;
+    gap: 5px;
+}
+.truncate-name{
+    font-weight: bolder;
+    font-size: 25px;
+    color: var(--background-color);
+}
+.farmer_product_rating{
+    margin-top: -15px;
+}
+.farmer_product_rating i{
+    color: orange;
+}
+.head_rating{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.add_cart{
+    display: flex;
+    gap: 3px;
+    background-color: var(--primary-color);
+}
+.add_cart i{
+    color: #ffffff;
+}
+.add_cart span{
+    font-weight: bolder;
+    color: #ffffff;
+}
+.add_cart span:hover{
+    color: black;
+}
+.add_cart:hover{
+    border: 2px solid var(--background-color);
+}
+.view_cart{
+    display: flex;
+    gap: 3px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+}
+.view_cart span{
+  color: var(--background-color);
+}
+.sorting_anchor{
+    cursor: pointer;
+}
+
+.animated-bounce {
+    display: inline-block;
+    animation: bounce 1s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0); /* Starting and ending at the same position */
+    }
+    50% {
+      transform: translateY(-10px); /* Move up slightly */
+    }
+  }
+
+  
+@media screen and (max-width:768px) {
+    .buyer_product_listing{
+        margin-left: 15px;
+        width:100%;
+    }
+}

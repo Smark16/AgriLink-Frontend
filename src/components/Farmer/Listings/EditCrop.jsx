@@ -6,26 +6,31 @@ import { AuthContext } from '../../Context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
-const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_categories';
+const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
 
 function EditCrop() {
-  const {id} = useParams()
-  const edit_crops_url = `http://127.0.0.1:8000/agriLink/update_farmer_crop/${id}`
-  const detail_url = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const edit_crops_url = `http://127.0.0.1:8000/agriLink/update_farmer_crop/${id}`;
+  const detail_url = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`;
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
   const [crop, setCrop] = useState({
     user: user.user_id,
-    category: '',
+    specialisation: '',
     crop_name: '',
+    unit: '',
     description: '',
-    weight: [],
-    price_per_kg: 0,
-    availability: 0,
-    image:null
+    weight: [
+      { weight: '5kg', quantity: 0, available: 0 },
+      { weight: '10kg', quantity: 0, available: 0 },
+      { weight: '50kg', quantity: 0, available: 0 },
+      { weight: '100kg', quantity: 0, available: 0 }
+    ],
+    price_per_unit: 0,
+    InitialAvailability: 0,
+    image: ''
   });
-  
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -40,84 +45,95 @@ function EditCrop() {
     }
   };
 
-   // fecth detail
-   const fetch_crop_detail = async()=>{
-    try{
-    const response = await axios.get(detail_url)
-    const data = response.data
-    setPreviewImage(data.image);
-    console.log(data)
-    setCrop(data)
-    }catch(err){
-        console.log('an error occured')
+  // Fetch crop detail
+  const fetch_crop_detail = async () => {
+    try {
+      const response = await axios.get(detail_url);
+      const data = response.data;
+      setPreviewImage(data.image);
+      // Adjusting data to match our state structure
+      setCrop({
+        ...data,
+        weight: data.weight.map(w => ({ ...w, quantity: 0 })) || crop.weight // If weight is not provided, use default
+      });
+    } catch (err) {
+      console.log('An error occurred while fetching crop details.', err);
     }
-}
-useEffect(() => {
-    fetch_categories();
-    fetch_crop_detail()
-}, []);
+  };
 
-// Handle file selection via drag-and-drop or browse
+  useEffect(() => {
+    fetch_categories();
+    fetch_crop_detail();
+  }, []);
+
+  // Handle file selection
   const handleImageChange = (e) => {
-      const selectedImage = e.target.files[0] 
-      if (selectedImage) {
-        setCrop({ ...crop, image: selectedImage }); // Update image as a file
-        setPreviewImage(URL.createObjectURL(selectedImage)); // Update the preview URL
-      }
-    };
-    
-    // Handle form submit
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-  
-        // Create FormData object to send data with the image
+    const selectedImage = e.target.files[0];
+    if (selectedImage) {
+      setCrop({ ...crop, image: selectedImage });
+      setPreviewImage(URL.createObjectURL(selectedImage));
+    }
+  };
+
+  // Handle weight updates
+  const updateWeight = (weightString, available) => {
+    setCrop(prevState => ({
+      ...prevState,
+      weight: prevState.weight.map(w => 
+        w.weight === weightString ? { ...w, available: Number(available), quantity: 0 } : w
+      )
+    }));
+  };
+
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
     const formData = new FormData();
     formData.append('user', crop.user);
-    formData.append('category', crop.category);
+    formData.append('specialisation', crop.specialisation);
     formData.append('crop_name', crop.crop_name);
+    formData.append('unit', crop.unit);
     formData.append('description', crop.description);
-    formData.append('price_per_kg', crop.price_per_kg);
-    formData.append('availability', crop.availability);
-    
-    // Append the entire weight array as a JSON string
-    formData.append('weight', JSON.stringify(crop.weight));
+    formData.append('price_per_unit', crop.price_per_unit);
+    formData.append('InitialAvailability', crop.InitialAvailability);
+    formData.append('weight', JSON.stringify(crop.weight.filter(w => w.available > 0)));
 
     if (crop.image instanceof File) {
-        formData.append('image', crop.image);
+      formData.append('image', crop.image);
     } else if (typeof crop.image === 'string') {
-        try {
-            // Download the image from the URL
-            const imageResponse = await axios.get(crop.image, { responseType: 'blob' });
-            const imageBlob = new Blob([imageResponse.data], { type: imageResponse.headers['content-type'] });
-            const imageFile = new File([imageBlob], 'image.png');
-            formData.append('image', imageFile);
-        } catch (err) {
-            setLoading(false);
-            console.log(err);
-            showErrorAlert('An error occurred while processing the image.');
-            return;
-        }
+      try {
+        // Download the image from the URL if it's not updated
+        const imageResponse = await axios.get(crop.image, { responseType: 'blob' });
+        const imageBlob = new Blob([imageResponse.data], { type: imageResponse.headers['content-type'] });
+        const imageFile = new File([imageBlob], 'image.png');
+        formData.append('image', imageFile);
+      } catch (err) {
+        setLoading(false);
+        console.error(err);
+        showErrorAlert('An error occurred while processing the image.');
+        return;
+      }
     }
-    
+
     try {
-        await axios.put(edit_crops_url, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        setLoading(false);
-        showSuccessAlert('Crop updated successfully');
-        navigate(`/farmer/detail/${id}`);
+      await axios.put(edit_crops_url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setLoading(false);
+      showSuccessAlert('Crop updated successfully');
+      navigate(`/farmer/detail/${id}`);
     } catch (err) {
-        setLoading(false);
-        console.log(err);
-        showErrorAlert('An error occurred while updating the crop. Please try again.');
+      setLoading(false);
+      console.error(err);
+      showErrorAlert('An error occurred while updating the crop. Please try again.');
     }
-};
+  };
 
-
-  // show error alerts
+  // Show error alerts
   const showErrorAlert = (message) => {
     Swal.fire({
       title: message,
@@ -129,8 +145,8 @@ useEffect(() => {
     });
   };
 
-  // show success alert
-  const showSuccessAlert = (message) =>{
+  // Show success alert
+  const showSuccessAlert = (message) => {
     Swal.fire({
       title: message,
       icon: "success",
@@ -148,22 +164,21 @@ useEffect(() => {
         <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
           <div className="image_bordering">
             <label htmlFor='image' className='text-primary text-decoration-underline upload_label form-label'>Choose Image to Upload</label>
-            {/* Hidden file input */}
             <input
               type="file"
               accept="image/*"
               id="image"
               className="form-control"
-              hidden='true'
+              hidden
               onChange={handleImageChange}
             />
             
             <div className="image-upload-container p-3 text-center">
-            <img
-              src={previewImage || ''}
-              alt="Preview"
-              className="uploaded_image"
-            />
+              <img
+                src={previewImage || ''}
+                alt="Preview"
+                className="uploaded_image"
+              />
             </div>
           </div>
 
@@ -182,8 +197,8 @@ useEffect(() => {
             <select
               className="form-control"
               id="category"
-              value={crop.category}
-              onChange={(e) => setCrop({ ...crop, category: parseInt(e.target.value) })}
+              value={crop.specialisation}
+              onChange={(e) => setCrop({ ...crop, specialisation: parseInt(e.target.value) })}
             >
               <option value="">Choose Crop Category</option>
               {categories.map((category) => (
@@ -194,13 +209,30 @@ useEffect(() => {
             </select>
           </div>
           <div className="col-md-6">
-            <label htmlFor="pricePerKg" className="form-label">Price per kg</label>
+            <label htmlFor="unit" className="form-label">Product Unit</label>
+            <select
+              className="form-control"
+              id="unit"
+              value={crop.unit}
+              onChange={(e) => setCrop({ ...crop, unit: e.target.value })}
+            >
+              <option value="">Choose Unit</option>
+              <option value="Tray">Tray</option>
+              <option value="Kg">Kg</option>
+              <option value="Cluster">Cluster</option>
+              <option value="Litre">Litre</option>
+              <option value="(Bag/sack)">Bags/sacks</option>
+              <option value="Whole Item">Whole Item (cow, hen)</option>
+            </select>
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="pricePerUnit" className="form-label">Price per {crop.unit || 'unit'}</label>
             <input
               type="number"
               className="form-control"
-              id="pricePerKg"
-              value={crop.price_per_kg}
-              onChange={(e) => setCrop({ ...crop, price_per_kg: e.target.value })}
+              id="pricePerUnit"
+              value={crop.price_per_unit}
+              onChange={(e) => setCrop({ ...crop, price_per_unit: e.target.value })}
             />
           </div>
           <div className="col-md-6">
@@ -217,45 +249,55 @@ useEffect(() => {
             <input
               type="number"
               className="form-control"
-              id="availability"
-              value={crop.availability}
-              onChange={(e) => setCrop({ ...crop, availability: e.target.value })}
+              id="InitialAvailability"
+              value={crop.InitialAvailability}
+              onChange={(e) => setCrop({ ...crop, InitialAvailability: e.target.value })}
             />
           </div>
 
-          <div className="col-md-6 sm-12">
-            <label className="form-label">Enter the available weights (sizes) for your product</label>
-            <div className="weights edit_weight">
-<ul>
-  {['5kg', '10kg', '50kg', '100kg'].map((weight) => (
-    <li key={weight}>
-      <input
-        type="checkbox"
-        id={weight}
-        checked={crop.weight.includes(weight)} // Ensure state reflects the selected values
-        onChange={() => {
-          const newWeight = crop.weight.includes(weight)
-            ? crop.weight.filter((w) => w !== weight)
-            : [...crop.weight, weight];
-          setCrop({ ...crop, weight: newWeight });
-        }}
-      />
-      <span>{weight}</span>
-    </li>
-  ))}
-</ul>
+          {crop.unit === 'Kg' && (
+            <div className="col-md-6">
+              <label className="form-label">Enter the available weights (bags/sacks) for your product</label>
+              <div className="weights edit_weight">
+                <ul>
+                  {crop.weight.map((w, index) => (
+                    <li key={index}>
+                      <input
+                        type="checkbox"
+                        id={w.weight}
+                        checked={w.available > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            updateWeight(w.weight, 0); // Enable input
+                          } else {
+                            updateWeight(w.weight, 0); // Disable input, set to 0
+                          }
+                        }}
+                      />
+                      <span>{w.weight}</span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        style={{width: '70px', marginLeft: '10px'}}
+                        value={w.available}
+                        onChange={(e) => updateWeight(w.weight, e.target.value)}
+                        disabled={w.available === 0}
+                        placeholder="Available"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
+          )}
 
-          
-            <button
-              type="submit"
-            >
-              {loading ? 'Updating...' : 'Update Crop'}
-            </button>
-          
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Updating...' : 'Update Crop'}
+          </button>
         </form>
-       
       </div>
     </>
   );

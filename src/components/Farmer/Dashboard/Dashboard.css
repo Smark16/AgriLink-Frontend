@@ -2,6 +2,9 @@
   --primary-color: #1bd914; 
   --background-color: #04770e; 
 }
+.user_dashboard{
+  border-bottom:1px solid #ccc;
+}
 
 .stats{
     display: flex;

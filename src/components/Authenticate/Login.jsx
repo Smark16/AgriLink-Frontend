@@ -20,6 +20,8 @@ function Login() {
   const [link, setLink] = useState({ email: "" });
   const [status, setStatus] = useState(false)
   const [showModal, setShowModal] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e)=>{
@@ -42,8 +44,8 @@ function Login() {
           setLoader(false);
           setAuthTokens(data);
           setUser(jwtDecode(data.access));
-          showSuccessAlert("Login successful");
           localStorage.setItem('authtokens', JSON.stringify(data));
+          showSuccessAlert("Login successful");
         } else {
           showErrorAlert("Please provide correct username/password");
         }
@@ -104,18 +106,50 @@ function Login() {
   };
 
   useEffect(() => {
+    console.log("Auth tokens:", authTokens);
+  
     if (authTokens) {
       const decodedUser = jwtDecode(authTokens.access);
+      console.log("Decoded user:", decodedUser);
+  
       setUser(decodedUser);
-       {user.is_farmer && navigate("/farmer/listings")}
-      {user.is_buyer &&  navigate("/buyer/all_farmers");}
+  
+      axios.get(`http://127.0.0.1:8000/agriLink/single_profile/${decodedUser.user_id}`)
+        .then((response) => {
+          console.log("Fetched user profile:", response.data);
+          setUserProfile(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile:", error);
+        });
     }
   }, [authTokens]);
+  
+  useEffect(() => {
+    console.log("User profile updated:", userProfile);
+  
+    if (userProfile) {
+      if (userProfile.is_farmer) {
+        if (!userProfile.location || userProfile.location.trim() === "") {
+          console.log("Redirecting to farmer additional info");
+          navigate("/farmer/farmer_additional_info");
+        } else {
+          console.log("Redirecting to farmer listings");
+          navigate("/farmer/listings");
+        }
+      } else if (userProfile.is_buyer) {
+        console.log("Redirecting to buyer page");
+        navigate("/buyer/all_farmers");
+      }
+    }
+  }, [userProfile, navigate]);
+  
+
   return (
     <>
     <div className="login">
     {noActive && <p className='alert alert-warning'>{noActive}</p>}
-        <h6 className='text-center text-success'>Login</h6>
+        <h6 className='text-center bg-success text-white p-2'>AgriLink Login</h6>
         <form className='p-3' onSubmit={handleSubmit}>
         <>
   <div className="mb-3">

@@ -15,8 +15,10 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../Context/AuthContext';
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import axios from 'axios';
 import FarmerNotifications from '../Farmer/FarmerNotifications/FamerNotifications';
+import UseHook from '../CustomHook/UseHook';
 import './Navbar.css';
 
 const pages = [
@@ -27,15 +29,26 @@ const authPages = [
   { name: 'LOGIN', path: '/login' },
   { name: 'SIGN UP', path: '/signup' },
 ];
-const settings = [
+const Buyer_settings = [
+  { name: 'Profile', path: '/Buyer/profile' },
+  { name: 'Dasboard', path: '/Buyer/dashboard' },
+  { name: 'Orders', path: '/Buyer/orders' },
+  { name: 'Change Password', path: '/Buyer/change-password' },
+  { name: 'Farmers', path: '/Buyer/all_farmers'},
+  { name: 'Logout', path: '/Buyer/logout' },
+];
+
+const Farmer_settings = [
   { name: 'Profile', path: '/farmer/profile' },
   { name: 'Market Insights', path: '/farmer/insights' },
   { name: 'Change Password', path: '/farmer/change-password' },
   { name: 'Logout', path: '/farmer/logout' },
-];
+]
 
 function ResponsiveAppBar() {
-  const { user } = useContext(AuthContext);
+  const { user,  totalQuantity } = useContext(AuthContext);
+
+  const {formData,previewImage} = UseHook()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -53,7 +66,7 @@ function ResponsiveAppBar() {
   };
 
   useEffect(() => {
-    if (user?.is_farmer) {
+    if (user?.is_farmer || user?.is_buyer) {
       fetchNotificationCount();
     }
   }, [user]);
@@ -175,17 +188,26 @@ function ResponsiveAppBar() {
               </Box>
             )}
 
-           {/* User area for authenticated users */}
-            {user && user.is_farmer && (
+             {/* User area for authenticated users */}
+             {user && (
               <Box sx={{ flexGrow: 1, justifyContent: 'flex-end', display: 'flex', alignItems: 'center' }}>
                 <IconButton sx={{ mr: 1 }} onClick={() => setShowNotificationPage(!showNotificationPage)}>
                   <Badge badgeContent={notificationCount} color="error">
                     <NotificationsIcon />
                   </Badge>
                 </IconButton>
+                {user.is_buyer && (
+                  <IconButton sx={{ mr: 1 }}>
+                    <Link to='/buyer/cart' className='text-decoration-none'>
+                    <Badge badgeContent={totalQuantity} color="error"> 
+                      <ShoppingCartIcon />
+                    </Badge>
+                    </Link>
+                  </IconButton>
+                )}
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.name} src="/static/images/avatar/2.jpg" />
+                    <Avatar alt={user.name} src={`http://127.0.0.1:8000${formData.image} ? formData : profile`} />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -197,7 +219,7 @@ function ResponsiveAppBar() {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  {settings.map((setting) => (
+                  {(user.is_farmer ? Farmer_settings : Buyer_settings).map((setting) => (
                     <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
                       <Typography component={Link} to={setting.path} sx={{ textDecoration: 'none', color: 'black' }}>
                         {setting.name}

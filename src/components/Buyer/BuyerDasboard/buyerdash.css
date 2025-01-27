@@ -1,0 +1,12 @@
+.dashboard_wrapper{
+    width: 80%;
+    justify-content: center;
+    margin-left: 11%;
+}
+
+@media screen and (max-width:768px) {
+    .dashboard_wrapper{
+        width: 100%;
+        margin-left:0px;
+    }
+}

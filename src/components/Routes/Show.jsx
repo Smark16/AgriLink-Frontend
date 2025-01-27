@@ -20,6 +20,16 @@ import Logout from '../Authenticate/Logout'
 import EditCrop from '../Farmer/Listings/EditCrop'
 import ChangePassword from '../Farmer/changePassword/ChangePassword'
 import FarmerNotifications from '../Farmer/FarmerNotifications/FamerNotifications'
+import ProductDetail from '../Buyer/Product_Detail/ProductDetail'
+import Cart from '../Buyer/Cart/Cart'
+import ProductListing from '../Buyer/ProductListing/ProductListing'
+import BuyerProfile from '../Buyer/BuyerProfile/BuyerProfile'
+import BuyerPassword from '../Buyer/PasswordChange/BuyerPassword'
+import BuyerDashboard from '../Buyer/BuyerDasboard/BuyerDashboard'
+import BuyerOrder from '../Buyer/BuyerOrder/BuyerOrder'
+import Info from '../Farmer/FarmerInfo/Info'
+import FarmerListing from '../Buyer/FarmerListing/FarmerListing'
+import Checkout from '../Buyer/Checkout/Checkout'
 function Show() {
   return (
     <>
@@ -32,12 +42,13 @@ function Show() {
     <Route path='/login' element={<Login/>}/>
     
     <Route path='/farmer/*' element={
-
+      
 <PrivateRoute>
     <div className="window">
      <Sidebar/>
       <div className="content">
       <Routes>
+      <Route path='/farmer_additional_info' element={<Info/>}/>
         <Route path='dashboard' element={<Dashboard/>}/>
         <Route path='listings'  element={<Listings/>}/>
         <Route path='upload_crop' element={<Upload_List/>}/>
@@ -54,6 +65,27 @@ function Show() {
       </div>
     </div>
 </PrivateRoute>
+    }/>
+
+    {/* buyer routes */}
+    <Route path='/buyer/*' element={
+      <PrivateRoute>
+     <div className='buyer_content'>
+      <Routes>
+        <Route path='product_detail/:id' element={<ProductDetail/>}/>
+        <Route path='cart' element={<Cart/>}/>
+        <Route path='profile' element={<BuyerProfile/>}/>
+        <Route path='logout' element={<Logout/>}/>
+        <Route path='change-password' element={<BuyerPassword/>}/>
+        <Route path='dashboard' element={<BuyerDashboard/>}/>
+        <Route path='orders' element={<BuyerOrder/>}/>
+        <Route path='all_farmers' element={<FarmerListing/>}/>
+        <Route path='farmer_product_listing/:id' element={<ProductListing/>}/>
+        <Route path='checkout' element={<Checkout/>}/>
+      </Routes>
+     </div>
+      </PrivateRoute>
+
     }/>
 
      </Routes>
