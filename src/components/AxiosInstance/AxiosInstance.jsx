@@ -9,7 +9,7 @@ const baseURL = 'http://127.0.0.1:8000/agriLink';
 const UseAxios = () => {
   const { setUser, authTokens, setAuthTokens } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(true);  // Handle loading state
-
+// console.log('use axios', authTokens)
   // Load authTokens from localStorage when the component mounts
   useEffect(() => {
     const tokens = JSON.parse(localStorage.getItem("authtokens"));

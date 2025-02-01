@@ -1,12 +1,21 @@
-.order_wrapper{
-    width: 80%;
-    justify-content: center;
-    margin-left: 11%;
-}
-
-@media screen and (max-width:768px) {
-    .order_wrapper{
-        width: 100%;
-        margin-left:0px;
-    }
-}
+:root{
+    --primary-color: #1bd914; 
+    --background-color: #04770e; 
+  }
+  table td span.success {
+    background-color: var(--primary-color);
+    border-radius: 5px;
+    color: #ffff;
+  }
+  .order-container{
+    margin-top: -50px;
+  }
+  .user-order{
+    border-bottom: 1px solid #ccc;
+    color: var(--primary-color);
+    font-size: 25px;
+    font-weight: bolder;
+  }
+  .orders_loader{
+    width: 300px;
+  }

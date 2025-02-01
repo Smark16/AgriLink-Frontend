@@ -127,7 +127,7 @@ const handleAlphabet = () => {
   <>
   <>
   {/* Shop Product Start */}
-  <div className="col-lg-9 col-md-12 buyer_product_listing">
+  <div className="col-lg-9 col-md-12 buyer_product_listing container-fluid">
     <div className="row pb-3">
       <div className="col-12 pb-1">
         <div className="d-flex align-items-center justify-content-between mb-4">

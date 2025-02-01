@@ -5,6 +5,19 @@ import { AuthContext } from '../../Context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
+import Box from '@mui/material/Box';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+
+import TransportDetails from './TransportDetails';
+
+const steps = [
+  'Product Information',
+  'Delivery Options',
+  'Payment Options',
+];
+
 const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
 const post_crops_url = 'http://127.0.0.1:8000/agriLink/post_crops';
 
@@ -13,7 +26,7 @@ function Upload_List() {
   const { user } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
   const [crop, setCrop] = useState({
-    user: user.user_id,
+    user: user?.user_id,
     specialisation: '',
     crop_name: '',
     unit: '',
@@ -26,7 +39,7 @@ function Upload_List() {
     ],
     price_per_unit: 0,
     InitialAvailability: 0,
-    image: ''
+    image: '',
   });
   const [imageUploaded, setImageUploaded] = useState('');
   const [dragging, setDragging] = useState(false);
@@ -82,8 +95,9 @@ function Upload_List() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
+
     formData.append('user', crop.user);
     formData.append('specialisation', crop.specialisation);
     formData.append('crop_name', crop.crop_name);
@@ -94,14 +108,13 @@ function Upload_List() {
     formData.append('image', crop.image);
     formData.append('weight', JSON.stringify(crop.weight.filter(w => w.available > 0)));
 
-    try {
       const response = await axios.post(post_crops_url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
       setLoading(false);
-      showSuccessAlert('Crop uploaded successfully');
+      showSuccessAlert('Product uploaded successfully');
       navigate('/farmer/listings');
     } catch (err) {
       setLoading(false);
@@ -118,6 +131,7 @@ function Upload_List() {
       toast: true,
       position: 'top',
       timerProgressBar: true,
+      showConfirmButton:false
     });
   };
 
@@ -130,6 +144,7 @@ function Upload_List() {
       toast: true,
       position: 'top',
       timerProgressBar: true,
+      showConfirmButton:false
     });
   }
 
@@ -142,10 +157,25 @@ function Upload_List() {
     }));
   };
 
+  // console.log(payment)
+
   return (
     <>
+    <div className="container-fluid pt-5">
+      <div className="upload-header p-2">
       <h4>UPLOAD CROP</h4>
-      <div className="crop_upload bg-white p-2">
+      <Box sx={{ width: '100%' }}>
+      <Stepper activeStep={1} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel className='text-white'>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    </Box>
+      </div>
+
+      <div className="crop_upload bg-white p-2 mt-3">
         <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
           <div className="image_bordering">
             <input
@@ -306,15 +336,20 @@ function Upload_List() {
               </div>
             </div>
           )}
+            
+            {/* transport details */}
 
           <button
             type="submit"
+            className='upload_btn'
             disabled={loading || !crop.crop_name || !crop.unit || !crop.description || !crop.price_per_unit || !crop.InitialAvailability || !crop.image}
-          >
+            >
             {loading ? 'Uploading...' : 'Upload Crop'}
           </button>
         </form>
+            <TransportDetails/>
       </div>
+    </div>
     </>
   );
 }

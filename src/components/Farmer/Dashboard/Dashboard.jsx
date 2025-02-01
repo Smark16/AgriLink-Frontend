@@ -9,6 +9,7 @@ import "./Dashboard.css";
 import UseHook from "../../CustomHook/UseHook";
 import { AuthContext} from "../../Context/AuthContext";
 import { Link } from "react-router-dom";
+import moment from "moment";
 
 function Dashboard() {
   const {loader, filteredCrops, FarmerOrders, loading} = UseHook()
@@ -236,8 +237,8 @@ useEffect(()=>{
             </thead>
             <tbody>
               {FarmerOrders.slice(0,5).map((order) => {
-                const { order_id, buyer_name, status, district, contact, created_at } =
-                  order;
+                const { order_id, buyer_name, status, district, contact, created_at } = order;
+                 const orderTime = moment(created_at).fromNow()
                 return (
                   <tr key={order_id}>
                     <td>{order_id}</td>
@@ -262,7 +263,7 @@ useEffect(()=>{
                         </span>
                       )}
                     </td>
-                    <td>{created_at}</td>
+                    <td>{orderTime}</td>
                   </tr>
                 );
               })}

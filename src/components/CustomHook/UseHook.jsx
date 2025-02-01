@@ -19,11 +19,32 @@ function UseHook() {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ user:user? user.user_id :'', image: null, contact: 0, location: '', bio: '', specialisation:[], farmName:'',});
   const [previewImage, setPreviewImage] = useState(null);
+   const [userOrders, setUserOrders] = useState([]);
+   const [Orderloading, setOrderLoading] = useState(false);
 
   // URLs - only construct if user is available
   const FarmerCropsUrl = user ? `http://127.0.0.1:8000/agriLink/farmer/${encodeURIComponent(user.user_id)}` : '';
   const farmer_order_url = user ? `http://127.0.0.1:8000/agriLink/orders_for_farmer/${encodeURIComponent(user.user_id)}` : '';
   const profile_url = user ? `http://127.0.0.1:8000/agriLink/single_profile/${encodeURIComponent(user.user_id)}` : '';
+  const BUYER_ORDERS_URL = user ? `http://127.0.0.1:8000/agriLink/user_orders/${encodeURIComponent(user.user_id)}` : ''
+
+  // fecth user orders
+  useEffect(() => {
+    const fetchUserOrders = async () => {
+      try {
+        setOrderLoading(true);
+        const response = await axios.get(BUYER_ORDERS_URL);
+        const data = response.data;
+        setUserOrders(data);
+        setOrderLoading(false);
+      } catch (err) {
+        console.log('Error fetching orders:', err);
+      }
+    };
+
+    fetchUserOrders();
+  }, []);
+  
 
   // Fetch crops
   const Fetch_Farmer_crops = async () => {
@@ -109,7 +130,10 @@ function UseHook() {
     formData, 
     setFormData, 
     setPreviewImage, 
-    fetch_profile
+    fetch_profile,
+    userOrders,
+    setUserOrders,
+    Orderloading
   };
 }
 

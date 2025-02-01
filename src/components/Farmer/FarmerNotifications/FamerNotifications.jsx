@@ -5,11 +5,11 @@ import { AuthContext } from '../../Context/AuthContext';
 import '../FarmerNotifications/notifications.css';
 
 function FarmerNotifications() {
-  const { user, FarmerNotification, setFarmerNotification } = useContext(AuthContext);
+  const { user, FarmerNotification, setFarmerNotification, notifications, setNotifications } = useContext(AuthContext);
   const encodedUserId = encodeURIComponent(user.user_id);
 
   const user_notifications = `http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`;
-  const [notifications, setNotifications] = useState([]);
+  // const [] = useState([]);
   const [openMessageIndex, setOpenMessageIndex] = useState(null);
   const [loading, setLoading] = useState(false)
 

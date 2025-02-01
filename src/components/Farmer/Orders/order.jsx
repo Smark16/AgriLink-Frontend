@@ -8,18 +8,22 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import Tooltip from '@mui/material/Tooltip';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+
 import UseAxios from "../../AxiosInstance/AxiosInstance";
 import UseHook from "../../CustomHook/UseHook";
+import moment from "moment";
 
 function Order() {
   const axiosInstance = UseAxios();
   const {FarmerOrders, loading, setFarmerOrders} = UseHook()
+  // const { messaging, generateToken} = useFCMToken()
+  // console.log(messaging)
  
   const [showModal, setShowModal] = useState(false);
   const [usermadeItems, setUserMadeItems] = useState({});
   const [itemLoading, setItemLoading] = useState(false)
-
-  
 
   const changeStatus = async (id, newStatus) => {
     try {
@@ -72,21 +76,15 @@ function Order() {
     }
   };
 
-  // delete order
-  const handleDelete = async(id)=>{
-   try{
-   await axios.delete(`http://127.0.0.1:8000/agriLink/DeleteOrder/${id}`)
-   setFarmerOrders((prevOrders) =>prevOrders.filter(order => order.order_id !== id) )
-   }catch(err){
-    console.log('err', err)
-   }
-  }
 
   return (
     <div className="container-fluid pt-5">
-      <h4>Orders</h4>
+
+      <div className="order-container row px-xl-5">
+
+      <h4 className="user-order p-2">Orders</h4>
       {loading ? (
-        <div className="loading-container">
+        <div className="loading-container orders_loader">
           <div className="spinner-border text-primary text-center" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
@@ -98,7 +96,6 @@ function Order() {
           <i className="bi bi-box2-heart text-secondary" style={{ fontSize: "2rem" }}></i>
         </div>
       ) : (
-        <div className="row px-xl-5">
         <div className="cust_orders bg-white p-2 col-lg-12 table-responsive mb-5">
           <table id="myTable" className="table table-bordered mb-0">
             <thead>
@@ -115,8 +112,8 @@ function Order() {
             </thead>
             <tbody>
               {FarmerOrders.map((order) => {
-                const { order_id, buyer_name, status, district, contact, created_at } =
-                  order;
+                const { order_id, buyer_name, status, district, contact, created_at } = order;
+                const orderTime = moment(created_at).fromNow()
                 return (
                   <tr key={order_id}>
                     <td>{order_id}</td>
@@ -141,7 +138,7 @@ function Order() {
                         </span>
                       )}
                     </td>
-                    <td>{created_at}</td>
+                    <td>{orderTime}</td>
                     <td>
                       <div className="actions">
                         {/* Dropdown */}
@@ -154,8 +151,10 @@ function Order() {
                           </div>
                         </div>
                         {/* End Dropdown */}
-                        <i className="bi bi-eye text-success" onClick={() => showOrder(order_id)}></i>
-                        <i className="bi bi-archive text-danger" onClick={()=> handleDelete(order_id)}></i>
+                            <Tooltip title="View" arrow>
+                            <RemoveRedEyeIcon onClick={() => showOrder(order_id)}/>
+                        {/* <i className="bi bi-eye text-success" onClick={() => showOrder(order_id)}></i> */}
+                            </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -163,8 +162,6 @@ function Order() {
               })}
             </tbody>
           </table>
-        </div>
-
         </div>
       )}
 
@@ -226,6 +223,7 @@ function Order() {
           </div>
         </div>
       )}
+      </div>
       
     </div>
 

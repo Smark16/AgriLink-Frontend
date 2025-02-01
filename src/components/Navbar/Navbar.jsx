@@ -46,12 +46,11 @@ const Farmer_settings = [
 ]
 
 function ResponsiveAppBar() {
-  const { user,  totalQuantity } = useContext(AuthContext);
+  const { user,  totalQuantity, notificationCount, setNotificationCount } = useContext(AuthContext);
 
   const {formData,previewImage} = UseHook()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [notificationCount, setNotificationCount] = useState(0);
   const [showNotificationPage, setShowNotificationPage] = useState(false);
 
   const fetchNotificationCount = async () => {

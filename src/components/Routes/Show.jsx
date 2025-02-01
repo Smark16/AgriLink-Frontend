@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useContext, useEffect} from 'react'
 import '../Routes/show.css'
 import {Route, Routes} from 'react-router-dom'
 import PrivateRoute from '../PrivateRoute'
@@ -30,9 +30,60 @@ import BuyerOrder from '../Buyer/BuyerOrder/BuyerOrder'
 import Info from '../Farmer/FarmerInfo/Info'
 import FarmerListing from '../Buyer/FarmerListing/FarmerListing'
 import Checkout from '../Buyer/Checkout/Checkout'
+import { onMessage } from 'firebase/messaging';
+import tokenGeneration from '../Authenticate/firebase'
+import toast, { Toaster } from 'react-hot-toast';
+import { AuthContext } from '../Context/AuthContext'
+import axios from 'axios'
+
+
 function Show() {
+  const { messaging, generateToken} = tokenGeneration()
+  const {user, setNotifications, setNotificationCount, notifications, notificationCount} = useContext(AuthContext)
+
+  const fetchNotificationCount = async () => {
+    try {
+      const encodedUserId = encodeURIComponent(user.user_id);
+      const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`);
+      const unreadCount = response.data.notifications.filter((notif) => !notif.is_read).length;
+      setNotificationCount(unreadCount);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.is_farmer || user?.is_buyer) {
+      fetchNotificationCount();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    generateToken();
+  
+    const unsubscribe = onMessage(messaging, (payload) => {
+      if (payload.notification && payload.notification.body) {
+        const newNotification = {
+          user: user?.user_id,
+          message: payload.notification.body,
+        };
+  
+        toast(payload.notification.body);
+        setNotifications((prev) => [...prev, newNotification]);
+  
+        // Ensure `notifications` is used to calculate unread count
+        setNotificationCount((prevCount) => prevCount + 1);
+      } else {
+        console.error("Notification payload is incorrect or missing");
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup function to avoid memory leaks
+  }, [messaging, generateToken, setNotifications, setNotificationCount, notifications]);
+
   return (
     <>
+    <Toaster position='top-right'/> 
      <ResponsiveAppBar/>
      <Routes>
 

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => (authTokens ? jwtDecode(authTokens.access) : null));
   const [loading, setLoading] = useState(true);
   const [FarmerNotification, setFarmerNotification] = useState()
+  const [notifications, setNotifications] = useState([])
   const [addedItem, setAddedItem] = useState(() => {
     const storedItems = JSON.parse(localStorage.getItem('cartItem')) || [];
     return storedItems;
@@ -21,7 +22,8 @@ export const AuthProvider = ({ children }) => {
   const [weightArray, setWeightArray] = useState([])
   const [weightQuantity, setWeightQuantity] = useState(null)
   const [activatedAddress, setActivatedAddress] = useState({})
-  
+   const [notificationCount, setNotificationCount] = useState(0);
+   
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -180,8 +182,10 @@ const decrementWeightQuantity = (item, weightIndex)=>{
   // };
 
   useEffect(() => {
-    if (authTokens) {
-      const decodedUser = jwtDecode(authTokens.access);
+    const storedTokens = JSON.parse(localStorage.getItem('authtokens'));
+    if (storedTokens) {
+      const decodedUser = jwtDecode(storedTokens.access);
+      setAuthTokens(storedTokens);
       setUser(decodedUser);
       const lastPath = localStorage.getItem('lastPath');
       if (lastPath) {
@@ -190,7 +194,7 @@ const decrementWeightQuantity = (item, weightIndex)=>{
       }
     }
     setLoading(false);
-  }, [authTokens, navigate]);
+  }, [navigate]);
 
   const logoutUser = () => {
     setAuthTokens(null);
@@ -224,7 +228,11 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     weightArray,
     weightQuantity,
     activatedAddress, 
-    setActivatedAddress
+    setActivatedAddress,
+    notifications, 
+    setNotifications,
+    notificationCount, 
+    setNotificationCount
   };
 
   return (

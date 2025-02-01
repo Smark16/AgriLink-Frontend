@@ -11,7 +11,7 @@ const POST_ORDER_URL = 'http://127.0.0.1:8000/agriLink/post_orders';
 const POST_ORDER_CROPS = 'http://127.0.0.1:8000/agriLink/post_order_crops';
 
 
-function Checkout() {
+function Checkout2() {
     const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user } = useContext(AuthContext);
     const [delivery, setDelivery] = useState({})
     const [payment, setPayment] = useState({})
@@ -208,7 +208,7 @@ function Checkout() {
                 status: "Pending"
             });
 
-             console.log('order', orderResponse.data);
+            // console.log('order', orderResponse);
 
             // Post order detail with orderCropIds
             const details = new FormData();
@@ -277,7 +277,7 @@ function Checkout() {
                             </div>
 
                             <div className="choose p-2">
-                                {/* {payment.methodType?.length === 0 && (<p>No payment methods Available</p>)}
+                                {payment.methodType?.length === 0 && (<p>No payment methods Available</p>)}
                                 {payment?.methodType?.map(type =>{
                                     return (
                                         <>
@@ -292,7 +292,7 @@ function Checkout() {
                                         
                                         </>
                                     )
-                                })} */}
+                                })}
 
                                 {/* <div className="choose-instant p-2 mt-2">
                                     <input type='radio' name='payment'/>
@@ -335,4 +335,4 @@ function Checkout() {
     );
 }
 
-export default Checkout;
+export default Checkout2;

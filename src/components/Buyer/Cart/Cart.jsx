@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 function Cart() {
   const { addedItem, setAddedItem, setTotalQuantity, incrementQuantity, decrementQuantity,  IncrementWeightQuantity,
-    decrementWeightQuantity, selectedQuantity } = useContext(AuthContext);
+    decrementWeightQuantity} = useContext(AuthContext);
   const [totalAmount, setTotalAmount] = useState()
 
    // Use useEffect to compute total amount when addedItem changes

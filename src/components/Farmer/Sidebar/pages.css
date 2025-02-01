@@ -28,9 +28,9 @@
     height: calc(100% - 50px); /* Adjust for button height */
 }
 
-/* .sidebar-container.closed + .content {
+.sidebar-container.closed + .content {
     margin-left: 70px;
-} */
+}
 
 /* Close Button */
 .btns {

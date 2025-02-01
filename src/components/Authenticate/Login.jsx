@@ -11,8 +11,7 @@ const loginUrl = 'http://127.0.0.1:8000/agriLink/'
 const resetLinkUrl = 'http://127.0.0.1:8000/agriLink/send_email'
 
 function Login() {
-  const { setUser, user} = useContext(AuthContext);
-  console.log(user)
+  const { setUser} = useContext(AuthContext);
   const [authTokens, setAuthTokens] = useState(() => JSON.parse(localStorage.getItem('authtokens')) || null);
   const [noActive, setNoActive] = useState('');
   const [userLogin, setUserLogin] = useState({ username: "", password: "" });
@@ -21,7 +20,6 @@ function Login() {
   const [status, setStatus] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e)=>{
@@ -42,9 +40,9 @@ function Login() {
         if (response.status === 200) {
           const data = response.data;
           setLoader(false);
+          localStorage.setItem('authtokens', JSON.stringify(data));
           setAuthTokens(data);
           setUser(jwtDecode(data.access));
-          localStorage.setItem('authtokens', JSON.stringify(data));
           showSuccessAlert("Login successful");
         } else {
           showErrorAlert("Please provide correct username/password");
