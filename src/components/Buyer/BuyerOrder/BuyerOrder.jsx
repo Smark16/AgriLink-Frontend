@@ -63,6 +63,8 @@ function BuyerOrder() {
                   <th scope="col">District</th>
                   <th scope="col">City</th>
                   <th scope="col">Contact</th>
+                  <th scope="col">Delivery Option</th>
+                  <th scope="col">Payment method</th>
                   <th scope="col">Status</th>
                   <th scope="col">Created At</th>
                   <th scope="col">Actions</th>
@@ -81,6 +83,8 @@ function BuyerOrder() {
                       <td>{district}</td>
                       <td>{city}</td>
                       <td>{contact}</td>
+                      <td>{order.delivery_option}</td>
+                      <td>{order.payment_method}</td>
                       <td><span className={`p-1 ${order.status === 'Completed' ? 'success' : order.status === 'Pending' ? 'bg-warning rounded text-white' : 'bg-danger rounded text-white'}`}>{order.status}</span></td>
                       <td>{orderTime}</td>
                       <td>

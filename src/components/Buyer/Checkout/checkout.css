@@ -3,8 +3,7 @@
     --background-color: #04770e; 
 }
 .place-order{
-width: 80%;
-margin-left: 10%;
+width: 100%;
 }
 .checkout-wrapper{
     border-top: 2px solid var(--primary-color);
@@ -137,7 +136,7 @@ margin-left: 10%;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
-.choose-instant img{
+.flutter{
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -186,8 +185,8 @@ margin-left: 10%;
 /*media screens  */
 @media screen and (max-width:768px) {
     .place-order{
-        width: 90%;
-        margin-left: 5%
+        width: 100%;
+        
         }
         .cart-items-summary{
             margin-top: 10px;

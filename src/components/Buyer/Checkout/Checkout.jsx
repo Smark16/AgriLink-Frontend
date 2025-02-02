@@ -6,240 +6,282 @@ import image from '../../images/flutterwave.jpg';
 import { AuthContext } from '../../Context/AuthContext';
 import axios from 'axios';
 
+import Box from '@mui/material/Box';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+
+const steps = [
+    'Buyer Address',
+    'Delivery Options',
+    'Payment Options',
+    'Confirm Order'
+];
+
 const POST_ORDER_DETAIL_URL = 'http://127.0.0.1:8000/agriLink/post_order_detail';
 const POST_ORDER_URL = 'http://127.0.0.1:8000/agriLink/post_orders';
 const POST_ORDER_CROPS = 'http://127.0.0.1:8000/agriLink/post_order_crops';
 
-
 function Checkout() {
     const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user } = useContext(AuthContext);
-    const [delivery, setDelivery] = useState({})
-    const [payment, setPayment] = useState({})
-    const [totalAmount, setTotalAmount] = useState()
-    const [totalPayment, setTotalPayment] = useState()
+    const [delivery, setDelivery] = useState({});
+    const [payment, setPayment] = useState({});
+    const [totalAmount, setTotalAmount] = useState();
+    const [totalPayment, setTotalPayment] = useState();
+    const [deliverProfile, setDeliverProfile] = useState({});
+    const [payProfile, setPayProfile] = useState({});
+
+    // State to track selected delivery and payment options for each farmer
+    const [selectedDelivery, setSelectedDelivery] = useState({});
+    const [selectedPayment, setSelectedPayment] = useState({});
 
     useEffect(() => {
-        // If there's no activated address, fetch the default one if it exists
-            const fetchDefaultAddress = async () => {
-                try {
-                    const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
-                    const defaultAddress = response.data.useraddress.find(addr => addr.active);
-                    if (defaultAddress) {
-                        setActivatedAddress(defaultAddress);
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch default address:', error);
+        const fetchDefaultAddress = async () => {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
+                const defaultAddress = response.data.useraddress.find(addr => addr.active);
+                if (defaultAddress) {
+                    setActivatedAddress(defaultAddress);
                 }
-            };
-            fetchDefaultAddress();
-            
-        }, [user, setActivatedAddress]);
-        
-        // options
-        useEffect(()=>{
-            for(let item of addedItem){
-            const USER_DELIVERY_URL = `http://127.0.0.1:8000/agriLink/delivery_list/${item.user}`
-            const USER_PAYMENT_URL = `http://127.0.0.1:8000/agriLink/list_payment_methods/${item.user}`
-            
-            // delivery
-            const fetchDelivery = async ()=>{
-                try{
-                    const response = await axios.get(USER_DELIVERY_URL)
-                    const {delivery_options} = response.data
-                 const usedDelivery = delivery_options.find(deliver => deliver.id === item.delivery_options)
-                 setDelivery(usedDelivery)
-                }catch(err){
-                    console.log('err', err)
-                }
+            } catch (error) {
+                console.error('Failed to fetch default address:', error);
             }
-
-        //payment
-        const fetchPayment = async()=>{
-            try{
-                  const response = await axios.get(USER_PAYMENT_URL)
-                  const {payment_method} = response.data
-                  const usedMethod = payment_method.find(method => method.id === item.payment_methods)
-                  setPayment(usedMethod)
-            }catch(err){
-                console.log('err', err)
-            }
-        }
-            
-            fetchDelivery()
-            fetchPayment()
-        }
-
-    }, [])
-    
-    // calculate total item amount 
-       useEffect(() => {
-        const calculateTotalAmount = () => {
-          const cash = addedItem.reduce((sum, item) => {
-            const { quantity, price_per_unit, get_discounted_price, weight } = item;
-            const finalPrice = get_discounted_price > 0 ? get_discounted_price : price_per_unit;
-            
-            if (Array.isArray(weight) && weight.length > 0) {
-              return sum + weight.reduce((weightSum, w) => {
-                const weightValue = parseFloat(w.weight.replace('kg', '').trim());
-                return weightSum + (weightValue * w.quantity * finalPrice);
-              }, 0);
-            } else {
-              return sum + (finalPrice * quantity);
-            }
-          }, 0);
-
-          if (delivery && delivery.fee !== undefined) {
-            setTotalPayment((cash + parseFloat(delivery.fee || "0")).toLocaleString());
-          } else {
-            setTotalPayment(cash.toLocaleString()); 
-          }
-          setTotalAmount(cash.toLocaleString()); 
         };
-    
-        calculateTotalAmount();
-      }, [addedItem]);
+        fetchDefaultAddress();
+    }, [user, setActivatedAddress]);
 
-    const handleConfirm = async () => {
-        try {
-            // Update availability for each item
-            for (let item of addedItem) {
-                const EDIT_AVAILABILITY_URL = `http://127.0.0.1:8000/agriLink/update_quantity/${item.id}`;
-                const remained = item.availability=== 0 ? item.InitialAvailability - item.quantity : item.availability - item.quantity
-                // console.log(remained);
-                await axios.patch(EDIT_AVAILABILITY_URL, { "availability": remained });
+    useEffect(() => {
+        const fetchOptionsForFarmers = async () => {
+            const uniqueFarmers = [...new Set(addedItem.map(item => item.user))];
+            const newDelivery = { ...delivery };
+            const newPayment = { ...payment };
+            const newDeliverProfile = { ...deliverProfile };
+            const newPayProfile = { ...payProfile };
+
+            for (const farmerId of uniqueFarmers) {
+                try {
+                    const [deliveryResponse, paymentResponse] = await Promise.all([
+                        axios.get(`http://127.0.0.1:8000/agriLink/delivery_list/${farmerId}`),
+                        axios.get(`http://127.0.0.1:8000/agriLink/list_payment_methods/${farmerId}`)
+                    ]);
+
+                    newDelivery[farmerId] = deliveryResponse.data.delivery_options;
+                    newDeliverProfile[farmerId] = deliveryResponse.data.profile;
+
+                    newPayment[farmerId] = paymentResponse.data.payment_method;
+                    newPayProfile[farmerId] = paymentResponse.data.profile;
+                } catch (err) {
+                    console.error('Error fetching options for farmer ' + farmerId + ':', err);
+                }
             }
 
-            // Update products focusing on weight for those with weights
-            for (let product of addedItem) {
-                let productData = new FormData()
+            setDelivery(newDelivery);
+            setPayment(newPayment);
+            setDeliverProfile(newDeliverProfile);
+            setPayProfile(newPayProfile);
+        };
+
+        fetchOptionsForFarmers();
+    }, [addedItem]);
+
+    useEffect(() => {
+        const calculateTotalAmount = () => {
+            const cash = addedItem.reduce((sum, item) => {
+                const { quantity, price_per_unit, get_discounted_price, weight } = item;
+                const finalPrice = get_discounted_price > 0 ? get_discounted_price : price_per_unit;
+                
+                if (Array.isArray(weight) && weight.length > 0) {
+                    return sum + weight.reduce((weightSum, w) => {
+                        const weightValue = parseFloat(w.weight.replace('kg', '').trim());
+                        return weightSum + (weightValue * w.quantity * finalPrice);
+                    }, 0);
+                } else {
+                    return sum + (finalPrice * quantity);
+                }
+            }, 0);
+
+            let totalDeliveryFee = 0;
+            Object.values(delivery).forEach(options => {
+                if(options.length > 0 && options[0].fee !== undefined) {
+                    totalDeliveryFee += parseFloat(options[0].fee || "0");
+                }
+            });
+
+            setTotalPayment((cash + totalDeliveryFee).toLocaleString());
+            setTotalAmount(cash.toLocaleString());
+        };
+
+        calculateTotalAmount();
+    }, [addedItem, delivery]);
+
+    const handleDeliveryChange = (farmerId, deliveryName) => {
+        setSelectedDelivery(prev => ({
+            ...prev,
+            [farmerId]: deliveryName
+        }));
+    };
+    
+    const handlePaymentChange = (farmerId, paymentType) => {
+        setSelectedPayment(prev => ({
+            ...prev,
+            [farmerId]: paymentType
+        }));
+    };
+
+// handle order submission
+const handleConfirm = async () => {
+    try {
+        // Group products by farmer
+        const productsByFarmer = addedItem.reduce((acc, item) => {
+            if (!acc[item.user]) {
+                acc[item.user] = []; // Initialize array for the farmer if not exists
+            }
+            acc[item.user].push(item); // Add product to the farmer's list
+            return acc;
+        }, {});
+
+        // Store all created order IDs
+        let allOrderResponses = [];
+
+        // Iterate through each farmer's products
+        for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
+            
+            // 1️⃣ Update availability for each product in this farmer's list
+            await Promise.all(farmerProducts.map(async (item) => {
+                const EDIT_AVAILABILITY_URL = `http://127.0.0.1:8000/agriLink/update_quantity/${item.id}`;
+                const remained = item.availability === 0 
+                    ? item.InitialAvailability - item.quantity 
+                    : item.availability - item.quantity;
+
+                await axios.patch(EDIT_AVAILABILITY_URL, { "availability": remained });
+            }));
+
+            // 2️⃣ Update product weights if applicable
+            await Promise.all(farmerProducts.map(async (product) => {
                 if (product.weight && product.weight.length > 0) {
                     const UPDATE_WEIGHT_URL = `http://127.0.0.1:8000/agriLink/update_weight/${product.id}`;
 
-                    productData.append("user", product.user)
-                    productData.append("specialisation", product.specialisation)
-                    productData.append("crop_name", product.crop_name)
-                    productData.append("description", product.description)
-                    
-                    // Create a new weight array where quantity is reset to 0 and availability is updated
+                    let productData = new FormData();
+                    productData.append("user", product.user);
+                    productData.append("specialisation", product.specialisation);
+                    productData.append("crop_name", product.crop_name);
+                    productData.append("description", product.description);
+
+                    // Update weight availability
                     const updatedWeights = product.weight.map(w => ({
                         weight: w.weight,
-                        quantity: 0, // Reset quantity to 0
-                        available: w.available - w.quantity // Update availability
+                        quantity: 0,
+                        available: w.available - w.quantity
                     }));
-                    productData.append("weight", JSON.stringify(updatedWeights))
-                    productData.append("price_per_unit", product.price_per_unit)
-                    productData.append("unit", product.unit)
-                    productData.append("InitialAvailability", product.InitialAvailability)
-                    productData.append("availability", product.availability)
-                    productData.append("quantity", 0)
-                      
-                     // Handle image upload
-                if (typeof image === 'string') {
-                    const response = await fetch(product.image);
-                    const blob = await response.blob();
-                    productData.append('image', blob, 'image.jpg'); // Filename can be dynamic based on original filename if available
-                } else {
-                    productData.append('image', image, image.name || 'image.jpg');
-                }
-                      
-                await axios.put(UPDATE_WEIGHT_URL, productData)
-                .then(res =>{
-                    console.log('product weight', res.data)
-                }).catch(err =>{
-                    console.log('err', err)
-                })
-                
-                }
-            }
-            // Prepare orderCropData for all items
-            const orderCropDataList = await Promise.all(addedItem.map(async item => {
-                const { user, quantity, weight, price_per_unit, unit, image, crop_name, get_discounted_price } = item;
-                
-                let formData = new FormData();
-                formData.append('user', user);
-                
-               // Calculate overall quantity if product has weights
-                const totalQuantity = weight.length > 0 ? 
-                weight.reduce((sum, w) => {
-                const usedWeight = w.quantity > 0 ? parseFloat(w.weight.replace('kg', '').trim()) : 0;
-                return sum + usedWeight * w.quantity;
-                }, 0) * quantity
-                : quantity;
+                    productData.append("weight", JSON.stringify(updatedWeights));
+                    productData.append("price_per_unit", product.price_per_unit);
+                    productData.append("unit", product.unit);
+                    productData.append("InitialAvailability", product.InitialAvailability);
+                    productData.append("availability", product.availability);
+                    productData.append("quantity", 0);
 
-                console.log('total quantity', totalQuantity)
+                    // Handle image upload
+                    if (typeof product.image === 'string') {
+                        const response = await fetch(product.image);
+                        const blob = await response.blob();
+                        productData.append('image', blob, 'image.jpg');
+                    } else {
+                        productData.append('image', product.image, product.image.name || 'image.jpg');
+                    }
+
+                    await axios.put(UPDATE_WEIGHT_URL, productData);
+                }
+            }));
+
+            // 3️⃣ Prepare orderCropData for the farmer's products
+            const orderCropDataList = await Promise.all(farmerProducts.map(async (item) => {
+                let formData = new FormData();
+                formData.append('user', item.user);
+
+                // Calculate total quantity
+                const totalQuantity = item.weight.length > 0
+                    ? item.weight.reduce((sum, w) => sum + parseFloat(w.weight.replace('kg', '').trim()) * w.quantity, 0) * item.quantity
+                    : item.quantity;
 
                 formData.append('quantity', totalQuantity);
-                formData.append('weights', JSON.stringify(weight)); // Assuming weight is an array or object
-                formData.append('price_per_unit', get_discounted_price > 0 ? get_discounted_price : price_per_unit);
-                formData.append('unit', unit);
-                
+                formData.append('weights', JSON.stringify(item.weight));
+                formData.append('price_per_unit', item.get_discounted_price > 0 ? item.get_discounted_price : item.price_per_unit);
+                formData.append('unit', item.unit);
+
                 // Handle image upload
-                if (typeof image === 'string') {
-                    const response = await fetch(image);
+                if (typeof item.image === 'string') {
+                    const response = await fetch(item.image);
                     const blob = await response.blob();
-                    formData.append('image', blob, 'image.jpg'); // Filename can be dynamic based on original filename if available
+                    formData.append('image', blob, 'image.jpg');
                 } else {
-                    formData.append('image', image, image.name || 'image.jpg');
+                    formData.append('image', item.image, item.image.name || 'image.jpg');
                 }
 
-                formData.append('crop_name', crop_name);
-
+                formData.append('crop_name', item.crop_name);
                 return formData;
             }));
 
-            // Post all order crops at once
-            const orderCropResponses = await Promise.all(orderCropDataList.map(formData => 
-                axios.post(POST_ORDER_CROPS, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                })
+            // 4️⃣ Post all order crops for this farmer
+            const orderCropResponses = await Promise.all(orderCropDataList.map(formData =>
+                axios.post(POST_ORDER_CROPS, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
             ));
 
-            // console.log('Order crops posted:', orderCropResponses);
-
-            // Extract IDs from the responses
+            // Extract orderCrop IDs
             const orderCropIds = orderCropResponses.map(response => response.data.id);
 
-            // Post order
+            // 5️⃣ Create an order for this farmer
             const orderResponse = await axios.post(POST_ORDER_URL, {
-                user: user?.user_id,
+                user: user?.user_id,  // The buyer
+                farmer: farmerId,  // The seller (farmer)
                 address: activatedAddress ? activatedAddress.id : null,
-                status: "Pending"
+                status: "Pending",
+                delivery_option: selectedDelivery[farmerId] || 'Not Selected',
+                payment_method: selectedPayment[farmerId] || 'Not Selected'
             });
 
-             console.log('order', orderResponse.data);
+            console.log(`Order for Farmer ${farmerId}:`, orderResponse.data);
 
-            // Post order detail with orderCropIds
+            // Store this order ID
+            allOrderResponses.push(orderResponse.data);
+
+            // 6️⃣ Attach orderCropIds to this specific order
             const details = new FormData();
             details.append("order", orderResponse.data?.id);
-            
-            // Attach orderCropIds to the FormData for ManyToMany association
             orderCropIds.forEach(id => details.append("crop", id));
 
-            const detailResponse = await axios.post(POST_ORDER_DETAIL_URL, details);
-            // console.log('detail', detailResponse);
-
-            // Clear cart
-            setAddedItem([]);
-            localStorage.removeItem('cartItem'); // Assuming 'cartItem' is the key used in localStorage
-
-        } catch (err) {
-            console.log('error', err);
+            await axios.post(POST_ORDER_DETAIL_URL, details);
         }
-    };
-    
+
+        // ✅ All orders created successfully, clear cart
+        setAddedItem([]);
+        localStorage.removeItem('cartItem');
+
+    } catch (err) {
+        console.log('Error:', err);
+    }
+};
+
 
     return (
         <>
-            <div className="place-order col-lg-12 d-flex align-items-center mt-2 bg-white p-2">
-                <h4>Confirm Order</h4>    
-                <Link className='ms-auto'><i className="bi bi-skip-backward-fill text-success"></i> continue shopping</Link>
-            </div>
-            <div className="container-fluid">
+            <div className="container-fluid pt-2">
+                <div className="place-order col-lg-12 mt-2 bg-white p-2">
+                    <div className="conf d-flex">
+                        <h4 className='text-success'>Confirm Order</h4>   
+                        <Link to='/Buyer/all_farmers' className='ms-auto'>continue shopping</Link>
+                    </div>
+                    <Box sx={{ width: '100%' }}>
+                        <Stepper activeStep={1} alternativeLabel>
+                            {steps.map((label) => (
+                                <Step key={label}>
+                                    <StepLabel className='text-white'>{label}</StepLabel>
+                                </Step>
+                            ))}
+                        </Stepper>
+                    </Box> 
+                </div>
 
                 <div className="row px-xl-5 checkout-wrapper mt-4 p-2">
-
                     <div className="col-lg-8 sm-12 mb-5 user-info-div">
                         <BuyerAddress/>
 
@@ -250,22 +292,44 @@ function Checkout() {
                                 <h3>Delivery Options</h3>
                                 <h6 className='ms-auto'>change</h6>
                             </div>
-
+                            
+                            {/* Delivery Options */}
                             <div className="delivery-detail w-100">
-                                {delivery?.name?.map(deliver =>{
-                                    return (
-                                        <>
-                                <div className="door-delivery p-2 mt-2">
-                                    <input type='radio' name='delivery'/>
-                                    <div className="door-text">
-                                        <span>{deliver}</span>
-                                        <p>{deliver === 'Door Delivery' ? 'Let your ordered products reach you when you need them' : 'Come and pick your products from our place (farm)'}</p>
+                                {Object.keys(delivery).map((farmerId) => (
+                                    <div key={farmerId} className="delivery-service-options">
+                                        <h6 className='mt-2 text-warning'><strong>Farm:</strong> {deliverProfile[farmerId]?.farmName}</h6>
+                                        {delivery[farmerId].map((option) => {
+                                            const { id, fee, duration, name } = option;
+                                            return (
+                                                <div key={id}>
+                                                    {name?.map((deliver) => (
+                                                        <div className="door-delivery p-2 mt-2" key={deliver}>
+                                                            <input 
+                                                                type="radio" 
+                                                                name={`delivery-${farmerId}`} 
+                                                                checked={selectedDelivery[farmerId] === deliver}
+                                                                onChange={() => handleDeliveryChange(farmerId, deliver)}
+                                                            />
+                                                            <div className="door-text">
+                                                                <span>
+                                                                    {deliver.includes("Door Delivery")
+                                                                        ? `Door Delivery (UGX ${fee}) (duration: ${duration})`
+                                                                        : "Local Pickup"}
+                                                                </span>
+                                                                <p>
+                                                                    {deliver.includes("Door Delivery")
+                                                                        ? "Let your ordered products reach you when you need them"
+                                                                        : "Come and pick your products from our place (farm)"}
+                                                                </p>
+                                                            </div>
+                                                            <i className="bi bi-truck-front-fill ms-auto text-success"></i>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                    <i className="bi bi-truck-front-fill ms-auto text-success"></i>
-                                </div> 
-                                        </>
-                                    )
-                                })}
+                                ))}
                             </div>
                         </div>
 
@@ -277,60 +341,64 @@ function Checkout() {
                             </div>
 
                             <div className="choose p-2">
-                                {/* {payment.methodType?.length === 0 && (<p>No payment methods Available</p>)}
-                                {payment?.methodType?.map(type =>{
-                                    return (
-                                        <>
-                                <div className="choose-pay p-2 mt-2">
-                                    <input type='radio' name='payment'/>
-                                    <div className="pay-delivery">
-                                        <span>{type}</span>
-                                        <p>{type === 'Pay On Delivery' ? 'Pay for your products as long as they reach your door' : 'Pay instantly for your products with flutter wave'}</p>
+                                {Object.keys(payment).map(farmerId => (
+                                    <div key={farmerId} className='pay-service-options'>
+                                        <h6 className='mt-1 text-warning'><strong>Farm:</strong> {payProfile[farmerId]?.farmName}</h6>
+                                        {payment[farmerId].map(pay =>{
+                                            const {id} = pay;
+                                            return (
+                                                pay.methodType.map((type, typeIndex) => (
+                                                    <div key={`${id}-${typeIndex}`} className="choose-pay p-2 mt-2">
+                                                        <input 
+                                                            type='radio' 
+                                                            name={`payment-${farmerId}`} 
+                                                            checked={selectedPayment[farmerId] === type}
+                                                            onChange={() => handlePaymentChange(farmerId, type)}
+                                                        />
+                                                        <div className="pay-delivery">
+                                                            <span>{type}</span>
+                                                            <p>{type.includes('Pay On Delivery') ? 'Pay for your products as long as they reach your door' : 'Pay instantly for your products with flutter wave'}</p>
+                                                        </div>
+                                                        {type.includes('Pay On Delivery') ? 
+                                                            (<i className="bi bi-truck-flatbed ms-auto text-success"></i>) : 
+                                                            (<img src={image} alt='flutter' className='ms-auto flutter'></img>)
+                                                        }
+                                                    </div>
+                                                ))
+                                            );
+                                        })}
                                     </div>
-                                    {type === 'Pay On Delivery' ? (<i className="bi bi-truck-flatbed ms-auto text-success"></i>) : (<img src={image} alt='flutter' className='ms-auto'></img>)}
-                                </div>
-                                        
-                                        </>
-                                    )
-                                })} */}
-
-                                {/* <div className="choose-instant p-2 mt-2">
-                                    <input type='radio' name='payment'/>
-                                    <div className="flutter">
-                                        <span>Flutter wave</span>
-                                        <p>Pay instantly for your products with flutter wave</p>
-                                    </div>
-                                    <img src={image} alt='flutter' className='ms-auto'></img>
-                                </div> */}
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    <div className="col-lg-4 sm-12 cart-items-summary bg-white p-2 card border-secondary mb-5">
-                        <h5 className='summary-header p-2'>Order summary</h5>
-                        <ul>
-                            <li>
-                                <span>Item's total</span>
-                                <h6>UGX {totalAmount}</h6>
-                            </li>
+                    <div className="col-lg-4 mb-5">
+                        <div className="cart-items-summary bg-white p-2 card border-secondary mb-5">
+                            <h5 className='summary-header p-2'>Order summary</h5>
+                            <ul>
+                                <li>
+                                    <span>Item's total</span>
+                                    <h6>UGX {totalAmount}</h6>
+                                </li>
 
-                            <li>
-                                <span>Delivery fees</span>
-                                <h6>{delivery?.fee > 0.00 ? `UGX ${delivery.fee}` : 'UGX 0.00'}</h6>
-                            </li>
-                        </ul>
+                                <li>
+                                    <span>Delivery fees</span>
+                                    <h6>{Object.values(delivery).reduce((sum, options) => sum + parseFloat(options[0]?.fee || "0"), 0).toFixed(2)}</h6>
+                                </li>
+                            </ul>
 
-                        <div className="order-total w-100 mt-2 p-2">
-                            <h5>Total</h5>
-                            <span>UGX {totalPayment}</span>
+                            <div className="order-total w-100 mt-2 p-2">
+                                <h5>Total</h5>
+                                <span>UGX {totalPayment}</span>
+                            </div>
+
+                            <button className='p-2 w-100 mt-3' type='submit' onClick={handleConfirm}>Confirm Order</button>
                         </div>
-
-                        <button className='p-2 w-100 mt-3' type='submit' onClick={handleConfirm}>Confirm Order</button>
-
+                        <p className='text-center ms-auto'>By accepting, you are automatically accepting the <br></br><Link>Terms & conditions</Link></p>
                     </div>
                 </div>
             </div>
-            <p className='text-center ms-auto'>By accepting, you are automatically accepting the <br></br><Link>Terms & conditions</Link></p>
         </>
     );
 }

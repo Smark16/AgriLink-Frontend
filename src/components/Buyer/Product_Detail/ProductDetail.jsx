@@ -132,6 +132,11 @@ const renderStars = (averageRating) => {
           <button
             className="btn btn-success btn-plus"
             onClick={() => incrementQuantity(Product)}
+            disabled={
+              Product.availability === 0 
+                ? Product.quantity === Product.InitialAvailability 
+                : Product.quantity === Product.availability
+            }
           >
             <i className="bi bi-plus-lg"></i>
           </button>

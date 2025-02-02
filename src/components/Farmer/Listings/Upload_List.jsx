@@ -161,7 +161,7 @@ function Upload_List() {
 
   return (
     <>
-    <div className="container-fluid pt-5">
+    <div className="container-fluid pt-2">
       <div className="upload-header p-2">
       <h4>UPLOAD CROP</h4>
       <Box sx={{ width: '100%' }}>
