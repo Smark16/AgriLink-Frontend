@@ -8,22 +8,22 @@
   background-color: #ccc;
   cursor:not-allowed;
 }
-.cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px; 
-  }
+
   .upload-header{
     background-color: var(--background-color);
     color: #ffff;
   }
-  
-  .cards .MuiCard-root {
-    flex: 1 1 calc(33.33% - 10px); 
-    max-width: calc(33.33% - 10px); 
-    box-sizing: border-box; 
+  .soldout {
+    background-color: rgba(198, 250, 198, 0.3) !important;  /* Soft light green */
+    color: #2E7D32;  /* Professional dark green text */
+    cursor: not-allowed;
+}
+  .remove_crop{
+    border: none;
+    outline: none;
+    
   }
-
+  
   .farmer_crop_desc {
     word-break: break-word;
     overflow: hidden; 
@@ -103,19 +103,6 @@
 }
 /* end drop down */
 
-  @media (max-width: 768px) {
-    .cards .MuiCard-root {
-      flex: 1 1 calc(50% - 10px); /* 2 cards per row on smaller screens */
-      max-width: calc(50% - 10px); 
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .cards .MuiCard-root {
-      flex: 1 1 100%; /* 1 card per row on very small screens */
-      max-width: 100%;
-    }
-  }
   /* end card css */
 
   /* upload image css */
@@ -230,7 +217,7 @@ gap: 20px;
 }
 
 /* loader css */
-  .loader {
+  .list_loader {
     width: 100px;
     position: absolute;
     top: 40%;
@@ -245,8 +232,8 @@ gap: 20px;
     background-repeat: no-repeat;
     animation: l23 1s infinite steps(12);
   }
-  .loader::before,
-  .loader::after {
+  .list_loader::before,
+  .list_loader::after {
      content: "";
      grid-area: 1/1;
      border-radius: 50%;
@@ -254,7 +241,7 @@ gap: 20px;
      opacity: 0.915;
      transform: rotate(30deg);
   }
-  .loader::after {
+  .list_loader::after {
      opacity: 0.83;
      transform: rotate(60deg);
   }
@@ -297,6 +284,7 @@ gap: 20px;
   .edit-deliver{
     cursor: pointer;
   }
+
   
   @media screen and (max-width:768px) {
     .crop_image img{
@@ -309,7 +297,7 @@ gap: 20px;
    gap: 0px
   }
 
-  .loader {
+  .list_loader {
     width: 100px;
     position: absolute;
     top: 40%;

@@ -24,13 +24,20 @@ function Order() {
   const [showModal, setShowModal] = useState(false);
   const [usermadeItems, setUserMadeItems] = useState({});
   const [itemLoading, setItemLoading] = useState(false)
+  const [statusLoaders, setStatusLoaders] = useState({});
 
   const changeStatus = async (id, newStatus) => {
     try {
+      setStatusLoaders((prev) => ({ ...prev, [id]: true })); // Set loader for the specific order
       await axiosInstance.patch(
         `http://127.0.0.1:8000/agriLink/update_status/${id}`,
         { status: newStatus }
-      );
+      ).then(res => {
+        if (res.status === 202) {
+          setStatusLoaders((prev) => ({ ...prev, [id]: false })); // Turn off loader
+        }
+      });
+  
       setFarmerOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.order_id === id ? { ...order, status: newStatus } : order
@@ -38,6 +45,7 @@ function Order() {
       );
     } catch (err) {
       console.error("Error changing order status:", err);
+      setStatusLoaders((prev) => ({ ...prev, [id]: false })); // Ensure loader turns off on error
     }
   };
 
@@ -103,6 +111,8 @@ function Order() {
                 <th scope="col">ORDER ID</th>
                 <th scope="col">Buyer Name</th>
                 <th scope="col">District</th>
+                <th scope="col">Delivery Option</th>
+                <th scope="col">Payment method</th>
                 <th scope="col">Payment</th>
                 <th scope="col">Contact</th>
                 <th scope="col">Status</th>
@@ -112,16 +122,21 @@ function Order() {
             </thead>
             <tbody>
               {FarmerOrders.map((order) => {
-                const { order_id, buyer_name, status, district, contact, created_at } = order;
+                const { order_id, buyer_name, status, district, contact, created_at, delivery_Option, payment_method } = order;
                 const orderTime = moment(created_at).fromNow()
                 return (
                   <tr key={order_id}>
                     <td>{order_id}</td>
                     <td>{buyer_name}</td>
                     <td>{district}</td>
+                    <td>{delivery_Option}</td>
+                    <td>{payment_method}</td>
                     <td>{order.payment?.status}</td>
                     <td>{contact}</td>
                     <td>
+                      {statusLoaders[order_id] ? (
+                       <span className="status_loader text-black"></span>
+                      ) : (<>
                       {status === "Completed" ? (
                         <span className="text-success d-flex">
                           <i className="bi bi-check2-circle"></i> Completed
@@ -137,17 +152,46 @@ function Order() {
                           <i className="fa fa-spinner"></i> Waiting
                         </span>
                       )}
+                      
+                      </>)}
                     </td>
                     <td>{orderTime}</td>
                     <td>
                       <div className="actions">
                         {/* Dropdown */}
-                        <div className="dropdown">
-                          <span className="status_change">Change Status</span>
-                          <div className="dropdown-content">
-                            <p onClick={() => changeStatus(order_id, "Cancelled")}>Cancelled</p>
-                            <p onClick={() => changeStatus(order_id, "Completed")}>Completed</p>
-                            <p onClick={() => changeStatus(order_id, "Pending")}>Pending</p>
+                        <div className="dropdown ms-4">
+                          <button
+                            className="btn border dropdown-toggle"
+                            type="button"
+                            id={`statusDropdown${order_id}`}
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >
+                            Status
+                          </button>
+                          <div 
+                            className="dropdown-menu" 
+                            aria-labelledby={`statusDropdown${order_id}`}
+                          >
+                            <button 
+                              className="dropdown-item" 
+                              onClick={() => changeStatus(order_id, "Cancelled")}
+                            >
+                              Cancelled
+                            </button>
+                            <button 
+                              className="dropdown-item" 
+                              onClick={() => changeStatus(order_id, "Completed")}
+                            >
+                              Completed
+                            </button>
+                            <button 
+                              className="dropdown-item" 
+                              onClick={() => changeStatus(order_id, "Pending")}
+                            >
+                              Pending
+                            </button>
                           </div>
                         </div>
                         {/* End Dropdown */}
@@ -169,9 +213,9 @@ function Order() {
 {showModal && (
         <div className="custom-modal-overlay">
           <div className="custom-modal">
-            <div className="custom-modal-header">
+            <div className="custom-modal-header detail-head">
               <h5 className="custom-modal-title">Order Summary</h5>
-              <span>Created at: {usermadeItems.created_at} </span>
+              <span>Created at: {moment(usermadeItems.created_at).fromNow()} </span>
               <button type="button" className="close" onClick={() => setShowModal(false)}>
                 &times;
               </button>
@@ -182,9 +226,9 @@ function Order() {
   ) : (
     usermadeItems.order_detail.map((orderDetail) => {
       return orderDetail.crop.map((crop) => {
-        const { id, image, quantity, crop_name, price_per_unit, unit } = crop;
+        const { id, image, quantity, crop_name, price_per_unit, unit, weights } = crop;
         return (
-          <div key={id} className="order-items">
+          <div key={id} className="order-items p-2 mt-2">
             <div className="crop_container">
               <div className="crop_detail">
                 <img
@@ -195,7 +239,7 @@ function Order() {
                 <div className="moreDetail">
                   <div className="crop_info">
                     <h4>{crop_name}</h4>
-                    <h6>{usermadeItems.created_at}</h6>
+                    <h6>{moment(usermadeItems.created_at).fromNow()}</h6>
                   </div>
 
                   <span>UGX {price_per_unit} / {unit}</span>
@@ -204,12 +248,24 @@ function Order() {
 
               <div className="crop_quantity">
                 <div className="quantity">
-                  <h6>Quantity</h6>
-                  <p>{quantity}</p>
+                  <h6><strong>Quantity</strong></h6>
+                  <p>{quantity} {quantity > 1 ? `${unit}s` : unit}</p>
+
+                   {/* if weights */}
+                   {weights.length > 0 ? (<>
+                    {weights.map(w =>{
+                      const {weight, quantity} = w
+                      return (
+                        <div className="display-w">
+                          <span><strong>{weight}:</strong> {quantity} {quantity > 1 ? 'bags' : 'bag'}</span>
+                        </div>
+                      )
+                    })}
+                   </>) : ''}
                 </div>
 
-                <div className="total_price">
-                <h6>Total Price</h6>
+                <div className="total_price p-2">
+                <h6><strong>Total Price</strong></h6>
                 <span className="p-3">UGX {price_per_unit * quantity}</span>
                 </div>
               </div>

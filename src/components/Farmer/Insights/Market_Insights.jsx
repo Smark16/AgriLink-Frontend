@@ -13,7 +13,8 @@ import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
 
 const Market_Insights = () => {
-  const {user} = useContext(AuthContext)
+  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs} = useContext(AuthContext)
+  console.log(cropLogs)
   const encodedUserId = encodeURIComponent(user.user_id);
   
   const farmer_crops_url = `http://127.0.0.1:8000/agriLink/farmer/${encodedUserId}`
@@ -22,12 +23,13 @@ const Market_Insights = () => {
   const [monthlySales, setMonthlySales] = useState([])
   const [salesTrend, setSalesTrend] = useState([])
   const [crop_id, setCrop_id] = useState(null); 
-  const [cropLogs, setCropLogs] = useState([])
   const [selectedMonthData, setSelectedMonthData] = useState({ revenue: 0, quantity: 0 });
-  const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
+  // const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
   const [monthlysalesTrend, setMonthlySalesTrend] = useState([{revenue:0}])
   const [salesPerformance, setSalesPerformance] = useState(null);
   const [farmerPricing, setFarmerPricing] = useState({})
+  const [cropLoader, setCropLoader] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   const months = [
     "January", "February", "March", "April", "May", "June", 
@@ -54,11 +56,22 @@ let today = getFormattedDate();
     }
   };
 
+  // get current month and year
+  const getCurrentMonthAndYear = () => {
+    const currentDate = new Date();
+    return {
+      month: currentDate.getMonth() + 1, // Months are 0-indexed in JavaScript
+      year: currentDate.getFullYear(),
+    };
+  };
+
   const fetchFarmerCrops = async () => {
+    setCropLoader(true)
     try {
       const response = await axios(farmer_crops_url);
-      const { results } = response.data;
+      const {results} = response.data
       setFarmerCrops(results.crops);
+      setCropLoader(false)
       if (results.crops.length > 0) {
         setCrop_id(results.crops[0].id); // Set crop_id once crops are fetched
       }
@@ -71,6 +84,7 @@ let today = getFormattedDate();
   const handleCropChange = (id) => {
     if (id) {
       setCrop_id(id);
+      setShowModal(true)
     }
   };
 
@@ -81,6 +95,7 @@ let today = getFormattedDate();
         const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}`);
         const data = response.data;
         setMonthlySales(data);
+        setShowModal(false)
         setSelectedMonthData({ revenue: 0, quantity: 0 });
       } catch (err) {
         console.log('err', err);
@@ -96,6 +111,7 @@ let today = getFormattedDate();
         const data = response.data;
         setSalesTrend(data)
         setMonthlySalesTrend([{revunue:0}])
+        setShowModal(false)
         calculatePerformance(data);
       } catch (err) {
         console.log('err', err);
@@ -118,20 +134,6 @@ let today = getFormattedDate();
     }
   };
 
-  // userinterlogs 
-  const crop_logs = async () =>{
-    if(crop_id){
-      try{
-         const response = await axios(`http://127.0.0.1:8000/agriLink/crop_actions/stats/${crop_id}`)
-         const data = response.data;
-         setCropLogs(data.monthly_stats)
-         setSelectMonthLogs({views:0, purchases:0})
-      }catch(err){
-        console.log('err', err)
-      }
-    }
-  }
-
   // farmer pricing
   const FarmerPricing = async()=>{
     if(crop_id){
@@ -139,6 +141,7 @@ let today = getFormattedDate();
         const response = await axios(`http://127.0.0.1:8000/agriLink/crop_market_insights/${crop_id}`)
         const data = response.data
         setFarmerPricing(data)
+        setShowModal(false)
       }catch(err){
         console.log('err', err)
       }
@@ -159,17 +162,84 @@ let today = getFormattedDate();
     }
   };
 
+     // userinterlogs 
+    //  const crop_logs = async () =>{
+    //   if(crop_id){
+    //     try{
+    //        const response = await axios(`http://127.0.0.1:8000/agriLink/get_crop_actions/${crop_id}`)
+    //        const data = response.data;
+    //        setCropLogs(data[0].monthly_stats)
+    //        setShowModal(false)
+    //        setSelectMonthLogs({views:0, purchases:0})
+    //     }catch(err){
+    //       console.log('err', err)
+    //     }
+    //   }
+    // }
+
+    const crop_logs = async () => {
+      if (crop_id) {
+        try {
+          const response = await axios(`http://127.0.0.1:8000/agriLink/get_crop_actions/${crop_id}`);
+          const data = response.data;
+          setCropLogs(data[0].monthly_stats || []); // Ensure cropLogs is an array
+          setShowModal(false);
+          setSelectMonthLogs({ views: 0, purchases: 0 });
+        } catch (err) {
+          console.log('err', err);
+        }
+      }
+    };
+  
+
+  // const handleMonthLog = (event) => {
+  //   if(cropLogs.length === 0) return;
+  //   const selectedMonthIndex = parseInt(event.target.value, 10);
+  //   const selectedData = cropLogs.find(log => log.month === selectedMonthIndex + 1);
+  //   if (selectedData) {
+  //     setSelectMonthLogs({
+  //       views: selectedData.views || 0,
+  //       purchases: selectedData.purchases || 0,
+  //     });
+  //   }
+  // };
+
   // select month logs
- const handleMonthLog = (event) => {
+//  const handleMonthLog = (event) => {
+//   const selectedMonthIndex = parseInt(event.target.value, 10); // Ensure the value is parsed as an integer
+//   const selectedData = cropLogs.find(
+//     (log) => log.month === selectedMonthIndex + 1
+//   );
+//   if (selectedData) {
+//     setSelectMonthLogs({
+//       views: selectedData.views,
+//       purchases: selectedData.purchases,
+//     });
+//   }
+// };
+
+// monthly logs
+const handleMonthLog = (event) => {
   const selectedMonthIndex = parseInt(event.target.value, 10); // Ensure the value is parsed as an integer
-  const selectedData = cropLogs.find(
-    (log) => log.month === selectedMonthIndex + 1
-  );
-  if (selectedData) {
+
+  if (cropLogs.length === 0) {
+    // If cropLogs is empty, use the current month and year
+    const { month, year } = getCurrentMonthAndYear();
     setSelectMonthLogs({
-      views: selectedData.views,
-      purchases: selectedData.purchases,
+      views: 0,
+      purchases: 0,
     });
+  } else {
+    // If cropLogs has data, find the selected month and year
+    const selectedData = cropLogs.find(
+      (log) => log.month === selectedMonthIndex + 1
+    );
+    if (selectedData) {
+      setSelectMonthLogs({
+        views: selectedData.views,
+        purchases: selectedData.purchases,
+      });
+    }
   }
 };
 
@@ -196,8 +266,8 @@ const handleSalesTrend = (event) => {
 
 useEffect(() => {
   monthly_sales();
-  crop_logs()
   sales_trend()
+  crop_logs()
   FarmerPricing()
 }, [crop_id]); 
 
@@ -222,17 +292,27 @@ useEffect(() => {
 
 // Automatically set stats if only one month is available in cropLogs
 useEffect(() => {
-  if (cropLogs.length === 1) {
-    const { views, purchases } = cropLogs[0];
+  if (cropLogs.length === 0) {
+    const { month, year } = getCurrentMonthAndYear();
     setSelectMonthLogs({
-      views: views,
-      purchases: purchases,
+      views: 0,
+      purchases: 0,
     });
+  } else {
+    const { month, year } = getCurrentMonthAndYear();
+    const currentMonthData = cropLogs.find(
+      (log) => log.month === month && log.year === year
+    );
+    if (currentMonthData) {
+      setSelectMonthLogs({
+        views: currentMonthData.views,
+        purchases: currentMonthData.purchases,
+      });
+    }
   }
 }, [cropLogs]);
 
 
-  
   const overallPerformanceConfig = {
     series: [{ name: "Sales",   data:monthlysalesTrend.map((sale) => sale.revenue || 0)}],
     options: {
@@ -245,6 +325,8 @@ useEffect(() => {
 
 
   return (
+    <>
+    
     <Box sx={{ padding: "20px", backgroundColor: "#f5fff5"}}>
       {/* Header */}
       <Box
@@ -273,21 +355,23 @@ useEffect(() => {
           boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
         }}
       >
-        {farmerCrops.map((crop) => (
-          <Button
-            key={crop.id}
-            sx={{
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              padding: "10px 20px",
-               backgroundColor: crop_id === crop.id ? "var(--background-color)" : "inherit",
-               color: crop_id === crop.id ? "white" : "#4CAF50"
-            }}
-            onClick={() => handleCropChange(crop.id)}
-          >
-            {crop.crop_name}
-          </Button>
-        ))}
+        {cropLoader ? (<h6>Fetching Crops...</h6>) : (
+          farmerCrops.map((crop) => (
+            <Button
+              key={crop.id}
+              sx={{
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                padding: "10px 20px",
+                 backgroundColor: crop_id === crop.id ? "var(--background-color)" : "inherit",
+                 color: crop_id === crop.id ? "white" : "#4CAF50"
+              }}
+              onClick={() => handleCropChange(crop.id)}
+            >
+              {crop.crop_name}
+            </Button>
+          ))
+        )}
       </Box>
 
 {/* crop perfomance metrics */}
@@ -334,16 +418,23 @@ useEffect(() => {
 
   <div className="col-md-4 sm-12 ms-auto">
   <select id="autoSizingSelect" className="form-select" onChange={handleMonthLog}>
-    {cropLogs.map(log =>{
-      const {year, month} = log
+  {cropLogs.length === 0 ? (
+    // If cropLogs is empty, show the current month and year
+    <option value={new Date().getMonth()}>
+      {show_month(new Date().getMonth())} {new Date().getFullYear()}
+    </option>
+  ) : (
+    // If cropLogs has data, show the available months and years
+    cropLogs.map((log) => {
+      const { year, month } = log;
       return (
-        <>
-        <option value={month - 1}>{show_month(month - 1)} {year}</option>
-        </>
-      )
-    })}
-
-  </select>
+        <option key={`${year}-${month}`} value={month - 1}>
+          {show_month(month - 1)} {year}
+        </option>
+      );
+    })
+  )}
+</select>
 </div>
 </div>
 
@@ -428,12 +519,12 @@ useEffect(() => {
           <div className="col-md-6 sm-12 farmer_pricing">
             <h4>Different Farmer Prices</h4>
             <ul>
-  {farmerPricing && farmerPricing.crop === crop_id && Array.isArray(farmerPricing.farmer_pricing) && farmerPricing.farmer_pricing.length > 0 ? (
-    farmerPricing.farmer_pricing.map((price, index) => {
-      const { farmer, price_per_kg } = price;
+  {farmerPricing && farmerPricing.crop === crop_id && Array.isArray(farmerPricing.farmer_pricing) && farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).length > 0 ? (
+    farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).map((price, index) => {
+      const { farmer, price_per_unit, unit } = price;
       return (
         <li key={index}>
-          {farmer} (UGX {price_per_kg} / KG)
+          {farmer} (UGX {price_per_unit} / {unit})
         </li>
       );
     })
@@ -445,6 +536,22 @@ useEffect(() => {
         </div>
       </Grid>
     </Box>
+
+    
+      {/* Custom Modal */}
+       {showModal && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal">
+            <div className="custom-modal-header">
+            </div>
+            <div className="custom-modal-body p-2 justify-content-center d-flex">
+            <div className="status_loader"></div>
+            <h6>Changing Crop View.....</h6>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

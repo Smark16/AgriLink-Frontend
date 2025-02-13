@@ -145,6 +145,12 @@ width: 100%;
 .method{
     border-bottom: 1px solid #ccc;
 }
+.choose-list{
+    background-color: transparent;
+}
+.choose-list li{
+    background-color: transparent !important;
+}
 
 /* summary */
 .cart-items-summary{
@@ -181,6 +187,25 @@ width: 100%;
     color: white;
     border-radius: 10px;
 }
+
+/* confirm payment */
+.pay-row{
+    width: 60%;
+    margin: auto;
+}
+.pay-row .mobile{
+    border-bottom: 1px solid #ddd;
+}
+.operator{
+    width: 80px;
+    display: flex;
+    justify-content: space-between;
+}
+.operator img{
+    width: 30px;
+    height: 30px;
+}
+
 
 /*media screens  */
 @media screen and (max-width:768px) {

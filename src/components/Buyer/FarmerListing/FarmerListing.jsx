@@ -135,6 +135,7 @@ function FarmerListing() {
    const filtered = farmers.filter(farmer => farmer.location.toLowerCase() === location.toLowerCase())
    setFilteredFarmers(filtered)
   }
+  
  
   return (
     <div className='listing_wrapper bg-white p-3'>
@@ -199,7 +200,7 @@ function FarmerListing() {
 
       <div className="Farmer-cards mt-3">
         {loading ? (
-          <div className="loader"></div>
+          <div className="list_loader"></div>
         ) : (
           filteredFarmers.map(farmer => (
             <Card key={farmer.id} sx={{ maxWidth: 345 }} className='col-md-3 sm-12'>
@@ -215,10 +216,10 @@ function FarmerListing() {
               <CardActions>
                 <Button size="small">
                   <Link to={`/Buyer/farmer_product_listing/${encodeURIComponent(farmer.user)}`} className="text-decoration-none">
-                    View Detail
+                    View Products
                   </Link>
                 </Button>
-                <Button size="small">Share</Button>
+                {/* <Button size="small">Share</Button> */}
               </CardActions>
             </Card>
           ))

@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import BuyerAddress from './BuyerAddress';
 import image from '../../images/flutterwave.jpg';
 import { AuthContext } from '../../Context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import Swal from 'sweetalert2'
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -23,18 +24,21 @@ const POST_ORDER_URL = 'http://127.0.0.1:8000/agriLink/post_orders';
 const POST_ORDER_CROPS = 'http://127.0.0.1:8000/agriLink/post_order_crops';
 
 function Checkout() {
-    const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user } = useContext(AuthContext);
+    const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user, socketRef} = useContext(AuthContext);
+    const navigate = useNavigate()
+
     const [delivery, setDelivery] = useState({});
     const [payment, setPayment] = useState({});
     const [totalAmount, setTotalAmount] = useState();
     const [totalPayment, setTotalPayment] = useState();
     const [deliverProfile, setDeliverProfile] = useState({});
     const [payProfile, setPayProfile] = useState({});
+    const [loading, setLoading] = useState(false)
 
     // State to track selected delivery and payment options for each farmer
     const [selectedDelivery, setSelectedDelivery] = useState({});
     const [selectedPayment, setSelectedPayment] = useState({});
-
+    
     useEffect(() => {
         const fetchDefaultAddress = async () => {
             try {
@@ -109,6 +113,7 @@ function Checkout() {
 
             setTotalPayment((cash + totalDeliveryFee).toLocaleString());
             setTotalAmount(cash.toLocaleString());
+             
         };
 
         calculateTotalAmount();
@@ -128,31 +133,73 @@ function Checkout() {
         }));
     };
 
+
 // handle order submission
 const handleConfirm = async () => {
     try {
+        setLoading(true);
         // Group products by farmer
         const productsByFarmer = addedItem.reduce((acc, item) => {
             if (!acc[item.user]) {
                 acc[item.user] = []; // Initialize array for the farmer if not exists
             }
-            acc[item.user].push(item); // Add product to the farmer's list
+            acc[item.user].push(item); 
             return acc;
         }, {});
 
-        // Store all created order IDs
-        let allOrderResponses = [];
+        // separating farmer amounts to be paid by buyer
+        const farmerPayments = {};
+        for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
+            let farmerTotal = farmerProducts.reduce((sum, item) => {
+                const { quantity, price_per_unit, get_discounted_price, weight } = item;
+                const finalPrice = get_discounted_price > 0 ? get_discounted_price : price_per_unit;
+        
+                if (Array.isArray(weight) && weight.length > 0) {
+                    return sum + weight.reduce((weightSum, w) => {
+                        const weightValue = parseFloat(w.weight.replace('kg', '').trim());
+                        return weightSum + (weightValue * w.quantity * finalPrice);
+                    }, 0);
+                } else {
+                    return sum + (finalPrice * quantity);
+                }
+            }, 0);
+        
+            // Check if Door Delivery is selected for this farmer
+            const isDoorDeliverySelected = selectedDelivery[farmerId]?.includes('Door Delivery');
+            let deliveryFee = 0;
+            
+            if (isDoorDeliverySelected && delivery[farmerId]?.length > 0) {
+                deliveryFee = parseFloat(delivery[farmerId].find(option => option.name.includes('Door Delivery'))?.fee || "0");
+            }
+        
+            farmerPayments[farmerId] = (farmerTotal + deliveryFee).toFixed(2);
+        }
+        
+        // Store farmerPayments in sessionStorage or pass it via state/context to ConfirmPayment
+        sessionStorage.setItem('farmerPayments', JSON.stringify(farmerPayments));
 
+        console.log('farmer-payments', farmerPayments);
+        // Store all created order IDs
+        let allOrderResponses = {};
+        
         // Iterate through each farmer's products
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
             
             // 1️⃣ Update availability for each product in this farmer's list
             await Promise.all(farmerProducts.map(async (item) => {
                 const EDIT_AVAILABILITY_URL = `http://127.0.0.1:8000/agriLink/update_quantity/${item.id}`;
-                const remained = item.availability === 0 
-                    ? item.InitialAvailability - item.quantity 
-                    : item.availability - item.quantity;
+                
+                let remained = 0;  // Reset for each item
 
+                if (item.weight && item.weight.length > 0) {
+                    // If product has weights, calculate new availability based on weights
+                    remained = item.weight.reduce((sum, w) => sum + Math.max(w.available - w.quantity, 0), 0);
+                } else {
+                    // If no weights, use direct quantity
+                    remained = item.availability - item.quantity;
+                }
+
+                console.log('remained availability', remained);
                 await axios.patch(EDIT_AVAILABILITY_URL, { "availability": remained });
             }));
 
@@ -171,14 +218,14 @@ const handleConfirm = async () => {
                     const updatedWeights = product.weight.map(w => ({
                         weight: w.weight,
                         quantity: 0,
-                        available: w.available - w.quantity
+                        available: Math.max(w.available - w.quantity, 0) // Ensure available doesn't go negative
                     }));
                     productData.append("weight", JSON.stringify(updatedWeights));
                     productData.append("price_per_unit", product.price_per_unit);
                     productData.append("unit", product.unit);
                     productData.append("InitialAvailability", product.InitialAvailability);
-                    productData.append("availability", product.availability);
-                    productData.append("quantity", 0);
+                    // Here, we update availability based on the sum of all weights' available
+                    productData.append("availability", updatedWeights.reduce((sum, w) => sum + w.available, 0));
 
                     // Handle image upload
                     if (typeof product.image === 'string') {
@@ -232,35 +279,72 @@ const handleConfirm = async () => {
             // 5️⃣ Create an order for this farmer
             const orderResponse = await axios.post(POST_ORDER_URL, {
                 user: user?.user_id,  // The buyer
-                farmer: farmerId,  // The seller (farmer)
                 address: activatedAddress ? activatedAddress.id : null,
                 status: "Pending",
                 delivery_option: selectedDelivery[farmerId] || 'Not Selected',
                 payment_method: selectedPayment[farmerId] || 'Not Selected'
             });
 
+            sessionStorage.setItem('currentOrderID', orderResponse.data.id);
+
             console.log(`Order for Farmer ${farmerId}:`, orderResponse.data);
 
-            // Store this order ID
-            allOrderResponses.push(orderResponse.data);
+            // Store this order ID with farmer ID
+            allOrderResponses[farmerId] = orderResponse.data.id;
+            console.log('order_ids', allOrderResponses);
 
             // 6️⃣ Attach orderCropIds to this specific order
             const details = new FormData();
             details.append("order", orderResponse.data?.id);
             orderCropIds.forEach(id => details.append("crop", id));
 
-            await axios.post(POST_ORDER_DETAIL_URL, details);
+            await axios.post(POST_ORDER_DETAIL_URL, details)
+            .then(res => {
+                if(res.status === 201){
+                   if(selectedPayment[farmerId] === 'Flutter Wave'){
+                    // navigate('/Buyer/confirm-payment')
+                    sessionStorage.setItem('allOrderResponses', JSON.stringify(allOrderResponses));
+                    navigate('/Buyer/confirm-payment', { state: { farmerPayments } });
+                   }
+
+                   if(selectedPayment[farmerId] === 'Pay On Delivery'){
+                    navigate('/Buyer/dashboard')
+                    Swal.fire({
+                        title: 'Order Confirmed',
+                        icon: "success",
+                        timer: 2000,
+                      });
+                   }
+                   setLoading(false);
+                   
+                   for(let item of addedItem){
+                    if(socketRef.current && socketRef.current.readyState === WebSocket.OPEN){
+                        socketRef.current.send(JSON.stringify({
+                            action:'purchase',
+                            crop: item.id
+                        }))
+                   }
+                   }
+                  
+                   
+                }
+            }).catch(err => {
+                console.log(err);
+                setLoading(false); // Ensure loading state is turned off even if there's an error
+            });
         }
 
         // ✅ All orders created successfully, clear cart
         setAddedItem([]);
         localStorage.removeItem('cartItem');
+        localStorage.removeItem('quantities')
+        localStorage.removeItem('selectedQuantities')
 
     } catch (err) {
         console.log('Error:', err);
+        setLoading(false); // Ensure to turn off loading state on errors
     }
 };
-
 
     return (
         <>
@@ -348,22 +432,47 @@ const handleConfirm = async () => {
                                             const {id} = pay;
                                             return (
                                                 pay.methodType.map((type, typeIndex) => (
-                                                    <div key={`${id}-${typeIndex}`} className="choose-pay p-2 mt-2">
-                                                        <input 
-                                                            type='radio' 
-                                                            name={`payment-${farmerId}`} 
-                                                            checked={selectedPayment[farmerId] === type}
-                                                            onChange={() => handlePaymentChange(farmerId, type)}
-                                                        />
-                                                        <div className="pay-delivery">
-                                                            <span>{type}</span>
-                                                            <p>{type.includes('Pay On Delivery') ? 'Pay for your products as long as they reach your door' : 'Pay instantly for your products with flutter wave'}</p>
-                                                        </div>
-                                                        {type.includes('Pay On Delivery') ? 
-                                                            (<i className="bi bi-truck-flatbed ms-auto text-success"></i>) : 
-                                                            (<img src={image} alt='flutter' className='ms-auto flutter'></img>)
-                                                        }
+                                                    // start
+                                                    <div className="choose_wrapperr">
+                                                       <div key={`${id}-${typeIndex}`} className="choose-pay p-2 mt-2">
+                                                    <input 
+                                                        type='radio' 
+                                                        name={`payment-${farmerId}`} 
+                                                        checked={selectedPayment[farmerId] === type}
+                                                        onChange={() => handlePaymentChange(farmerId, type)}
+                                                    />
+                                                    <div className="pay-delivery">
+                                                        <span>{type}</span>
+                                                        <p>{type.includes('Pay On Delivery') ? 'Pay for your products as long as they reach your door' : 'Pay instantly for your products with Flutter Wave'}</p>
                                                     </div>
+                                                    {type.includes('Pay On Delivery') ? 
+                                                        (<i className="bi bi-truck-flatbed ms-auto text-success"></i>) : 
+                                                        (<img src={image} alt='Flutter Wave' className='ms-auto flutter'></img>)
+                                                    }
+                                                
+                                                </div>
+
+                                                {/* choose mobile options */}
+                                                {/* {selectedPayment[farmerId] === type && type === 'Flutter Wave' && (
+                                                        <ul className='choose-list'>
+                                                            <li>
+                                                                <h6 className='text-black'>Airtel</h6>
+                                                                <span>Pay bills through Airtel money</span>
+                                                            </li>
+                                                            <li>
+                                                                <h6 className='text-black'>MTN</h6>
+                                                                <span>Pay bills through MTN money</span>
+                                                            </li>
+
+                                                            <li>
+                                                                <button className='btn btn-success' onClick={savePaymentDetails}>Pay Now</button>
+                                                            </li>
+                                                        </ul>
+                                                        
+                                                    )} */}
+                                                    </div>
+                                                   
+                                                    // end
                                                 ))
                                             );
                                         })}
@@ -393,7 +502,9 @@ const handleConfirm = async () => {
                                 <span>UGX {totalPayment}</span>
                             </div>
 
-                            <button className='p-2 w-100 mt-3' type='submit' onClick={handleConfirm}>Confirm Order</button>
+                            <button className='p-2 w-100 mt-3' type='submit' onClick={handleConfirm}>
+                               {loading ? 'Confirming...' : 'Confirm Order'}
+                                </button>
                         </div>
                         <p className='text-center ms-auto'>By accepting, you are automatically accepting the <br></br><Link>Terms & conditions</Link></p>
                     </div>

@@ -8,6 +8,7 @@ body {
   min-height: 100vh;
   font-family: "Poppins", serif !important;
   font-weight: 400;
+  font-size: 15px !important;
   font-style: normal;
   background-color: #f0f0f0 !important;
   /* #f8f9fa */

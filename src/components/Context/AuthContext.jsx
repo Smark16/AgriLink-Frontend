@@ -1,6 +1,7 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
+import axios from 'axios';
 
 export const AuthContext = createContext();
 
@@ -22,16 +23,78 @@ export const AuthProvider = ({ children }) => {
   const [weightArray, setWeightArray] = useState([])
   const [weightQuantity, setWeightQuantity] = useState(null)
   const [activatedAddress, setActivatedAddress] = useState({})
-   const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [cropLogs, setCropLogs] = useState([])
+   const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
    
+  const socketRef = useRef(null)
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     const totalItems = addedItem.reduce((sum, item) => sum + item.quantity, 0);
     setTotalQuantity(totalItems);
   }, [addedItem]);
-  
 
+
+  // real-time crop logs
+  useEffect(() =>{
+    socketRef.current = new WebSocket(`ws://127.0.0.1:8000/ws/user_logs/${user?.user_id}/`);
+  
+    socketRef.current.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    socketRef.current.onclose =() =>{
+      console.log('websocket connection disconnected')
+    }
+  
+    socketRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received message:', data);
+      setCropLogs(prev => [...prev, {'action':data.action, 'crop':data.crop, 'monthly_stats':data.monthly_stats}])
+  
+      if (data.type === 'user_logs') {
+        // Merge new stats with existing cropLogs
+       
+        // Update selectMonthLogs if the selected month is in the new stats
+        setSelectMonthLogs((prevLogs) => {
+          const selectedMonthStat = data.monthly_stats.find(
+            (stat) => stat.year === prevLogs.year && stat.month === prevLogs.month
+          );
+  
+          if (selectedMonthStat) {
+            return {
+              views: selectedMonthStat.views,
+              purchases: selectedMonthStat.purchases,
+            };
+          }
+  
+          return prevLogs;
+        });
+      }
+    };
+  
+    socketRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+         //Cleanup function to close the WebSocket connection when the component unmounts
+          return () => {
+            if (socketRef.current) {
+              socketRef.current.close();
+          }
+        };
+  }, [user])
+  
+const handleViewLog = (id)=>{
+  if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+    socketRef.current.send(JSON.stringify({
+      action: 'view',
+      crop: id
+    }));
+  }
+} 
   // Update handleCart
   const handleCart = (item) => {
     setAddedItem(prevItems => {
@@ -80,18 +143,25 @@ const incrementQuantity = (item) => {
 const decrementQuantity = (item) => {
   if (item.weight && item.weight.length > 0) {
     console.warn("Decrementing weight quantity not directly handled here. Update in Weights component.");
-  } else if (item.quantity > 1) {
-    const updatedItems = addedItem.map((cartItem) => 
-      cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem
-    );
+  } else {
+    // Find the item in the cart
+    const updatedItems = addedItem.map((cartItem) => {
+      if (cartItem.id === item.id) {
+        const newQuantity = cartItem.quantity > 1 ? cartItem.quantity - 1 : 1;
+        return { ...cartItem, quantity: newQuantity };
+      }
+      return cartItem;
+    });
+
+    // Update the cart in state and local storage
     localStorage.setItem('cartItem', JSON.stringify(updatedItems));
     setAddedItem(updatedItems);
-    
-    // Update total quantity
+
+    // Update the total quantity (if needed)
     const newTotalQuantity = updatedItems.reduce((acc, cartItem) => {
       return acc + (cartItem.weight ? cartItem.weight.reduce((sum, w) => sum + w.quantity, 0) : cartItem.quantity);
     }, 0);
-    setTotalQuantity(newTotalQuantity);
+    setTotalQuantity(newTotalQuantity); // Ensure setTotalQuantity is defined in your context
   }
 };
 
@@ -168,19 +238,6 @@ const decrementWeightQuantity = (item, weightIndex)=>{
   });
 }
 
-  // update cart quantity
-  // const updateCartItem = (product, newQuantity) => {
-  //   setAddedItem(prevItems => {
-  //     const updatedItems = prevItems.map(item => 
-  //       item.id === product.id ? { ...item, quantity: newQuantity } : item
-  //     );
-  //     localStorage.setItem('cartItem', JSON.stringify(updatedItems));
-  //     return updatedItems;
-  //   });
-  //   const newCount = addedItem.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  //   setTotalQuantity(newCount);
-  // };
-
   useEffect(() => {
     const storedTokens = JSON.parse(localStorage.getItem('authtokens'));
     if (storedTokens) {
@@ -232,7 +289,13 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     notifications, 
     setNotifications,
     notificationCount, 
-    setNotificationCount
+    setNotificationCount,
+    cropLogs, 
+    setCropLogs,
+    handleViewLog,
+    selectMonthLogs, 
+    setSelectMonthLogs,
+    socketRef
   };
 
   return (

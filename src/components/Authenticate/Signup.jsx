@@ -22,6 +22,7 @@ function Signup() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false)
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -47,7 +48,7 @@ function Signup() {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoading(true)
     // Validate Full Name
     if (formData.FullName.trim().split(" ").length < 2) {
       setError("Please enter your full name, including both first and last name.");
@@ -85,6 +86,7 @@ function Signup() {
           password: "",
           confirm_password: "",
         });
+        setLoading(false)
         navigate('/login');
       } else {
         const data = await response.json();
@@ -239,7 +241,7 @@ function Signup() {
             {success && <p className="text-success">{success}</p>}
 
             <button type="submit" className="btn btn-primary">
-              Sign Up
+            {loading ? 'Signing...' : 'Sign up'}
             </button>
 
             <p>

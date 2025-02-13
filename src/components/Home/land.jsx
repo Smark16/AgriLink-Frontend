@@ -6,7 +6,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
 
-import image from "../images/image.jpg";
 import image_2 from "../images/image_2.jpg";
 import image_3 from "../images/image_3.jpg";
 import image_4 from "../images/image_4.jpg";
@@ -25,11 +24,11 @@ const MacbookPro = () => {
     <>
     {/* INTRO */}
     <section className="intro bg-white">
-<div className="intro_text">
+<div className="intro_text justify-content-center">
   <h1 className="text-white">WELCOME TO AGRILINK</h1>
     <h4>Empowering Farmers,<br></br>
     Connecting Buyers With <span className="gri">AgriLink</span></h4>
-    <span className="start">Your Marketplace for Fresh, Direct-from-Farm Produce!</span>
+    <span className="start text-center">Your Marketplace for Fresh, Direct-from-Farm Produce!</span>
     <div className="mt-5">GET STARTED</div>
 </div>
 

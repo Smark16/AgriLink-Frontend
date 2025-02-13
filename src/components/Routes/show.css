@@ -29,10 +29,10 @@
 
 @media screen and (max-width:768px) {
     .content {
-        flex: 1;
-        margin-left: 300px;
-        padding: 20px;
-        margin-top: -30px;
+        /* flex: 1; */
+        width: 100%;
+        /* margin-left: 300px;
+        margin-top: -30px; */
         transition: margin-left 0.3s ease;
     }
 }
@@ -43,9 +43,8 @@ and (min-device-width: 768px)
 and (max-device-width: 1024px) 
 and (orientation: portrait) {
     .content {
-        width: 800px;
+        width: 100%;
         margin-left: 200px;
-        padding: 20px;
         margin-top: -30px;
         transition: margin-left 0.3s ease;
     }

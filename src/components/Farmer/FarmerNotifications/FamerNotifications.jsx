@@ -90,7 +90,7 @@ function FarmerNotifications() {
                   </div>
 
                   <div className="notify mt-2">
-                    <h5 className={`msg_header ${is_read ? 'read' : ''}`}>Raymond Kasozi</h5>
+                    <h5 className={`msg_header ${is_read ? 'read' : ''}`}>AgriLink</h5>
                     <span
                       className={`${
                         openMessageIndex === index ? 'show' : 'msg_text'

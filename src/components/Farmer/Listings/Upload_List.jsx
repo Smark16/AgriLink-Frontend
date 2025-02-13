@@ -20,7 +20,7 @@ const steps = [
 
 const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
 const post_crops_url = 'http://127.0.0.1:8000/agriLink/post_crops';
-
+const MARKET_TREND = 'http://127.0.0.1:8000/agriLink/market-trends/'
 function Upload_List() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -40,6 +40,7 @@ function Upload_List() {
     price_per_unit: 0,
     InitialAvailability: 0,
     image: '',
+    availability:0
   });
   const [imageUploaded, setImageUploaded] = useState('');
   const [dragging, setDragging] = useState(false);
@@ -105,6 +106,7 @@ function Upload_List() {
     formData.append('description', crop.description);
     formData.append('price_per_unit', crop.price_per_unit);
     formData.append('InitialAvailability', crop.InitialAvailability);
+    formData.append('availability', crop.InitialAvailability)
     formData.append('image', crop.image);
     formData.append('weight', JSON.stringify(crop.weight.filter(w => w.available > 0)));
 
@@ -113,6 +115,11 @@ function Upload_List() {
           'Content-Type': 'multipart/form-data'
         }
       });
+
+      await axios.post(MARKET_TREND, {crop:response.data.id})
+      .then(res => console.log(res))
+      .catch(err => console.log(err))
+
       setLoading(false);
       showSuccessAlert('Product uploaded successfully');
       navigate('/farmer/listings');

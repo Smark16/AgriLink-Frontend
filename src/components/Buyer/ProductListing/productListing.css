@@ -65,6 +65,28 @@ height: 175px;
     animation: bounce 1s infinite;
   }
   
+  .show-available{
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .desc{
+    word-break: break-word;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    -webkit-line-clamp: 1; 
+    display: -webkit-box; 
+    -webkit-box-orient: vertical; 
+  }
+  .product_row{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.list_row{
+    justify-content: center;
+}
+
   @keyframes bounce {
     0%, 100% {
       transform: translateY(0); /* Starting and ending at the same position */

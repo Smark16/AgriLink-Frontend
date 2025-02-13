@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
@@ -8,10 +8,11 @@ import Swal from 'sweetalert2';
 import { AuthContext } from '../../Context/AuthContext';
 import Review from './Review';
 import Weights from './Weights';
+import { Link } from 'react-router-dom';
 
 function ProductDetail() {
   const {id} = useParams()
-  const { handleCart, addedItem, quantity, setQuantity, incrementQuantity, decrementQuantity } = useContext(AuthContext);
+  const { handleCart, addedItem, quantity, setQuantity, incrementQuantity, decrementQuantity} = useContext(AuthContext);
 
   const PRODUCT_DETAIL_URL = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`
   const [Product, setProduct] = useState({})
@@ -78,6 +79,17 @@ const renderStars = (averageRating) => {
   return stars;
 };
 
+// SOLD OUT
+const isSoldOut = (crop) => {
+  if (crop.weight && crop.weight.length > 0) {
+    // If there are weights, sum up all available quantities
+    return crop.weight.reduce((sum, weight) => sum + weight.available, 0) <= 0;
+  } else {
+    // If there are no weights, just check the availability
+    return crop.availability <= 0;
+  }
+};
+
   return (
     <>
     <>
@@ -106,6 +118,35 @@ const renderStars = (averageRating) => {
          {Product.description}
         </p>
 
+        {/* availability */}
+        <div className="show-available d-flex">
+      <span className={`${isSoldOut(Product) ? 'text-danger' : 'text-success'}`}>
+  {Product.availability > 0 
+    ? Product.availability  // Show remaining availability correctly
+    : 0 // Keeps it at 0 instead of going back to InitialAvailability
+  } 
+  {Product.weight?.length 
+    ? 'bags/sacks' 
+    : `${Product.unit}${Product.InitialAvailability > 1 ? 's' : ''}`}
+</span>
+<div className="outer">
+  <div 
+    className="inner" 
+    style={{ 
+      width: `${
+        Product.InitialAvailability > 0 
+          ? Product.availability > 0 
+            ? Math.floor((Product.availability / Product.InitialAvailability) * 100) 
+            : 0 // Ensures that when availability is 0, percentage remains 0%
+          : 0
+      }%` 
+    }}
+  >
+  </div>
+</div>
+
+      </div>
+
         {/* weights */}
         {Product.weight?.length ? (<Weights product={Product}/>) : (
 
@@ -116,8 +157,8 @@ const renderStars = (averageRating) => {
         <div className="input-group-btn">
           <button
             className="btn btn-success btn-minus"
-            disabled={quantity === 1}
             onClick={() => decrementQuantity(Product)}
+            disabled={quantity === 1}
           >
             <i className="bi bi-dash"></i>
           </button>
@@ -133,9 +174,7 @@ const renderStars = (averageRating) => {
             className="btn btn-success btn-plus"
             onClick={() => incrementQuantity(Product)}
             disabled={
-              Product.availability === 0 
-                ? Product.quantity === Product.InitialAvailability 
-                : Product.quantity === Product.availability
+              quantity === Product.availability
             }
           >
             <i className="bi bi-plus-lg"></i>
@@ -172,6 +211,10 @@ const renderStars = (averageRating) => {
             </a>
           </div>
         </div>
+        
+        <Link to={`/Buyer/farmer_product_listing/${Product.user}`}>
+        <span>Back to Products</span>
+        </Link>
       </div>
     </div>
  
@@ -183,7 +226,7 @@ const renderStars = (averageRating) => {
   <div className="container-fluid py-5">
     <div className="text-center mb-4">
       <h2 className="section-title px-5">
-        <span className="px-2">You May Also Like</span>
+        {/* <span className="px-2">You May Also Like</span> */}
       </h2>
     </div>
     <div className="row px-xl-5">

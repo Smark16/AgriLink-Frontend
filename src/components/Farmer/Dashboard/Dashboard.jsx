@@ -14,11 +14,39 @@ import moment from "moment";
 function Dashboard() {
   const {loader, filteredCrops, FarmerOrders, loading} = UseHook()
   const {user} = useContext(AuthContext)
+  const [totalSales, setTotalSales] = useState(0);
   const encodedUserId = encodeURIComponent(user.user_id);
   const market_Trend = `http://127.0.0.1:8000/agriLink/market-insights/${encodedUserId}/`
   
 const [trend, setTrend] = useState([])
 const [trendLoader, setTrendLoader] = useState(false)
+
+// total sales
+useEffect(() => {
+  const fetchData = async () => {
+      try {
+          const response = await axios.get(`http://127.0.0.1:8000/agriLink/orders_for_farmer/${user?.user_id}`);
+          const orders = response.data.orders;
+
+          let total = 0;
+          orders.forEach(order => {
+              // Check if the payment amount is a number and status is 'successful'
+              const amount = parseFloat(order.payment.amount);
+              if (!isNaN(amount) && order.payment.status === 'successful') {
+                  total += amount;
+              }
+          });
+
+          setTotalSales(total);
+      } catch (error) {
+          console.error('Error fetching farmer orders:', error);
+      }
+  };
+
+  fetchData();
+}, []);
+
+
   // fetch average prices
 const fetchAveragePrice = async()=>{
   setTrendLoader(true)
@@ -116,7 +144,7 @@ useEffect(()=>{
         <div className="stat_sales col-md-3 sm-12">
           <div className="img_nums">
             <i className="bi bi-currency-exchange text-success"></i>
-            <span><strong>12,000/=</strong></span>
+            <span><strong>UGX {totalSales.toLocaleString()}</strong></span>
           </div>
           <h6>Total Sales</h6>
         </div>

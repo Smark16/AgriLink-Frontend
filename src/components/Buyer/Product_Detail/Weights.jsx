@@ -5,7 +5,7 @@ function Weights({ product }) {
   const [productWeights, setProductWeights] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedWeight, setSelectedWeight] = useState(null);
-  const { setAddedItem, setTotalQuantity, selectedQuantity, setSelectedQuantity} = useContext(AuthContext);
+  const { setAddedItem, setTotalQuantity, selectedQuantity, setSelectedQuantity } = useContext(AuthContext);
   const [localQuantity, setLocalQuantity] = useState({});
 
   // Load the saved quantities from localStorage when the component mounts
@@ -13,7 +13,14 @@ function Weights({ product }) {
     if (product?.weight) {
       setProductWeights(product.weight);
       const savedQuantities = JSON.parse(localStorage.getItem('quantities')) || {};
-      setLocalQuantity(savedQuantities);
+      setLocalQuantity(savedQuantities[product.id] || {});
+
+      // Initialize selectedQuantity for the current product
+      const savedSelectedQuantities = JSON.parse(localStorage.getItem('selectedQuantities')) || {};
+      setSelectedQuantity((prevSelectedQuantities) => ({
+        ...prevSelectedQuantities,
+        [product.id]: savedSelectedQuantities[product.id] || 0,
+      }));
 
       initializeCartState(product);
     }
@@ -45,7 +52,11 @@ function Weights({ product }) {
       [weight.weight]: newQuantity,
     };
     setLocalQuantity(updatedLocalQuantity);
-    localStorage.setItem("quantities", JSON.stringify(updatedLocalQuantity));
+
+    // Save quantities per product using the product's id as a key
+    const savedQuantities = JSON.parse(localStorage.getItem('quantities')) || {};
+    savedQuantities[product.id] = updatedLocalQuantity;
+    localStorage.setItem("quantities", JSON.stringify(savedQuantities));
 
     setProductWeights((prevWeights) =>
       prevWeights.map((w) =>
@@ -80,6 +91,16 @@ function Weights({ product }) {
       0
     );
 
+    // Update selectedQuantity for the current product
+    setSelectedQuantity((prevSelectedQuantities) => {
+      const updatedSelectedQuantities = {
+        ...prevSelectedQuantities,
+        [product.id]: totalQuantity,
+      };
+      localStorage.setItem('selectedQuantities', JSON.stringify(updatedSelectedQuantities));
+      return updatedSelectedQuantities;
+    });
+
     setAddedItem((prevItems) => {
       const updatedItems = prevItems.map((item) =>
         item.id === product.id
@@ -99,9 +120,6 @@ function Weights({ product }) {
 
     // Update totalQuantity correctly without using stale state.
     setTotalQuantity((prevTotal) => prevTotal + totalQuantity);
-
-    setSelectedQuantity(totalQuantity);
-    localStorage.setItem('quantity', JSON.stringify(totalQuantity));
   };
 
   const handleCloseModal = () => {
@@ -189,12 +207,12 @@ function Weights({ product }) {
             <input
               type="text"
               className="form-control bg-secondary text-center w-80"
-              value={selectedQuantity}
+              value={selectedQuantity[product.id] || 0}
               readOnly
             />
           </div>
           <button className="btn btn-dark">
-            <i className="bi bi-cart-check-fill mr-1"></i> ({selectedQuantity} items) Added To Cart
+            <i className="bi bi-cart-check-fill mr-1"></i> ({selectedQuantity[product.id] || 0} items) Added To Cart
           </button>
         </>
       </div>

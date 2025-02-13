@@ -35,6 +35,8 @@ import tokenGeneration from '../Authenticate/firebase'
 import toast, { Toaster } from 'react-hot-toast';
 import { AuthContext } from '../Context/AuthContext'
 import axios from 'axios'
+import ConfirmPayment from '../Buyer/Checkout/ConfirmPayment'
+import PaymentStatus from '../Buyer/Checkout/PaymentStatus'
 
 
 function Show() {
@@ -133,6 +135,8 @@ function Show() {
         <Route path='all_farmers' element={<FarmerListing/>}/>
         <Route path='farmer_product_listing/:id' element={<ProductListing/>}/>
         <Route path='checkout' element={<Checkout/>}/>
+        <Route path='confirm-payment' element={<ConfirmPayment/>}/>
+        <Route path='payment-callback/' element={<PaymentStatus/>}/>
       </Routes>
      </div>
       </PrivateRoute>

@@ -14,8 +14,7 @@
   align-items: center;
   flex-direction:column;
   position:absolute;
-  left: 10px;
-  top: 100px;
+
 }
 .intro_text .start{
   color:#ffffff;
@@ -36,10 +35,10 @@
   text-align: center;
 }
 .gri{
-  color: #000;
+  color: #fff;
 }
 .intro_img{
-  background: linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(../images/image.jpg);
+  background: linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(../images/planteee.webp);
   background-position:center;
   background-size: cover;
   background-repeat: no-repeat;

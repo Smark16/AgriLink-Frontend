@@ -84,12 +84,14 @@ function BuyerDashboard() {
   return (
     <>
 
-<div className="row dashboard_wrapper">
+<div className="container-fluid pt-2">
       <h4 className='user_dashboard p-2'>Dashboard</h4>
 
-      {/* Dashboard Stats */}
-      <div className="row stats">
-        <div className="stat_orders col-md-3 sm-12">
+<div className='row dash_row px-xl-5'>
+{/* Dashboard Stats */}
+<div className="col-lg-9 col-md-12 col-sm-12 pb-1">
+      <div className='row dash_stats'>
+      <div className="stat_orders col-md-3 sm-12 ">
           <div className="img_nums">
             <i className="bi bi-truck text-success"></i>
             <span><strong>{userOrders?.length}</strong></span>
@@ -97,7 +99,7 @@ function BuyerDashboard() {
           <h6>Total Orders</h6>
         </div>
 
-        <div className="stat_buyers col-md-3 sm-12">
+        <div className="stat_buyers col-md-3 col-sm-12">
           <div className="img_nums">
             <i className="bi bi-tree-fill text-success"></i>
             <span><strong>UGX 3000</strong></span>
@@ -105,7 +107,7 @@ function BuyerDashboard() {
           <h6>Total Spent</h6>
         </div>
 
-        <div className="stat_sales col-md-3 sm-12">
+        <div className="stat_sales col-md-3 col-sm-12">
           <div className="img_nums">
           <i class="bi bi-bag-heart-fill text-success"></i>
             <span><strong>{userOrders?.length}</strong></span>
@@ -113,6 +115,8 @@ function BuyerDashboard() {
           <h6>Total Purchases</h6>
         </div>
       </div>
+      </div>
+        
 
       {/* Time Periods */}
       {/* <div className="time mt-5">
@@ -146,7 +150,7 @@ function BuyerDashboard() {
       </div> */}
 
       {/* uploaded crops */}
-      <div className="recent_crops mt-4 p-2">
+      <div className="dash_recent_crops col-lg-10 col-md-12 mt-4 p-2">
         <div className="row recent_text p-2">
           <h4 className="col-md-5 sm-12">Recently Uploaded Products</h4>
           <div className="show_all col-md-4 ms-auto sm-12 text-white p-2 text-center">
@@ -163,12 +167,12 @@ function BuyerDashboard() {
           <i className="bi bi-tree-fill text-secondary" style={{ fontSize: "2rem" }}></i>
         </div>
   </>)}
-   <div className="row crop mt-2">
+   <div className="row crops mt-2">
       {allCrops.slice(0,3).map(crop => {
         const {id,crop_name, image} = crop
         return (
           <>
-      <Card sx={{ maxWidth: 345 }} className="col-md-3 sm-12 crop_card">
+      <Card sx={{ maxWidth: 345 }} className="col-md-3 sm-12">
       <CardMedia
         component="img"
         alt="green iguana"
@@ -247,6 +251,9 @@ function BuyerDashboard() {
       )}
         </div>
       </div>
+
+</div>
+      
 </div>
     </>
   );

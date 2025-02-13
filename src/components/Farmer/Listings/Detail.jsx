@@ -150,6 +150,17 @@ function Detail() {
     return stars;
   };
 
+  //isSoldOut
+  const isSoldOut = (crop) => {
+    if (crop.weight && crop.weight.length > 0) {
+      // If there are weights, sum up all available quantities
+      return crop.weight.reduce((sum, weight) => sum + weight.available, 0) <= 0;
+    } else {
+      // If there are no weights, just check the availability
+      return crop.availability <= 0;
+    }
+  };
+
   return (
     <div>
       <h4>Product Detail Page</h4>
@@ -234,32 +245,58 @@ function Detail() {
               <li>
                 <h5>Weights:</h5>
                 {cropDetail.weight?.length ? (
-                  cropDetail.weight?.map((kg, index) => (
-                    <span key={index}>
-                      {kg.weight}
-                      {index < cropDetail.weight.length - 1 ? ', ' : ''}
-                    </span>
-                  ))
-                ) : (
-                  <span>N/A</span>
-                )}
+  cropDetail.weight?.map((kg, index) => (
+    <span key={index}>
+      <strong>{kg.weight}:
+        <div className="show-weigth">
+          <span>{kg.available} {kg.available > 1 ? 'items' : 'item'}</span>
+
+          <div className="outer">
+            <div 
+              className="inner" 
+              style={{
+                width: `${kg.available > 0 ? 
+                  Math.floor((kg.available / (kg.available + kg.quantity)) * 100) 
+                  : 0}%`
+              }}
+            />
+          </div>
+        </div> 
+      </strong> 
+      {index < cropDetail.weight.length - 1 ? '  ' : ''}
+    </span>
+  ))
+) : (
+  <span>N/A</span>
+)}
               </li>
               ) : ''}
 
               <li>
                 <h5>Quantity Availability:</h5>
-                <span>
-  {cropDetail.availability === 0 ? cropDetail.InitialAvailability - cropDetail.availability : cropDetail.availability || 'N/A'} 
+                <span className={`${isSoldOut(cropDetail) ? 'text-danger' : 'text-warning'}`}>
+  {cropDetail.availability > 0 
+    ? cropDetail.availability  // Show remaining availability correctly
+    : 0 // Keeps it at 0 instead of going back to InitialAvailability
+  } 
   ({cropDetail.weight?.length 
     ? 'bags/sacks' 
     : `${cropDetail.unit}${cropDetail.InitialAvailability > 1 ? 's' : ''}`})
 </span>
+
 <div className="outer">
   <div 
     className="inner" 
-    style={{ width: `${cropDetail.InitialAvailability > 0 ? Math.floor(((cropDetail.availability === 0 ? cropDetail.InitialAvailability - cropDetail.availability : cropDetail.availability) / cropDetail.InitialAvailability) * 100) : 0}%` }}
+    style={{ 
+      width: `${
+        cropDetail.InitialAvailability > 0 
+          ? cropDetail.availability > 0 
+            ? Math.floor((cropDetail.availability / cropDetail.InitialAvailability) * 100) 
+            : 0 // Ensures that when availability is 0, percentage remains 0%
+          : 0
+      }%` 
+    }}
   >
-
   </div>
 </div>
               </li>

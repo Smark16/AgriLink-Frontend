@@ -1,7 +1,40 @@
-.dashboard_wrapper{
-    width: 80%;
+
+.dash_row{
+    border:2px solid red;
+    justify-content:center;
+}
+
+.dash_recent_crops{
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    justify-content:center;
+}
+.dash_recent_crops .crops{
+    display: flex;
+    width: 100%;
     justify-content: center;
-    margin-left: 11%;
+    gap: 10px;
+
+}
+
+.dash_stats{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+}
+.dash_stats h6{
+  color: var(--primary-color);
+}
+
+.dash_stats > div{
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 @media screen and (max-width:768px) {
@@ -9,4 +42,5 @@
         width: 100%;
         margin-left:0px;
     }
+    
 }

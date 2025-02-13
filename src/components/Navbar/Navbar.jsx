@@ -29,12 +29,15 @@ const authPages = [
   { name: 'LOGIN', path: '/login' },
   { name: 'SIGN UP', path: '/signup' },
 ];
+
+const navpages = [
+  {name: 'Farmer Listing', path: '/Buyer/all_farmers'},
+  {name: 'Dashboard', path: '/Buyer/dashboard'}
+]
 const Buyer_settings = [
   { name: 'Profile', path: '/Buyer/profile' },
-  { name: 'Dasboard', path: '/Buyer/dashboard' },
   { name: 'Orders', path: '/Buyer/orders' },
   { name: 'Change Password', path: '/Buyer/change-password' },
-  { name: 'Farmers', path: '/Buyer/all_farmers'},
   { name: 'Logout', path: '/Buyer/logout' },
 ];
 
@@ -95,26 +98,9 @@ function ResponsiveAppBar() {
       <AppBar position="fixed" sx={{ backgroundColor: 'white', color: 'black', boxShadow: 'none' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <Typography
-              variant="h6"
-              noWrap
-              component={Link}
-              to="/"
-              sx={{
-                mr: 2,
-                display: 'flex',
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.1rem',
-                color: 'inherit',
-                textDecoration: 'none',
-              }}
-            >
-              AgriLink
-            </Typography>
 
             {/* Navigation for mobile */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'flex-end' }}>
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'space-between' }}>
               {!user && (
               <IconButton
                 size="large"
@@ -127,6 +113,21 @@ function ResponsiveAppBar() {
               >
               <MenuIcon />
               </IconButton>
+              )}
+
+              {/* when buyer */}
+              {user && user?.is_buyer && (
+                 <IconButton
+                 size="large"
+                 aria-label="menu"
+                 aria-controls="menu-appbar"
+                 aria-haspopup="true"
+                 onClick={handleOpenNavMenu}
+                 color="inherit"
+                 sx={{ mr: 1 }}
+               >
+               <MenuIcon />
+               </IconButton>
               )}
 
               <Menu
@@ -153,8 +154,34 @@ function ResponsiveAppBar() {
                     </Typography>
                   </MenuItem>
                 ))}
+
+                {user && user.is_buyer && navpages.map(p =>(
+                    <MenuItem key={p.name} onClick={handleCloseNavMenu}>
+                    <Typography component={Link} to={p.path} sx={{ textDecoration: 'none', color: 'black' }}>
+                      {p.name}
+                    </Typography>
+                  </MenuItem>
+                ))}
               </Menu>
             </Box>
+
+            <Typography
+              variant="h6"
+              noWrap
+              component={Link}
+              to="/"
+              sx={{
+                mr: 5,
+                display: 'flex',
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.1rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              AgriLink
+            </Typography>
 
             {/* desktop navigation */}
             {!user && (
@@ -190,12 +217,29 @@ function ResponsiveAppBar() {
              {/* User area for authenticated users */}
              {user && (
               <Box sx={{ flexGrow: 1, justifyContent: 'flex-end', display: 'flex', alignItems: 'center' }}>
-                <IconButton sx={{ mr: 1 }} onClick={() => setShowNotificationPage(!showNotificationPage)}>
+                
+                {user.is_buyer && (
+                  <>
+                   {/* //  navpages */}
+                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
+                {navpages.map((page) => (
+                  <Button
+                    key={page.name}
+                    component={Link}
+                    to={page.path}
+                    sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', ml: 2 }}
+                  >
+                    {page.name}
+                  </Button>
+                ))}
+              </Box>
+
+              <IconButton sx={{ mr: 1 }} onClick={() => setShowNotificationPage(!showNotificationPage)}>
                   <Badge badgeContent={notificationCount} color="error">
                     <NotificationsIcon />
                   </Badge>
                 </IconButton>
-                {user.is_buyer && (
+
                   <IconButton sx={{ mr: 1 }}>
                     <Link to='/buyer/cart' className='text-decoration-none'>
                     <Badge badgeContent={totalQuantity} color="error"> 
@@ -203,6 +247,17 @@ function ResponsiveAppBar() {
                     </Badge>
                     </Link>
                   </IconButton>
+                 
+              </>
+                )}
+
+                {/* farmer */}
+                {user?.is_farmer && (
+                  <IconButton sx={{ mr: 1 }} onClick={() => setShowNotificationPage(!showNotificationPage)}>
+                  <Badge badgeContent={notificationCount} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
                 )}
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
