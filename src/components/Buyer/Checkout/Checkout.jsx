@@ -147,7 +147,31 @@ const handleConfirm = async () => {
             return acc;
         }, {});
 
-        // separating farmer amounts to be paid by buyer
+        // Extract crop IDs, quantities, and amounts for each farmer
+        const cropIdsByFarmer = {};
+        const quantitiesByFarmer = {}; // Stores quantities for each product
+        const productAmountsByFarmer = {}; // Stores amounts for each product
+
+        for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
+            cropIdsByFarmer[farmerId] = farmerProducts.map(product => product.id);
+            quantitiesByFarmer[farmerId] = farmerProducts.map(product => ({
+                id: product.id,
+                quantity: product.quantity
+            }));
+
+            // Calculate the total amount for each product (price_per_unit * quantity)
+            productAmountsByFarmer[farmerId] = farmerProducts.map(product => ({
+                id: product.id,
+                amount: (product.get_discounted_price > 0 ? product.get_discounted_price : product.price_per_unit) * product.quantity
+            }));
+        }
+
+        // Store crop IDs, quantities, and amounts in sessionStorage
+        sessionStorage.setItem('cropIdsByFarmer', JSON.stringify(cropIdsByFarmer));
+        sessionStorage.setItem('quantitiesByFarmer', JSON.stringify(quantitiesByFarmer));
+        sessionStorage.setItem('productAmountsByFarmer', JSON.stringify(productAmountsByFarmer));
+
+        // Separating farmer amounts to be paid by buyer
         const farmerPayments = {};
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
             let farmerTotal = farmerProducts.reduce((sum, item) => {
@@ -179,6 +203,10 @@ const handleConfirm = async () => {
         sessionStorage.setItem('farmerPayments', JSON.stringify(farmerPayments));
 
         console.log('farmer-payments', farmerPayments);
+        console.log('crop-ids-by-farmer', cropIdsByFarmer);
+        console.log('quantities-by-farmer', quantitiesByFarmer); // Log quantities
+        console.log('product-amounts-by-farmer', productAmountsByFarmer); // Log amounts
+
         // Store all created order IDs
         let allOrderResponses = {};
         
@@ -304,7 +332,7 @@ const handleConfirm = async () => {
                    if(selectedPayment[farmerId] === 'Flutter Wave'){
                     // navigate('/Buyer/confirm-payment')
                     sessionStorage.setItem('allOrderResponses', JSON.stringify(allOrderResponses));
-                    navigate('/Buyer/confirm-payment', { state: { farmerPayments } });
+                    navigate('/Buyer/confirm-payment', { state: { farmerPayments, cropIdsByFarmer, quantitiesByFarmer, productAmountsByFarmer }});
                    }
 
                    if(selectedPayment[farmerId] === 'Pay On Delivery'){

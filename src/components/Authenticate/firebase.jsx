@@ -35,12 +35,12 @@ export const tokenGeneration = () => {
 
                 if (currentToken && user) {
                     await axiosInstance.patch(`http://127.0.0.1:8000/agriLink/save_fcm_token/${user.user_id}`, { fcm_token: currentToken })
-                        // .then(response => {
-                        //     console.log('FCM token saved successfully:', response);
-                        // })
-                        // .catch(error => {
-                        //     console.error('Error saving FCM token:', error);
-                        // });
+                        .then(response => {
+                            console.log('FCM token saved successfully:', response);
+                        })
+                        .catch(error => {
+                            console.error('Error saving FCM token:', error);
+                        });
                 } else {
                     console.log('No registration token available. Request permission to generate one.');
                 }

@@ -19,6 +19,9 @@ function ConfirmPayment() {
     const {user} = useContext(AuthContext)
     const location = useLocation();
     const farmerPayments = location.state?.farmerPayments || JSON.parse(sessionStorage.getItem('farmerPayments') || '{}');
+    const cropIdsByFarmer = location.state?.cropIdsByFarmer || JSON.parse(sessionStorage.getItem('cropIdsByFarmer') || '{}');
+    const quantitiesByFarmer = location.state?.quantitiesByFarmer || JSON.parse(sessionStorage.getItem('quantitiesByFarmer') || '{}')
+    const productAmountsByFarmer = location.state?.productAmountsByFarmer || JSON.parse(sessionStorage.getItem('productAmountsByFarmer') || '{}')
     const allOrderIds = JSON.parse(sessionStorage.getItem('allOrderResponses') || '{}'); // Now an object with farmerId as key
     const [fullname, setFullName]  = useState('')
     const [operator, setOperator] = useState('')
@@ -62,15 +65,20 @@ const savePaymentDetails = () => {
     // Use individual farmer payment amounts
     for (const [farmerId, amount] of Object.entries(farmerPayments)) {
         const orderId = allOrderIds[farmerId]; // Direct link to order ID per farmer
+        const cropId = cropIdsByFarmer[farmerId];
+        const quantities = quantitiesByFarmer[farmerId]
+        const Productamount = productAmountsByFarmer[farmerId]
 
         axios.post('http://127.0.0.1:8000/agriLink/initiate-mobile-money-payment/', {
-            amount: amount, // Use the amount for each farmer
+            amount: Productamount, // Use the amount for each farmer
             email: user?.email,
             phone_number: phonenumber,
             fullname: fullname,
             tx_ref: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
             order: orderId,
-            network: operator
+            network: operator,
+            crop:cropId,
+            quantity:quantities
         }).then(res => {
             console.log('payment response', res.data.charge_response)
             if(res.data.charge_response.status === "success") {
