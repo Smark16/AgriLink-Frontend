@@ -138,12 +138,13 @@ function Checkout() {
 const handleConfirm = async () => {
     try {
         setLoading(true);
+
         // Group products by farmer
         const productsByFarmer = addedItem.reduce((acc, item) => {
             if (!acc[item.user]) {
                 acc[item.user] = []; // Initialize array for the farmer if not exists
             }
-            acc[item.user].push(item); 
+            acc[item.user].push(item);
             return acc;
         }, {});
 
@@ -177,7 +178,7 @@ const handleConfirm = async () => {
             let farmerTotal = farmerProducts.reduce((sum, item) => {
                 const { quantity, price_per_unit, get_discounted_price, weight } = item;
                 const finalPrice = get_discounted_price > 0 ? get_discounted_price : price_per_unit;
-        
+
                 if (Array.isArray(weight) && weight.length > 0) {
                     return sum + weight.reduce((weightSum, w) => {
                         const weightValue = parseFloat(w.weight.replace('kg', '').trim());
@@ -187,18 +188,18 @@ const handleConfirm = async () => {
                     return sum + (finalPrice * quantity);
                 }
             }, 0);
-        
+
             // Check if Door Delivery is selected for this farmer
             const isDoorDeliverySelected = selectedDelivery[farmerId]?.includes('Door Delivery');
             let deliveryFee = 0;
-            
+
             if (isDoorDeliverySelected && delivery[farmerId]?.length > 0) {
                 deliveryFee = parseFloat(delivery[farmerId].find(option => option.name.includes('Door Delivery'))?.fee || "0");
             }
-        
+
             farmerPayments[farmerId] = (farmerTotal + deliveryFee).toFixed(2);
         }
-        
+
         // Store farmerPayments in sessionStorage or pass it via state/context to ConfirmPayment
         sessionStorage.setItem('farmerPayments', JSON.stringify(farmerPayments));
 
@@ -209,14 +210,14 @@ const handleConfirm = async () => {
 
         // Store all created order IDs
         let allOrderResponses = {};
-        
+
         // Iterate through each farmer's products
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
-            
+
             // 1️⃣ Update availability for each product in this farmer's list
             await Promise.all(farmerProducts.map(async (item) => {
                 const EDIT_AVAILABILITY_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_quantity/${item.id}`;
-                
+
                 let remained = 0;  // Reset for each item
 
                 if (item.weight && item.weight.length > 0) {
@@ -257,7 +258,9 @@ const handleConfirm = async () => {
 
                     // Handle image upload
                     if (typeof product.image === 'string') {
-                        const response = await fetch(product.image);
+                        // Replace HTTP with HTTPS in the image URL
+                        const imageUrl = product.image.replace('http://', 'https://');
+                        const response = await fetch(imageUrl);
                         const blob = await response.blob();
                         productData.append('image', blob, 'image.jpg');
                     } else {
@@ -285,7 +288,9 @@ const handleConfirm = async () => {
 
                 // Handle image upload
                 if (typeof item.image === 'string') {
-                    const response = await fetch(item.image);
+                    // Replace HTTP with HTTPS in the image URL
+                    const imageUrl = item.image.replace('http://', 'https://');
+                    const response = await fetch(imageUrl);
                     const blob = await response.blob();
                     formData.append('image', blob, 'image.jpg');
                 } else {
@@ -353,8 +358,7 @@ const handleConfirm = async () => {
                         }))
                    }
                    }
-                  
-                   
+            
                 }
             }).catch(err => {
                 console.log(err);
