@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import '../ProductListing/ProductListing.css';
+import '../ProductListing/productListing.css'
 import axios from 'axios';
 import { AuthContext } from '../../Context/AuthContext';
 
