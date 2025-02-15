@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   // real-time crop logs
   useEffect(() =>{
-    socketRef.current = new WebSocket(`ws://127.0.0.1:8000/ws/user_logs/${user?.user_id}/`);
+    socketRef.current = new WebSocket(`wss://agrilink-backend-hjzl.onrender.com/ws/user_logs/${user?.user_id}/`);
   
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
