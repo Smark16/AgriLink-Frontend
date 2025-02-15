@@ -24,12 +24,13 @@ const Market_Insights = () => {
   const [salesTrend, setSalesTrend] = useState([])
   const [crop_id, setCrop_id] = useState(null); 
   const [selectedMonthData, setSelectedMonthData] = useState({ revenue: 0, quantity: 0 });
-  // const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
   const [monthlysalesTrend, setMonthlySalesTrend] = useState([{revenue:0}])
   const [salesPerformance, setSalesPerformance] = useState(null);
   const [farmerPricing, setFarmerPricing] = useState({})
   const [cropLoader, setCropLoader] = useState(false)
   const [showModal, setShowModal] = useState(false);
+  const [selectedSalesTrendMonth, setSelectedSalesTrendMonth] = useState(new Date().getMonth());
+  const [isMonthSelected, setIsMonthSelected] = useState(false);
 
   const months = [
     "January", "February", "March", "April", "May", "June", 
@@ -94,22 +95,9 @@ let today = getFormattedDate();
       try {
         const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}`);
         const data = response.data;
-        setMonthlySales(data);
+        setMonthlySales(data || []);
         setShowModal(false);
-
-        // Set default selected month data to current month
-        const { month, year } = getCurrentMonthAndYear();
-        const currentMonthData = data.find(
-          (sale) => sale.month === month && sale.year === year
-        );
-        if (currentMonthData) {
-          setSelectedMonthData({
-            revenue: currentMonthData.total_amount,
-            quantity: currentMonthData.total_quantity,
-          });
-        } else {
-          setSelectedMonthData({ revenue: 0, quantity: 0 });
-        }
+        setSelectedMonthData({revenue:0, quantity:0})
       } catch (err) {
         console.log('err', err);
       }
@@ -149,8 +137,8 @@ let today = getFormattedDate();
       );
       if (selectedData) {
         setSelectedMonthData({
-          revenue: selectedData.total_revenue,
-          quantity: selectedData.total_quantity_sold,
+          revenue: selectedData.total_amount,
+          quantity: selectedData.total_quantity,
         });
       }
     }
@@ -196,41 +184,33 @@ const handleMonthLog = (event) => {
   }
 };
 
-// select sales trend
 // Handle month change for sales trend
-  const handleSalesTrend = (event) => {
-    const selectedMonthIndex = parseInt(event.target.value, 10);
+const handleSalesTrend = (event) => {
+  const selectedMonthIndex = parseInt(event.target.value, 10);
+  setSelectedSalesTrendMonth(selectedMonthIndex);
+  setIsMonthSelected(true); // Set to true when a month is selected
 
-    if (salesTrend.length === 0) {
-      setMonthlySalesTrend([]);
-    } else {
-      const selectedData = salesTrend.find(
-        (trend) => trend.month === selectedMonthIndex + 1
-      );
-      if (selectedData) {
-        setMonthlySalesTrend(salesTrend); // Update with all months' data
-      }
+  if (salesTrend.length === 0) {
+    setMonthlySalesTrend([{ revenue: 0 }]);
+    const { month, year } = getCurrentMonthAndYear();
+    setMonthlySalesTrend([{ revenue: 0 }]);
+  } else {
+    const selectedData = salesTrend.find(
+      (trend) => trend.month === selectedMonthIndex + 1
+    );
+    if (selectedData) {
+      setMonthlySalesTrend([{ revenue: selectedData.total_amount }]);
     }
-  };
-
-const sales_trend = async () => {
-  if (crop_id) {
-    try {
+  }
+};
+  
+  const sales_trend = async () => {
+    if (crop_id) {
+      try {
       const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}`);
       const data = response.data;
       setSalesTrend(data);
-
-      // Set default monthly sales trend to current month
-      const { month, year } = getCurrentMonthAndYear();
-      const currentMonthData = data.find(
-        (trend) => trend.month === month && trend.year === year
-      );
-      if (currentMonthData) {
-        setMonthlySalesTrend([currentMonthData]); // Set current month's data
-      } else {
-        setMonthlySalesTrend([]);
-      }
-
+      setMonthlySalesTrend([{revenue:0}])  
       setShowModal(false);
       calculatePerformance(data);
     } catch (err) {
@@ -239,7 +219,6 @@ const sales_trend = async () => {
   }
 };
  
-
   useEffect(() =>{
     fetchFarmerCrops()
   }, [])
@@ -266,6 +245,7 @@ useEffect(() => {
     const currentMonthData = monthlySales.find(
       (sale) => sale.month === month && sale.year === year
     );
+
     if (currentMonthData) {
       setSelectedMonthData({
         revenue: currentMonthData.total_amount,
@@ -294,15 +274,19 @@ useEffect(() => {
   } else {
     // If salesTrend has data, find the current month and year
     const { month, year } = getCurrentMonthAndYear();
-    const currentMonthData = salesTrend.find(
-      (trend) => trend.month === month && trend.year === year
+    const currentMonthData = salesTrend.map(
+      (trend) => trend.year === year ? trend.month && trend.total_amount : ''
     );
     if (currentMonthData) {
-      setMonthlySalesTrend([
-        {
-          revenue: currentMonthData.total_amount,
-        },
-      ]);
+      setMonthlySalesTrend(
+        currentMonthData.map(amount =>{
+          return (
+            {
+              revenue:amount
+            }
+          )
+        })
+      );
     } else {
       // If current month and year are not in salesTrend, set default values
       setMonthlySalesTrend([
@@ -313,6 +297,7 @@ useEffect(() => {
     }
   }
 }, [salesTrend]);
+
 
 // Automatically set stats if only one month is available in cropLogs
 useEffect(() => {
@@ -359,14 +344,16 @@ useEffect(() => {
   }
 };
 
+const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
+
    // Chart configuration
-  const overallPerformanceConfig = {
-    series: [{ name: "Sales", data: monthlysalesTrend.map((sale) => sale.total_amount || 0) }],
+   const overallPerformanceConfig = {
+    series: [{ name: "Sales", data: PerformanceRevenue }],
     options: {
       chart: { type: "line", height: 150 },
       colors: ["#4CAF50"],
-      xaxis: { 
-        categories: months, // Display all months on the x-axis
+      xaxis: {
+        categories: isMonthSelected ? [months[selectedSalesTrendMonth]] : months, // Conditional logic
         labels: {
           formatter: function (value, timestamp, index) {
             // Highlight the current month
@@ -379,7 +366,6 @@ useEffect(() => {
     },
   };
 
-  console.log('monthly trend', monthlysalesTrend)
 
   return (
     <>
@@ -519,22 +505,22 @@ useEffect(() => {
         </div>
 
       <div className="col-md-4 sm-12 ms-auto">
-      <select id="autoSizingSelect" className="form-select" onChange={handleSalesTrend}>
-      {/* Always include the current month and year */}
-      <option value={new Date().getMonth()}>
-        {show_month(new Date().getMonth())} {new Date().getFullYear()}
-      </option>
+      <select id="autoSizingSelect" className="form-select" onChange={handleSalesTrend} value={selectedSalesTrendMonth}>
+        {/* Always include the current month and year */}
+        <option value={new Date().getMonth()}>
+          {show_month(new Date().getMonth())} {new Date().getFullYear()}
+        </option>
 
-      {/* Include months and years from salesTrend */}
-      {salesTrend.map((trend) => {
-        const { year, month } = trend;
-        return (
-          <option key={`${year}-${month}`} value={month - 1}>
-            {show_month(new Date().getMonth()) === show_month(month - 1) ? '' : `${show_month(month - 1)} ${year}`}
-          </option>
-        );
-      })}
-    </select>
+        {/* Include months and years from salesTrend */}
+        {salesTrend.map((trend) => {
+          const { year, month } = trend;
+          return (
+            <option key={`${year}-${month}`} value={month - 1}>
+              {show_month(new Date().getMonth()) === show_month(month - 1) ? '' : `${show_month(month - 1)} ${year}`}
+            </option>
+          );
+        })}
+</select>
 </div>
       </div>
       <Grid container spacing={2} className="mt-3">
