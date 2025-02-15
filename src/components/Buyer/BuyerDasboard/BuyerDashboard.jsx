@@ -11,7 +11,7 @@ import '../BuyerDasboard/buyerdash.css'
 import UseHook from "../../CustomHook/UseHook";
 import moment from "moment";
 
-const ALL_CROPS_URL = 'http://127.0.0.1:8000/agriLink/all_crops'
+const ALL_CROPS_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_crops'
 
 function BuyerDashboard() {
   const { userOrders = [] } = UseHook();

@@ -44,7 +44,7 @@ function Listings() {
   const handleRemoveCrop = async (id) => {
     try {
       setLoading(true);
-      await axios.delete(`http://127.0.0.1:8000/agriLink/delete_farmer_crop/${id}`);
+      await axios.delete(`https://agrilink-backend-hjzl.onrender.com/agriLink/delete_farmer_crop/${id}`);
       const remained = crops.filter((crop) => crop.id !== id);
       setFilteredCrops(remained);
       Swal.fire({
@@ -119,7 +119,7 @@ function Listings() {
                   const { id, crop_name, description, image } = crop;
                   const shareUrl = encodeURIComponent(window.location.origin + `/farmer/detail/${id}`);
                   const encodedDescription = encodeURIComponent(description);
-                  const encodedImage = encodeURIComponent(`http://127.0.0.1:8000${image}`);
+                  const encodedImage = encodeURIComponent(`https://agrilink-backend-hjzl.onrender.com${image}`);
 
                   const soldOut = isSoldOut(crop); // Check if sold out
 
@@ -141,7 +141,7 @@ function Listings() {
                           component="img"
                           alt={crop_name}
                           height="140"
-                          image={`http://127.0.0.1:8000${image}`}
+                          image={`https://agrilink-backend-hjzl.onrender.com${image}`}
                         />
                         <CardContent>
                           <Typography gutterBottom variant="h5" component="div">

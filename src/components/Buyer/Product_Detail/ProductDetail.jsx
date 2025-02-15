@@ -14,7 +14,7 @@ function ProductDetail() {
   const {id} = useParams()
   const { handleCart, addedItem, quantity, setQuantity, incrementQuantity, decrementQuantity} = useContext(AuthContext);
 
-  const PRODUCT_DETAIL_URL = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`
+  const PRODUCT_DETAIL_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/crop_detail/${id}`
   const [Product, setProduct] = useState({})
 
   const fetchDetail = async()=>{

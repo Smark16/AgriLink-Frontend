@@ -34,7 +34,7 @@ export const tokenGeneration = () => {
                 });
 
                 if (currentToken && user) {
-                    await axiosInstance.patch(`http://127.0.0.1:8000/agriLink/save_fcm_token/${user.user_id}`, { fcm_token: currentToken })
+                    await axiosInstance.patch(`https://agrilink-backend-hjzl.onrender.com/agriLink/save_fcm_token/${user.user_id}`, { fcm_token: currentToken })
                         .then(response => {
                             console.log('FCM token saved successfully:', response);
                         })

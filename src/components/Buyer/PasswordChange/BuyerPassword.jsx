@@ -3,7 +3,7 @@ import UseAxios from '../../AxiosInstance/AxiosInstance';
 import '../../Farmer/changePassword/password.css'
 import '../PasswordChange/buyerpassword.css'
 
-const changePassword = 'http://127.0.0.1:8000/agriLink/change-password/';
+const changePassword = 'https://agrilink-backend-hjzl.onrender.com/agriLink/change-password/';
 function BuyerPassword() {
     const axiosInstance = UseAxios()
     console.log(axiosInstance)

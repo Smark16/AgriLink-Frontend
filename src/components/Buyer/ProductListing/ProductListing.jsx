@@ -6,7 +6,7 @@ import '../ProductListing/ProductListing.css';
 import axios from 'axios';
 import { AuthContext } from '../../Context/AuthContext';
 
-const discounts_url = "http://127.0.0.1:8000/agriLink/all_discounts";
+const discounts_url = "https://agrilink-backend-hjzl.onrender.com/agriLink/all_discounts";
 
 function ProductListing() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ function ProductListing() {
   // websockets
   const socketRef = useRef(null)
 
-  const FarmerCropsUrl = `http://127.0.0.1:8000/agriLink/farmer/${encodeURIComponent(id)}`;
+  const FarmerCropsUrl = `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodeURIComponent(id)}`;
 
   const [crops, setCrops] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -116,8 +116,6 @@ function ProductListing() {
     }
   };
 
-  
- 
   console.log(cropLogs)
   
   return (
@@ -181,7 +179,7 @@ function ProductListing() {
                   <div key={id} className="col-lg-4 col-md-4 col-sm-6 pb-1">
                     <div className={`card product-item border-0 mb-4 ${isSoldOut(product) ? 'soldout' : ''}`}>
                       <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                        <img className="img-fluid w-100" src={`http://127.0.0.1:8000${image}`} alt={crop_name} />
+                        <img className="img-fluid w-100" src={`https://agrilink-backend-hjzl.onrender.com${image}`} alt={crop_name} />
                       </div>
                       <div className="card-body border-left border-right p-2 pt-4 pb-3">
                         <div className="head_rating d-flex">

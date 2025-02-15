@@ -23,10 +23,10 @@ function UseHook() {
    const [Orderloading, setOrderLoading] = useState(false);
 
   // URLs - only construct if user is available
-  const FarmerCropsUrl = user ? `http://127.0.0.1:8000/agriLink/farmer/${encodeURIComponent(user.user_id)}` : '';
-  const farmer_order_url = user ? `http://127.0.0.1:8000/agriLink/orders_for_farmer/${encodeURIComponent(user.user_id)}` : '';
-  const profile_url = user ? `http://127.0.0.1:8000/agriLink/single_profile/${encodeURIComponent(user.user_id)}` : '';
-  const BUYER_ORDERS_URL = user ? `http://127.0.0.1:8000/agriLink/user_orders/${encodeURIComponent(user.user_id)}` : ''
+  const FarmerCropsUrl = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodeURIComponent(user.user_id)}` : '';
+  const farmer_order_url = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/orders_for_farmer/${encodeURIComponent(user.user_id)}` : '';
+  const profile_url = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/single_profile/${encodeURIComponent(user.user_id)}` : '';
+  const BUYER_ORDERS_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/user_orders/${encodeURIComponent(user.user_id)}` : ''
 
   // fecth user orders
   useEffect(() => {

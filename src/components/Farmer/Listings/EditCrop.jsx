@@ -6,12 +6,12 @@ import { AuthContext } from '../../Context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
-const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
+const all_categories_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
 
 function EditCrop() {
   const { id } = useParams();
-  const edit_crops_url = `http://127.0.0.1:8000/agriLink/update_farmer_crop/${id}`;
-  const detail_url = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`;
+  const edit_crops_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_farmer_crop/${id}`;
+  const detail_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/crop_detail/${id}`;
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);

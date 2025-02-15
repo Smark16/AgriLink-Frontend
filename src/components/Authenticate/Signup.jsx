@@ -6,8 +6,8 @@ import farmer from "../images/signupImage.jpeg";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
-const farmerRegister = "http://127.0.0.1:8000/agriLink/farmer_register";
-const buyerRegister = "http://127.0.0.1:8000/agriLink/buyer_register";
+const farmerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_register";
+const buyerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/buyer_register";
 
 function Signup() {
   const navigate = useNavigate()

@@ -20,7 +20,7 @@ function BuyerOrder() {
   // delete order
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/agriLink/DeleteOrder/${id}`);
+      await axios.delete(`https://agrilink-backend-hjzl.onrender.com/agriLink/DeleteOrder/${id}`);
       setUserOrders(prevOrders => prevOrders.filter(order => order.id !== id));
          Swal.fire({
               title: 'Order Deleted successfully',

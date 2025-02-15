@@ -6,7 +6,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import UseHook from '../../CustomHook/UseHook';
 import Swal from 'sweetalert2';
 
-const post_rates = 'http://127.0.0.1:8000/agriLink/post_ratings'
+const post_rates = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_ratings'
 
 function Review({ product }) {
   const [reviews, setReviews] = useState([]);
@@ -40,7 +40,7 @@ function Review({ product }) {
 
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/agriLink/post_reviews',
+        'https://agrilink-backend-hjzl.onrender.com/agriLink/post_reviews',
         formdata
       );
       if (response.status === 201) {
@@ -154,7 +154,7 @@ function Review({ product }) {
                     <div className="media mb-4" key={review.id || index}>
                       <Avatar
                         alt={review.user?.get_full_name || 'User'}
-                        src={`http://127.0.0.1:8000${review.profile?.image || ''}`}
+                        src={`https://agrilink-backend-hjzl.onrender.com${review.profile?.image || ''}`}
                         className="profile"
                       />
                       <div className="media-body">

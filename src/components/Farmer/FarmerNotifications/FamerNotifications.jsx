@@ -8,7 +8,7 @@ function FarmerNotifications() {
   const { user, FarmerNotification, setFarmerNotification, notifications, setNotifications } = useContext(AuthContext);
   const encodedUserId = encodeURIComponent(user.user_id);
 
-  const user_notifications = `http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`;
+  const user_notifications = `https://agrilink-backend-hjzl.onrender.com/agriLink/user_notifications/${encodedUserId}`;
   // const [] = useState([]);
   const [openMessageIndex, setOpenMessageIndex] = useState(null);
   const [loading, setLoading] = useState(false)
@@ -28,7 +28,7 @@ function FarmerNotifications() {
 // console.log(FarmerNotification)
   const updateIsRead = async (id) => {
     try {
-      await axios.patch(`http://127.0.0.1:8000/agriLink/update_is_read/${id}`, { is_read: true });
+      await axios.patch(`https://agrilink-backend-hjzl.onrender.com/agriLink/update_is_read/${id}`, { is_read: true });
       setNotifications((prevNotifications) =>
         prevNotifications.map((notification) =>
           notification.id === id ? { ...notification, is_read: true } : notification

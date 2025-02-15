@@ -43,7 +43,7 @@ function ConfirmPayment() {
     useEffect(() => {
         const fetchDefaultAddress = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
+                const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
                 const {get_full_name} = response.data
                 setFullName(get_full_name)
             } catch (error) {
@@ -69,7 +69,7 @@ const savePaymentDetails = () => {
         const quantities = quantitiesByFarmer[farmerId]
         const Productamount = productAmountsByFarmer[farmerId]
 
-        axios.post('http://127.0.0.1:8000/agriLink/initiate-mobile-money-payment/', {
+        axios.post('https://agrilink-backend-hjzl.onrender.com/agriLink/initiate-mobile-money-payment/', {
             amount: Productamount, // Use the amount for each farmer
             email: user?.email,
             phone_number: phonenumber,

@@ -12,15 +12,15 @@ import axios from 'axios';
 import image from '../../images/maize.png';
 import '../FarmerListing/farmListing.css';
 
-const INTERESTS_URL = 'http://127.0.0.1:8000/agriLink/all_specialisations';
-const FARMER_PROFILES_URL = 'http://127.0.0.1:8000/agriLink/farmer_profiles';
+const INTERESTS_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
+const FARMER_PROFILES_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_profiles';
 
 function FarmerListing() {
   const { user } = useContext(AuthContext);
   const {id} = useParams()
-  const SINGLE_PROFILE_URL = user ? `http://127.0.0.1:8000/agriLink/profile/${user.user_id}` : '';
-  const USER_PROFILE_URL = user ? `http://127.0.0.1:8000/agriLink/filter-farmers-by-location/${user.user_id}` : ''
-  const SINGLE_USER_PROFILE = user ? `http://127.0.0.1:8000/agriLink/single_profile/${user.user_id}` : ''
+  const SINGLE_PROFILE_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/profile/${user.user_id}` : '';
+  const USER_PROFILE_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/filter-farmers-by-location/${user.user_id}` : ''
+  const SINGLE_USER_PROFILE = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/single_profile/${user.user_id}` : ''
 
   const [userName, setUserName] = useState(null);
   const [interests, setInterests] = useState([]);

@@ -10,7 +10,7 @@ import UseHook from '../../CustomHook/UseHook';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const interests_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
+const interests_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
 
 function Info() {
   const { user } = useContext(AuthContext);
@@ -21,7 +21,7 @@ function Info() {
   
   // Check if user is available before constructing URL
   const update_profile_url = user 
-    ? `http://127.0.0.1:8000/agriLink/update_profile/${encodeURIComponent(user.user_id)}`
+    ? `https://agrilink-backend-hjzl.onrender.com/agriLink/update_profile/${encodeURIComponent(user.user_id)}`
     : '';
 
   const [selectedInterests, setSelectedInterests] = useState([]);

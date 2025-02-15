@@ -30,7 +30,7 @@ function Order() {
     try {
       setStatusLoaders((prev) => ({ ...prev, [id]: true })); // Set loader for the specific order
       await axiosInstance.patch(
-        `http://127.0.0.1:8000/agriLink/update_status/${id}`,
+        `https://agrilink-backend-hjzl.onrender.com/agriLink/update_status/${id}`,
         { status: newStatus }
       ).then(res => {
         if (res.status === 202) {
@@ -69,7 +69,7 @@ function Order() {
 
   const showOrder = async (id) => {
     setShowModal(true);
-    const madeOrdersUrl = `http://127.0.0.1:8000/agriLink/single_order/${id}`;
+    const madeOrdersUrl = `https://agrilink-backend-hjzl.onrender.com/agriLink/single_order/${id}`;
   
     try {
       setItemLoading(true);
@@ -232,7 +232,7 @@ function Order() {
             <div className="crop_container">
               <div className="crop_detail">
                 <img
-                  src={`http://127.0.0.1:8000${image}`}
+                  src={`https://agrilink-backend-hjzl.onrender.com${image}`}
                   alt={crop_name}
                   className="modalImg"
                 />

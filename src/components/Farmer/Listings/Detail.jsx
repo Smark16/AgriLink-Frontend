@@ -7,10 +7,10 @@ function Detail() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const detail_url = `http://127.0.0.1:8000/agriLink/crop_detail/${id}`;
-  const post_discount_url = 'http://127.0.0.1:8000/agriLink/post_discount';
-  const edit_discount_url = 'http://127.0.0.1:8000/agriLink/edit_discount';
-  const all_discounts_url = 'http://127.0.0.1:8000/agriLink/all_discounts';
+  const detail_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/crop_detail/${id}`;
+  const post_discount_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_discount';
+  const edit_discount_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/edit_discount';
+  const all_discounts_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_discounts';
 
   const [cropDetail, setCropDetail] = useState({});
   const [discount, setDiscount] = useState({
@@ -103,7 +103,7 @@ function Detail() {
   // Handle delete crop
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/agriLink/delete_farmer_crop/${id}`);
+      await axios.delete(`https://agrilink-backend-hjzl.onrender.com/agriLink/delete_farmer_crop/${id}`);
       showSuccessAlert('Crop deleted successfully');
       navigate('/farmer/listings');
     } catch (err) {

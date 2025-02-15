@@ -2,13 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../Context/AuthContext';
 import axios from 'axios';
 
-const POST_DELIVERY_URL = 'http://127.0.0.1:8000/agriLink/post_delivery_options';
-const POST_PAYMENT_URL = 'http://127.0.0.1:8000/agriLink/post_payment_method';
+const POST_DELIVERY_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_delivery_options';
+const POST_PAYMENT_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_payment_method';
 
 function TransportDetails() {
     const { user } = useContext(AuthContext);
-    const LIST_PAYMENT_URL = `http://127.0.0.1:8000/agriLink/list_payment_methods/${user?.user_id}`;
-    const LIST_DELIVERY_URL = `http://127.0.0.1:8000/agriLink/delivery_list/${user?.user_id}`;
+    const LIST_PAYMENT_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/list_payment_methods/${user?.user_id}`;
+    const LIST_DELIVERY_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/delivery_list/${user?.user_id}`;
 
     const [delivery, setDelivery] = useState({ user: user?.user_id, name: [], fee: 0, duration: "" });
     const [payment, setPayment] = useState({ user: user?.user_id, methodType: [], contact_name: "", contact_email: "", contact_phone: null });
@@ -23,8 +23,8 @@ function TransportDetails() {
     const [currentDeliver, setCurrentDeliver] = useState(null);
     const [currentMethod, setCurrentMethod] = useState(null)
 
-    const EDIT_PAYMENT_METHOD = `http://127.0.0.1:8000/agriLink/edit_payment`;
-    const EDIT_DELIVERY_OPTION = `http://127.0.0.1:8000/agriLink/edit_delivery`;
+    const EDIT_PAYMENT_METHOD = `https://agrilink-backend-hjzl.onrender.com/agriLink/edit_payment`;
+    const EDIT_DELIVERY_OPTION = `https://agrilink-backend-hjzl.onrender.com/agriLink/edit_delivery`;
 
     useEffect(() => {
         // Fetch all payments

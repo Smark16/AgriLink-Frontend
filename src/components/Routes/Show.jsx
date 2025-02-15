@@ -46,7 +46,7 @@ function Show() {
   const fetchNotificationCount = async () => {
     try {
       const encodedUserId = encodeURIComponent(user.user_id);
-      const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`);
+      const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/user_notifications/${encodedUserId}`);
       const unreadCount = response.data.notifications.filter((notif) => !notif.is_read).length;
       setNotificationCount(unreadCount);
     } catch (error) {

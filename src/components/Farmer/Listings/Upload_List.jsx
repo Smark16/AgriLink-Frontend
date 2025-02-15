@@ -18,9 +18,9 @@ const steps = [
   'Payment Options',
 ];
 
-const all_categories_url = 'http://127.0.0.1:8000/agriLink/all_specialisations';
-const post_crops_url = 'http://127.0.0.1:8000/agriLink/post_crops';
-const MARKET_TREND = 'http://127.0.0.1:8000/agriLink/market-trends/'
+const all_categories_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
+const post_crops_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_crops';
+const MARKET_TREND = 'https://agrilink-backend-hjzl.onrender.com/agriLink/market-trends/'
 function Upload_List() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);

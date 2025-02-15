@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../Context/AuthContext';
 
-const loginUrl = 'http://127.0.0.1:8000/agriLink/'
-const resetLinkUrl = 'http://127.0.0.1:8000/agriLink/send_email'
+const loginUrl = 'https://agrilink-backend-hjzl.onrender.com/agriLink/'
+const resetLinkUrl = 'https://agrilink-backend-hjzl.onrender.com/agriLink/send_email'
 
 function Login() {
   const { setUser} = useContext(AuthContext);
@@ -112,7 +112,7 @@ function Login() {
   
       setUser(decodedUser);
   
-      axios.get(`http://127.0.0.1:8000/agriLink/single_profile/${decodedUser.user_id}`)
+      axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/single_profile/${decodedUser.user_id}`)
         .then((response) => {
           console.log("Fetched user profile:", response.data);
           setUserProfile(response.data);

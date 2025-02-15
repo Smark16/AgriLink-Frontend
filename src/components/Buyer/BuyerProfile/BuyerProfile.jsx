@@ -17,10 +17,10 @@ function BuyerProfile() {
    // Encode user_id to prevent injection
    const encodedUserId = encodeURIComponent(user.user_id);
 
-  const update_user_url = `http://127.0.0.1:8000/agriLink/update_user/${encodedUserId}`;
-  const single_user_url = `http://127.0.0.1:8000/agriLink/single_user/${encodedUserId}`
+  const update_user_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_user/${encodedUserId}`;
+  const single_user_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/single_user/${encodedUserId}`
 
-  const update_profile_url = `http://127.0.0.1:8000/agriLink/update_profile/${encodedUserId}`;
+  const update_profile_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_profile/${encodedUserId}`;
   
   const [showModal, setShowModal] = useState(false);
   const [dateFormat, setDateFormat] = useState();
@@ -134,7 +134,7 @@ function BuyerProfile() {
 
       <div className="profile_main">
         <div className="profile_email">
-          <Avatar alt={userData.get_full_name} src={`http://127.0.0.1:8000${previewImage} ? formData : profile`} className="profile" />
+          <Avatar alt={userData.get_full_name} src={`https://agrilink-backend-hjzl.onrender.com${previewImage} ? formData : profile`} className="profile" />
           <div className="email">
             <h5>{userData.get_full_name}</h5>
             <span>{userData.email}</span>
@@ -228,7 +228,7 @@ function BuyerProfile() {
 
         <h5 className="more_profile_title mt-4">My email Address</h5>
         <div className="more_profile_info">
-          <Avatar alt={userData.get_full_name} src={`http://127.0.0.1:8000${previewImage} ? formData : profile`}  className="profile" />
+          <Avatar alt={userData.get_full_name} src={`https://agrilink-backend-hjzl.onrender.com${previewImage} ? formData : profile`}  className="profile" />
           <div className="more_email">
             <span>{userData.email}</span>
             <span>{relativeTime}</span>
@@ -252,7 +252,7 @@ function BuyerProfile() {
               
                   <div className="photo">
                     <span>Photo</span>
-                    <Avatar alt={userData.get_full_name} src={previewImage || `http://127.0.0.1:8000${formData.image}`}  className="profile" />
+                    <Avatar alt={userData.get_full_name} src={previewImage || `https://agrilink-backend-hjzl.onrender.com${formData.image}`}  className="profile" />
                   </div>
                   <div className="actions">
                   <input

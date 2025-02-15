@@ -19,9 +19,9 @@ const steps = [
     'Confirm Order'
 ];
 
-const POST_ORDER_DETAIL_URL = 'http://127.0.0.1:8000/agriLink/post_order_detail';
-const POST_ORDER_URL = 'http://127.0.0.1:8000/agriLink/post_orders';
-const POST_ORDER_CROPS = 'http://127.0.0.1:8000/agriLink/post_order_crops';
+const POST_ORDER_DETAIL_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_order_detail';
+const POST_ORDER_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_orders';
+const POST_ORDER_CROPS = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_order_crops';
 
 function Checkout() {
     const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user, socketRef} = useContext(AuthContext);
@@ -42,7 +42,7 @@ function Checkout() {
     useEffect(() => {
         const fetchDefaultAddress = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
+                const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`);
                 const defaultAddress = response.data.useraddress.find(addr => addr.active);
                 if (defaultAddress) {
                     setActivatedAddress(defaultAddress);
@@ -65,8 +65,8 @@ function Checkout() {
             for (const farmerId of uniqueFarmers) {
                 try {
                     const [deliveryResponse, paymentResponse] = await Promise.all([
-                        axios.get(`http://127.0.0.1:8000/agriLink/delivery_list/${farmerId}`),
-                        axios.get(`http://127.0.0.1:8000/agriLink/list_payment_methods/${farmerId}`)
+                        axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/delivery_list/${farmerId}`),
+                        axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/list_payment_methods/${farmerId}`)
                     ]);
 
                     newDelivery[farmerId] = deliveryResponse.data.delivery_options;
@@ -215,7 +215,7 @@ const handleConfirm = async () => {
             
             // 1️⃣ Update availability for each product in this farmer's list
             await Promise.all(farmerProducts.map(async (item) => {
-                const EDIT_AVAILABILITY_URL = `http://127.0.0.1:8000/agriLink/update_quantity/${item.id}`;
+                const EDIT_AVAILABILITY_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_quantity/${item.id}`;
                 
                 let remained = 0;  // Reset for each item
 
@@ -234,7 +234,7 @@ const handleConfirm = async () => {
             // 2️⃣ Update product weights if applicable
             await Promise.all(farmerProducts.map(async (product) => {
                 if (product.weight && product.weight.length > 0) {
-                    const UPDATE_WEIGHT_URL = `http://127.0.0.1:8000/agriLink/update_weight/${product.id}`;
+                    const UPDATE_WEIGHT_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_weight/${product.id}`;
 
                     let productData = new FormData();
                     productData.append("user", product.user);

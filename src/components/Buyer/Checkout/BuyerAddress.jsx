@@ -8,12 +8,12 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 
-const POST_ADDRESS_URL = 'http://127.0.0.1:8000/agriLink/post_user_address';
-const EDIT_ACTIVE_URL = 'http://127.0.0.1:8000/agriLink/edit_active/';
+const POST_ADDRESS_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_user_address';
+const EDIT_ACTIVE_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/edit_active/';
 
 function BuyerAddress() {
   const { user, setActivatedAddress } = useContext(AuthContext);
-  const USER_ADDRESSES_URL = `http://127.0.0.1:8000/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`;
+  const USER_ADDRESSES_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/user_addresses/${encodeURIComponent(user.user_id)}`;
   
   const [showAddress, setShowAddress] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -76,7 +76,7 @@ function BuyerAddress() {
 
     try {
       const response = await axios[formData.id ? 'put' : 'post'](
-        formData.id ? `http://127.0.0.1:8000/agriLink/edit_address/${formData.id}` : POST_ADDRESS_URL,
+        formData.id ? `https://agrilink-backend-hjzl.onrender.com/agriLink/edit_address/${formData.id}` : POST_ADDRESS_URL,
         formData
       );
       
@@ -138,16 +138,6 @@ function BuyerAddress() {
         const activeAddress = addresses.find(address => address.active === true);
         setActivatedAddress(activeAddress)
       
-          // await axios.post(POST_ORDER_URL, {
-          //   user: user?.user_id,
-          //   address: activeAddress ? activeAddress.id : null, // Ensure we pass null or the id
-          //   status: "Pending"
-          // }).then(response =>{
-          //   console.log(response)
-          // }).catch(err =>{
-          //   console.log('err', err)
-          // });
-
         // Update local state to reflect changes
         setAddresses(currentAddresses => currentAddresses.map(addr => 
           addr.id === selectedAddressId ? { ...addr, active: true } : { ...addr, active: false }

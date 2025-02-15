@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import UseAxios from '../../AxiosInstance/AxiosInstance';
 import '../changePassword/password.css'
 
-const changePassword = 'http://127.0.0.1:8000/agriLink/change-password/';
+const changePassword = 'https://agrilink-backend-hjzl.onrender.com/agriLink/change-password/';
 function ChangePassword() {
     const axiosInstance = UseAxios()
     console.log(axiosInstance)

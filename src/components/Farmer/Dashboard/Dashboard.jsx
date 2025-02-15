@@ -16,7 +16,7 @@ function Dashboard() {
   const {user} = useContext(AuthContext)
   const [totalSales, setTotalSales] = useState(0);
   const encodedUserId = encodeURIComponent(user.user_id);
-  const market_Trend = `http://127.0.0.1:8000/agriLink/market-insights/${encodedUserId}/`
+  const market_Trend = `https://agrilink-backend-hjzl.onrender.com/agriLink/market-insights/${encodedUserId}/`
   
 const [trend, setTrend] = useState([])
 const [trendLoader, setTrendLoader] = useState(false)
@@ -25,7 +25,7 @@ const [trendLoader, setTrendLoader] = useState(false)
 useEffect(() => {
   const fetchData = async () => {
       try {
-          const response = await axios.get(`http://127.0.0.1:8000/agriLink/orders_for_farmer/${user?.user_id}`);
+          const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/orders_for_farmer/${user?.user_id}`);
           const orders = response.data.orders;
 
           let total = 0;
@@ -209,7 +209,7 @@ useEffect(()=>{
         component="img"
         alt="green iguana"
         height="140"
-        image={`http://127.0.0.1:8000${image}`}
+        image={`https://agrilink-backend-hjzl.onrender.com${image}`}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div" className="crop_name">
