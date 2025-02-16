@@ -135,7 +135,7 @@ function Order() {
                     <td>{contact}</td>
                     <td>
                       {statusLoaders[order_id] ? (
-                       <span className="status_loader text-black"></span>
+                       <div class="orderloader"></div>
                       ) : (<>
                       {status === "Completed" ? (
                         <span className="text-success d-flex">

@@ -43,7 +43,7 @@ function Login() {
           localStorage.setItem('authtokens', JSON.stringify(data));
           setAuthTokens(data);
           setUser(jwtDecode(data.access));
-          showSuccessAlert("Login successful");
+          showSuccessAlert("Logging in...");
         } else {
           showErrorAlert("Please provide correct username/password");
         }
@@ -97,9 +97,9 @@ function Login() {
       icon: "error",
       timer: 6000,
       toast: true,
-      position: 'top-right',
+      position: 'top',
       timerProgressBar: true,
-      showConfirmButton: true,
+      showConfirmButton: false,
     });
   };
 
