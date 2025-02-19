@@ -5,13 +5,22 @@
 .user_dashboard{
   border-bottom:1px solid #ccc;
 }
+.chart-container{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
 
+.dash_bar{
+  width: 510px;
+}
 .stats{
     display: flex;
     justify-content: center;
     width: 100%;
     gap: 10px;
 }
+
 .stats h6{
   color: var(--primary-color);
 }
@@ -35,6 +44,8 @@
 .time{
     display: flex;
     background-color: #ffffff;
+    justify-content: center;
+    background-color: var(--background-color);
 }
 .time ul{
     display: flex;
@@ -48,12 +59,21 @@
     justify-content: center;
     gap: 5px;
     list-style: none;
-    width: 200px;
+    
     flex: 1;
     border-right: 1px solid #ccc;
 }
 
+/* stats css */
+.perfom{
+  display: flex;
+   align-items: center;
+}
+
 /* General styling for the Market Insights section */
+.insight_summary_head{
+  background-color: var(--background-color);
+}
 .market-insights {
     padding: 20px;
     background-color: #f9f9f9;
@@ -241,5 +261,22 @@
     .crop_card{
       margin-left: 23px;
     }
+    .time ul{
+     width: 100%;
+    }
+    .time ul li{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      list-style: none;
+      
+      flex: 1;
+      border-right: 1px solid #ccc;
+    }
+    .time{
+      width: 100%;
+  }
   }
   
