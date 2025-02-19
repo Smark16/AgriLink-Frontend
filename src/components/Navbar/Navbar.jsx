@@ -59,7 +59,7 @@ function ResponsiveAppBar() {
   const fetchNotificationCount = async () => {
     try {
       const encodedUserId = encodeURIComponent(user.user_id);
-      const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/user_notifications/${encodedUserId}`);
+      const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`);
       const unreadCount = response.data.notifications.filter((notif) => !notif.is_read).length;
       setNotificationCount(unreadCount);
     } catch (error) {
@@ -259,9 +259,9 @@ function ResponsiveAppBar() {
                   </Badge>
                 </IconButton>
                 )}
-                <Tooltip title="Open settings">
+                <Tooltip title={`${user?.is_buyer ? 'Buyer settings' : 'Farmer settings'}`}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.name} src={`https://agrilink-backend-hjzl.onrender.com${formData.image} ? formData : profile`} />
+                    <Avatar alt={user.name} src={`http://127.0.0.1:8000${formData.image} ? formData : profile`} />
                   </IconButton>
                 </Tooltip>
                 <Menu

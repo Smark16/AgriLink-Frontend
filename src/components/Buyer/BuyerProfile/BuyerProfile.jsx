@@ -11,7 +11,7 @@ import '../BuyerProfile/buyerpro.css'
 
 function BuyerProfile() {
   const { user } = useContext(AuthContext);
-  const {previewImage, formData, setFormData, setPreviewImage, fetch_profile} = UseHook()
+  const {previewImage, formData, setFormData, setPreviewImage, fetch_profile, profileLoader, showProfileModal} = UseHook()
   const axiosInstance = UseAxios()
 
    // Encode user_id to prevent injection
@@ -339,6 +339,20 @@ function BuyerProfile() {
         </div>
       )}
     </div>
+
+     {/* Custom Modal */}
+     {showProfileModal && profileLoader && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal">
+            <div className="custom-modal-header">
+            </div>
+            <div className="custom-modal-body p-2 justify-content-center d-flex">
+            <div className="status_loader"></div>
+            <h6>Loading Buyer Profile.....</h6>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -21,6 +21,8 @@ function UseHook() {
   const [previewImage, setPreviewImage] = useState(null);
    const [userOrders, setUserOrders] = useState([]);
    const [Orderloading, setOrderLoading] = useState(false);
+   const [profileLoader, setProfileLoader] = useState(false)
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
   // URLs - only construct if user is available
   const FarmerCropsUrl = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodeURIComponent(user.user_id)}` : '';
@@ -96,11 +98,15 @@ function UseHook() {
   // Fetch profile
   const fetch_profile = async () => {
     if (!user) return;
+    setProfileLoader(true)
+    setShowProfileModal(true)
     try {
       const response = await axios.get(profile_url);
       const data = response.data;
       setPreviewImage(data.image);
       setFormData(data);
+      setProfileLoader(false)
+      setShowProfileModal(false)
     } catch (err) {
       console.error("Error fetching profile:", err);
     }
@@ -133,7 +139,10 @@ function UseHook() {
     fetch_profile,
     userOrders,
     setUserOrders,
-    Orderloading
+    Orderloading,
+    profileLoader,
+    showProfileModal, 
+    setShowProfileModal
   };
 }
 

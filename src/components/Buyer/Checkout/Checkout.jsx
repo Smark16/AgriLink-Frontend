@@ -25,6 +25,7 @@ const POST_ORDER_CROPS = 'https://agrilink-backend-hjzl.onrender.com/agriLink/po
 
 function Checkout() {
     const { addedItem, setAddedItem, activatedAddress, setActivatedAddress, user, socketRef} = useContext(AuthContext);
+    console.log(activatedAddress)
     const navigate = useNavigate()
 
     const [delivery, setDelivery] = useState({});
