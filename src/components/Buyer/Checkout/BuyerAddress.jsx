@@ -216,18 +216,19 @@ function BuyerAddress() {
           <div className="person_name mt-2">
             <h5>{userName}</h5>
           </div>
-
-          <div className="more-address">
-            {addresses.find(addr => addr.active) ? (
-              <>
-                <span>{addresses.find(addr => addr.active).district}</span>,
-                <span>{addresses.find(addr => addr.active).city}</span> |
-                <span>+{addresses.find(addr => addr.active).contact}</span>
-              </>
-            ) : (
-              <p>No default address set</p>
+            {fetchLoader ? (<h6>loading...</h6>) : (
+                <div className="more-address">
+                {addresses.find(addr => addr.active) ? (
+                  <>
+                    <span>{addresses.find(addr => addr.active).district}</span>,
+                    <span>{addresses.find(addr => addr.active).city}</span> |
+                    <span>+{addresses.find(addr => addr.active).contact}</span>
+                  </>
+                ) : (
+                  <p>No default address set</p>
+                )}
+              </div>
             )}
-          </div>
         </div>
       </div>
 

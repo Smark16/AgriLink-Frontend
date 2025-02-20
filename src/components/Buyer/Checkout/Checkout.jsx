@@ -35,6 +35,7 @@ function Checkout() {
     const [deliverProfile, setDeliverProfile] = useState({});
     const [payProfile, setPayProfile] = useState({});
     const [loading, setLoading] = useState(false)
+    const [optionLoader, setOptionLoader] = useState(false)
 
     // State to track selected delivery and payment options for each farmer
     const [selectedDelivery, setSelectedDelivery] = useState({});
@@ -57,6 +58,7 @@ function Checkout() {
 
     useEffect(() => {
         const fetchOptionsForFarmers = async () => {
+            setOptionLoader(true)
             const uniqueFarmers = [...new Set(addedItem.map(item => item.user))];
             const newDelivery = { ...delivery };
             const newPayment = { ...payment };
@@ -75,8 +77,11 @@ function Checkout() {
 
                     newPayment[farmerId] = paymentResponse.data.payment_method;
                     newPayProfile[farmerId] = paymentResponse.data.profile;
+
+                    setOptionLoader(false)
                 } catch (err) {
                     console.error('Error fetching options for farmer ' + farmerId + ':', err);
+                    setOptionLoader(false)
                 }
             }
 
@@ -407,9 +412,11 @@ const handleConfirm = async () => {
                                 <i className="bi bi-check-circle-fill text-success"></i>
                                 <span>2.</span>
                                 <h3>Delivery Options</h3>
-                                <h6 className='ms-auto'>change</h6>
+                                {/* <h6 className='ms-auto'>change</h6> */}
                             </div>
                             
+                            {optionLoader ? (<h6>Loading...</h6>) : (
+                                   <>
                             {/* Delivery Options */}
                             <div className="delivery-detail w-100">
                                 {Object.keys(delivery).map((farmerId) => (
@@ -448,6 +455,9 @@ const handleConfirm = async () => {
                                     </div>
                                 ))}
                             </div>
+                                   
+                                   </>
+                            )}
                         </div>
 
                         <div className="payment bg-white mt-3">
@@ -456,7 +466,8 @@ const handleConfirm = async () => {
                                 <span>3.</span>
                                 <h3>Payment Methods Available</h3>
                             </div>
-
+                           
+                           {optionLoader ? (<h6>Loading...</h6>) : (<>
                             <div className="choose p-2">
                                 {Object.keys(payment).map(farmerId => (
                                     <div key={farmerId} className='pay-service-options'>
@@ -512,6 +523,8 @@ const handleConfirm = async () => {
                                     </div>
                                 ))}
                             </div>
+                           
+                           </>)}
                         </div>
                     </div>
 
