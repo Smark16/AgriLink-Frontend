@@ -16,12 +16,15 @@ function ProductDetail() {
 
   const PRODUCT_DETAIL_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/crop_detail/${id}`
   const [Product, setProduct] = useState({})
+  const [detailLoader, setDetailLoader] = useState(false)
 
   const fetchDetail = async()=>{
+    setDetailLoader(true)
     try{
       const response = await axios.get(PRODUCT_DETAIL_URL)
       const data = response.data
       setProduct(data)
+      setDetailLoader(false)
     }catch(err){
       console.log('err', err)
     }
@@ -95,6 +98,8 @@ const isSoldOut = (crop) => {
     <>
   {/* Shop Detail Start */}
   <div className="container-fluid py-5">
+
+    {detailLoader ? (<div className='list_loader'></div>) : (<>
     <div className="row px-xl-5">
         {/* image */}
       <div className="col-lg-5 pb-5">
@@ -220,6 +225,8 @@ const isSoldOut = (crop) => {
  
  {/* reviews */}
  <Review product={Product}/>
+    
+    </>)}
   </div>
   {/* Shop Detail End */}
   {/* Products Start */}

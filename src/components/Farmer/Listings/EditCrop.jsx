@@ -105,7 +105,8 @@ function EditCrop() {
     } else if (typeof crop.image === 'string') {
       try {
         // Download the image from the URL if it's not updated
-        const imageResponse = await axios.get(crop.image, { responseType: 'blob' });
+        const imageUrl = crop.image.replace('http://', 'https://')
+        const imageResponse = await axios.get(imageUrl, { responseType: 'blob' });
         const imageBlob = new Blob([imageResponse.data], { type: imageResponse.headers['content-type'] });
         const imageFile = new File([imageBlob], 'image.png');
         formData.append('image', imageFile);
