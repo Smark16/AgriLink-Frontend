@@ -51,7 +51,8 @@ const Farmer_settings = [
 function ResponsiveAppBar() {
   const { user,  totalQuantity, notificationCount, setNotificationCount } = useContext(AuthContext);
 
-  const {formData,previewImage} = UseHook()
+  const {formData} = UseHook()
+  console.log(formData)
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [showNotificationPage, setShowNotificationPage] = useState(false);
@@ -59,7 +60,7 @@ function ResponsiveAppBar() {
   const fetchNotificationCount = async () => {
     try {
       const encodedUserId = encodeURIComponent(user.user_id);
-      const response = await axios.get(`http://127.0.0.1:8000/agriLink/user_notifications/${encodedUserId}`);
+      const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/user_notifications/${encodedUserId}`);
       const unreadCount = response.data.notifications.filter((notif) => !notif.is_read).length;
       setNotificationCount(unreadCount);
     } catch (error) {
@@ -261,7 +262,7 @@ function ResponsiveAppBar() {
                 )}
                 <Tooltip title={`${user?.is_buyer ? 'Buyer settings' : 'Farmer settings'}`}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.name} src={`http://127.0.0.1:8000${formData.image} ? formData : profile`} />
+                    <Avatar alt={user.name} src={`https://agrilink-backend-hjzl.onrender.com${formData.image}`} />
                   </IconButton>
                 </Tooltip>
                 <Menu

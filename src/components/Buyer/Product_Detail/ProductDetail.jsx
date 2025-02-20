@@ -119,7 +119,7 @@ const isSoldOut = (crop) => {
         <small className="pt-1">({Product.crop_review?.length} Reviews)</small>
         </div>
         <h3 className="font-weight-semi-bold mb-4">UGX {Product.price_per_unit}/ {Product.unit}</h3>
-        <p className="mb-4">
+        <p className="mb-4 crop_desc">
          {Product.description}
         </p>
 

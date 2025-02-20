@@ -5,8 +5,7 @@ import '../changePassword/password.css'
 const changePassword = 'https://agrilink-backend-hjzl.onrender.com/agriLink/change-password/';
 function ChangePassword() {
     const axiosInstance = UseAxios()
-    console.log(axiosInstance)
-    
+  
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');

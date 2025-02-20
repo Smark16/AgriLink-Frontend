@@ -6,6 +6,8 @@ import {jwtDecode} from 'jwt-decode'; // Remove destructuring here.
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../Context/AuthContext';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const loginUrl = 'https://agrilink-backend-hjzl.onrender.com/agriLink/'
 const resetLinkUrl = 'https://agrilink-backend-hjzl.onrender.com/agriLink/send_email'
@@ -150,20 +152,23 @@ function Login() {
         <h6 className='text-center bg-success text-white p-2'>AgriLink Login</h6>
         <form className='p-3' onSubmit={handleSubmit}>
         <>
-  <div className="mb-3">
-    <label htmlFor="formGroupExampleInput" className="form-label">
-      Enter Phone Number
-    </label>
-    <input
-      type="text"
-      className="form-control"
-      id="formGroupExampleInput"
-      placeholder="e.g 0759079867"
-      name='username'
-      value={userLogin.username}
-      onChange={handleChange}
-    />
-  </div>
+              <div className="mb-3">
+                  <label htmlFor="contact" className="form-label">Enter Phone Number</label>
+                  <PhoneInput
+                    country="ug"
+                    value={userLogin.username}
+                    onChange={(phone) => setUserLogin({ ...userLogin, username: phone })}
+                    className='form-control'
+                    inputProps={{
+                      name: 'username',
+                      required: true,
+                      autoFocus: true
+                    }}
+                    containerClass="form-control p-0"
+                    inputClass="w-100 border-0"
+                  />
+                </div>
+                
   <div className="mb-3">
     <label htmlFor="formGroupExampleInput2" className="form-label">
       <span>Enter Password</span>

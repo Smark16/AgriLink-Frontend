@@ -26,6 +26,7 @@ function BuyerProfile() {
   const [dateFormat, setDateFormat] = useState();
   const [userData, setUserData] = useState({username:'', is_buyer:false, is_farmer:true, email:'', date_joined:''})
  const [update, setUpdate] = useState(false)
+ const [Image, setImage] = useState(null)
   // format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -104,11 +105,14 @@ function BuyerProfile() {
        const useresponse = await axiosInstance.put(update_user_url, userdata)
        const profile_response = await axiosInstance.put(update_profile_url, formdata)
 
+       console.log(profile_response.data)
+
        if(useresponse.status === 201 && profile_response.status === 200){
         await fetch_profile()
         showSuccessAlert("Profile Updated");
         setUpdate(false)
         setShowModal(false)
+        setImage(profile_response.data.image)
        }
     }catch(err){
       console.log('err', err)
@@ -134,7 +138,7 @@ function BuyerProfile() {
 
       <div className="profile_main">
         <div className="profile_email">
-          <Avatar alt={userData.get_full_name} src={`https://agrilink-backend-hjzl.onrender.com${previewImage} ? formData : profile`} className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`} className="profile" />
           <div className="email">
             <h5>{userData.get_full_name}</h5>
             <span>{userData.email}</span>
@@ -228,7 +232,7 @@ function BuyerProfile() {
 
         <h5 className="more_profile_title mt-4">My email Address</h5>
         <div className="more_profile_info">
-          <Avatar alt={userData.get_full_name} src={`https://agrilink-backend-hjzl.onrender.com${previewImage} ? formData : profile`}  className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`}  className="profile" />
           <div className="more_email">
             <span>{userData.email}</span>
             <span>{relativeTime}</span>

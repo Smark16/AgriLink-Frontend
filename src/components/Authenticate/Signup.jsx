@@ -5,6 +5,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import farmer from "../images/signupImage.jpeg";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const farmerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_register";
 const buyerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/buyer_register";
@@ -16,7 +18,6 @@ function Signup() {
     FullName: "",
     Email: "",
     contact: "",
-    co_operativeID: "", // Only relevant for farmers
     password: "",
     confirm_password: "",
   });
@@ -37,7 +38,6 @@ function Signup() {
       FullName: "",
       Email: "",
       contact: "",
-      co_operativeID: "",
       password: "",
       confirm_password: "",
     });
@@ -82,7 +82,6 @@ function Signup() {
           FullName: "",
           Email: "",
           contact: "",
-          co_operativeID: "",
           password: "",
           confirm_password: "",
         });
@@ -150,7 +149,6 @@ function Signup() {
                 name="FullName"
                 value={formData.FullName}
                 onChange={handleInputChange}
-                placeholder="Enter Name"
                 required
               />
             </div>
@@ -166,28 +164,28 @@ function Signup() {
                 name="Email"
                 value={formData.Email}
                 onChange={handleInputChange}
-                placeholder="Enter Email"
                 required
               />
             </div>
 
             <div className="mb-3">
-              <label htmlFor="contact" className="form-label">
-                Enter Phone Number
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="contact"
-                name="contact"
-                value={formData.contact}
-                onChange={handleInputChange}
-                placeholder="Enter Contact"
-                required
-              />
-            </div>
+                  <label htmlFor="contact" className="form-label">Enter Phone Number</label>
+                  <PhoneInput
+                    country="ug"
+                    value={formData.contact}
+                    onChange={(phone) => setFormData({ ...formData, contact: phone })}
+                    className='form-control'
+                    inputProps={{
+                      name: 'contact',
+                      required: true,
+                      autoFocus: true
+                    }}
+                    containerClass="form-control p-0"
+                    inputClass="w-100 border-0"
+                  />
+                </div>
 
-            {role === "farmer" && (
+            {/* {role === "farmer" && (
               <div className="mb-3">
                 <label htmlFor="co_operativeID" className="form-label">
                   Enter Cooperative ID
@@ -203,7 +201,7 @@ function Signup() {
                   required
                 />
               </div>
-            )}
+            )} */}
 
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
@@ -216,7 +214,6 @@ function Signup() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Enter Password"
                 required
               />
             </div>
@@ -232,7 +229,6 @@ function Signup() {
                 name="confirm_password"
                 value={formData.confirm_password}
                 onChange={handleInputChange}
-                placeholder="Confirm Password"
                 required
               />
             </div>
