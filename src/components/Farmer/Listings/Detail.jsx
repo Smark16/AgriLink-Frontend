@@ -242,11 +242,11 @@ function Detail() {
                 <span>UGX {cropDetail.price_per_unit || 'N/A'}</span>
               </li>
               {cropDetail.weight?.length ? (
-              <li>
+              <li  className='detail_weights'>
                 <h5>Weights:</h5>
                 {cropDetail.weight?.length ? (
   cropDetail.weight?.map((kg, index) => (
-    <span key={index}>
+    <span key={index} className='justify-content-center'>
       <strong>{kg.weight}:
         <div className="show-weigth">
           <span>{kg.available} {kg.available > 1 ? 'items' : 'item'}</span>
@@ -272,7 +272,7 @@ function Detail() {
               </li>
               ) : ''}
 
-              <li>
+              <li className='detail_weights'>
                 <h5>Quantity Availability:</h5>
                 <span className={`${isSoldOut(cropDetail) ? 'text-danger' : 'text-warning'}`}>
   {cropDetail.availability > 0 
@@ -302,7 +302,7 @@ function Detail() {
               </li>
               <li>
                 <h5>Description:</h5>
-                <span>{cropDetail.description || 'No description available'}</span>
+                <span className='crop_desc'>{cropDetail.description || 'No description available'}</span>
               </li>
             </ul>
           </div>

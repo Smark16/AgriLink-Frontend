@@ -21,10 +21,17 @@
   .remove_crop{
     border: none;
     outline: none;
-    
+  }
+  .show-weigth{
+    justify-content: center;
   }
   
-  .farmer_crop_desc {
+  .detail_weights{
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+.farmer_crop_desc {
     word-break: break-word;
     overflow: hidden; 
     text-overflow: ellipsis; 
@@ -32,6 +39,7 @@
     display: -webkit-box; 
     -webkit-box-orient: vertical; 
   }
+
 .no_crops{
   border-radius: 20px;
   padding: 10px;
@@ -137,6 +145,7 @@
 }
 .weights ul{
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   gap: 10px;
 }
@@ -202,6 +211,15 @@ gap: 20px;
     border: none;
     outline: none;
 }
+.crop_desc{
+  word-break: break-word;
+  /* overflow: hidden; 
+  text-overflow: ellipsis; 
+  -webkit-line-clamp: 2; 
+  display: -webkit-box;  */
+  -webkit-box-orient: vertical; 
+}
+
 .discount_active{
   display: flex;
   align-items: center;
