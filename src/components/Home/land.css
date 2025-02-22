@@ -295,7 +295,9 @@ footer p{
     width: 100%;
     display: none;
   }
-
+.james, .sarah{
+  width: 100%;
+}
   .join h4{
   z-index: 10;
   }
