@@ -17,7 +17,7 @@ const Market_Insights = () => {
   
   const encodedUserId = encodeURIComponent(user.user_id);
   
-  const farmer_crops_url = `http://127.0.0.1:8000/agriLink/farmer/${encodedUserId}`
+  const farmer_crops_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodedUserId}`
   
   const [farmerCrops, setFarmerCrops] = useState([])
   const [monthlySales, setMonthlySales] = useState([])
@@ -94,7 +94,7 @@ let today = getFormattedDate();
   const monthly_sales = async () => {
     if (crop_id) {
       try {
-        const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}`);
+        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/monthly_sales_overview/${crop_id}`);
         const data = response.data;
         setMonthlySales(data || []);
         setShowModal(false);
@@ -110,7 +110,7 @@ let today = getFormattedDate();
   const FarmerPricing = async()=>{
     if(crop_id){
       try{
-        const response = await axios(`http://127.0.0.1:8000/agriLink/crop_market_insights/${crop_id}`)
+        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/crop_market_insights/${crop_id}`)
         const data = response.data
         setFarmerPricing(data)
         setShowModal(false)
@@ -149,7 +149,7 @@ let today = getFormattedDate();
     useEffect(() => {
       const fetchInitialData = async () => {
         try {
-          const response = await axios.get(`http://127.0.0.1:8000/agriLink/get_crop_actions/${crop_id}`);
+          const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/get_crop_actions/${crop_id}`);
           const data = response.data;
           setCropLogs(data[0].monthly_stats || []);
           setShowModal(false);
@@ -218,7 +218,7 @@ const handleMonthLog = (event) => {
    const sales_trend = async () => {
     if (crop_id) {
       try {
-        const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}/${user?.user_id}`);
+        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/monthly_sales_overview/${crop_id}/${user?.user_id}`);
         const data = response.data;
         setSalesTrend(data.monthly_sales || []);
         setMonthlySalesTrend([{ revenue: 0 }]);
