@@ -3,16 +3,18 @@ import "../Authenticate/Auth.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import farmer from "../images/agritea.webp";
-import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import { Link, useNavigate } from "react-router-dom";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import axios from "axios";
+
+import Swal from "sweetalert2";
 
 const farmerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_register";
 const buyerRegister = "https://agrilink-backend-hjzl.onrender.com/agriLink/buyer_register";
 
 function Signup() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [role, setRole] = useState("buyer"); // Role selection state
   const [formData, setFormData] = useState({
     FullName: "",
@@ -23,7 +25,8 @@ function Signup() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [userNameErrror, setUserNameError] = useState('')
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -48,35 +51,54 @@ function Signup() {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
     // Validate Full Name
     if (formData.FullName.trim().split(" ").length < 2) {
       setError("Please enter your full name, including both first and last name.");
+      setLoading(false);
       return;
     }
-  
+
     // Validate Password Match
     if (formData.password !== formData.confirm_password) {
       setError("Passwords do not match!");
+      setLoading(false);
       return;
     }
-  
+
+    // Validate Password Length
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate Phone Number
+    if (!formData.contact || formData.contact.length < 10) {
+      setError("Please enter a valid phone number.");
+      setLoading(false);
+      return;
+    }
+
     const endpoint = role === "buyer" ? buyerRegister : farmerRegister;
-  
-    const payload = role === "buyer" 
-      ? { ...formData, is_buyer: true } 
-      : { ...formData, is_farmer: true };
-  
+
+    const payload = {
+      ...formData,
+      is_buyer: role === "buyer",
+      is_farmer: role === "farmer",
+    };
+
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
+      const response = await axios.post(endpoint, payload, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
       });
-  
-      if (response.ok) {
+
+      if (response.status === 201) {
         setSuccess("Registration successful! Please log in.");
         setFormData({
           FullName: "",
@@ -85,16 +107,29 @@ function Signup() {
           password: "",
           confirm_password: "",
         });
-        setLoading(false)
-        navigate('/login');
-      } else {
-        const data = await response.json();
-        setError(data.detail || "An error occurred during registration.");
+        setLoading(false);
+        Swal.fire({
+              title: 'Registration successfull',
+              icon: "success",
+              timer: 6000,
+              toast: true,
+              position: 'top',
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+        navigate("/login");
       }
     } catch (err) {
-      setError("Failed to register. Please try again later.");
+      setLoading(false);
+      if (err.response) {
+        setError(err.response.data.detail || "An error occurred during registration.");
+        // console.log(err.response.data.contact)
+        setUserNameError(err.response.data.contact)
+      } else {
+        setError("Failed to register. Please try again later.");
+      }
+      console.log("err", err);
     }
-
   };
 
   return (
@@ -169,39 +204,24 @@ function Signup() {
             </div>
 
             <div className="mb-3">
-                  <label htmlFor="contact" className="form-label">Enter Phone Number</label>
-                  <PhoneInput
-                    country="ug"
-                    value={formData.contact}
-                    onChange={(phone) => setFormData({ ...formData, contact: phone })}
-                    className='form-control'
-                    inputProps={{
-                      name: 'contact',
-                      required: true,
-                      autoFocus: true
-                    }}
-                    containerClass="form-control p-0"
-                    inputClass="w-100 border-0"
-                  />
-                </div>
-
-            {/* {role === "farmer" && (
-              <div className="mb-3">
-                <label htmlFor="co_operativeID" className="form-label">
-                  Enter Cooperative ID
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="co_operativeID"
-                  name="co_operativeID"
-                  value={formData.co_operativeID}
-                  onChange={handleInputChange}
-                  placeholder="Enter Cooperative ID"
-                  required
-                />
-              </div>
-            )} */}
+              <label htmlFor="contact" className="form-label">
+                Enter Phone Number
+              </label>
+              <PhoneInput
+                country="ug"
+                value={formData.contact}
+                onChange={(phone) => setFormData({ ...formData, contact: phone })}
+                className="form-control"
+                inputProps={{
+                  name: "contact",
+                  required: true,
+                  autoFocus: true,
+                }}
+                containerClass="form-control p-0"
+                inputClass="w-100 border-0"
+              />
+              <p className="text-danger">{userNameErrror}</p>
+            </div>
 
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
@@ -236,8 +256,8 @@ function Signup() {
             {error && <p className="text-danger">{error}</p>}
             {success && <p className="text-success">{success}</p>}
 
-            <button type="submit" className="btn btn-primary">
-            {loading ? 'Signing...' : 'Sign up'}
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? "Signing..." : "Sign up"}
             </button>
 
             <p>
