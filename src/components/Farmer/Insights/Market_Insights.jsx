@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -13,11 +13,11 @@ import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
 
 const Market_Insights = () => {
-  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs} = useContext(AuthContext)
-  console.log(cropLogs)
+  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, socketRef} = useContext(AuthContext)
+  
   const encodedUserId = encodeURIComponent(user.user_id);
   
-  const farmer_crops_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodedUserId}`
+  const farmer_crops_url = `http://127.0.0.1:8000/agriLink/farmer/${encodedUserId}`
   
   const [farmerCrops, setFarmerCrops] = useState([])
   const [monthlySales, setMonthlySales] = useState([])
@@ -31,6 +31,7 @@ const Market_Insights = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSalesTrendMonth, setSelectedSalesTrendMonth] = useState(new Date().getMonth());
   const [isMonthSelected, setIsMonthSelected] = useState(false);
+  const [dailyTrends, setDailyTrends] = useState([]);
 
   const months = [
     "January", "February", "March", "April", "May", "June", 
@@ -93,7 +94,7 @@ let today = getFormattedDate();
   const monthly_sales = async () => {
     if (crop_id) {
       try {
-        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/monthly_sales_overview/${crop_id}`);
+        const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}`);
         const data = response.data;
         setMonthlySales(data || []);
         setShowModal(false);
@@ -103,13 +104,13 @@ let today = getFormattedDate();
       }
     }
   };
-
+  console.log('monthly sales', monthlySales)
 
   // farmer pricing
   const FarmerPricing = async()=>{
     if(crop_id){
       try{
-        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/crop_market_insights/${crop_id}`)
+        const response = await axios(`http://127.0.0.1:8000/agriLink/crop_market_insights/${crop_id}`)
         const data = response.data
         setFarmerPricing(data)
         setShowModal(false)
@@ -144,19 +145,23 @@ let today = getFormattedDate();
     }
   };
 
-    const crop_logs = async () => {
-      if (crop_id) {
+
+    useEffect(() => {
+      const fetchInitialData = async () => {
         try {
-          const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/get_crop_actions/${crop_id}`);
+          const response = await axios.get(`http://127.0.0.1:8000/agriLink/get_crop_actions/${crop_id}`);
           const data = response.data;
-          setCropLogs(data[0].monthly_stats || []); // Ensure cropLogs is an array
+          setCropLogs(data[0].monthly_stats || []);
           setShowModal(false);
-          setSelectMonthLogs({ views: 0, purchases: 0 });
         } catch (err) {
-          console.log('err', err);
+          console.error('Error fetching initial crop logs:', err);
         }
+      };
+    
+      if (crop_id) {
+        fetchInitialData();
       }
-    };
+    }, [crop_id]);
 
 
 // monthly logs
@@ -184,40 +189,48 @@ const handleMonthLog = (event) => {
   }
 };
 
-// Handle month change for sales trend
-const handleSalesTrend = (event) => {
-  const selectedMonthIndex = parseInt(event.target.value, 10);
-  setSelectedSalesTrendMonth(selectedMonthIndex);
-  setIsMonthSelected(true); // Set to true when a month is selected
+ console.log(salesTrend)
 
-  if (salesTrend.length === 0) {
-    setMonthlySalesTrend([{ revenue: 0 }]);
-    const { month, year } = getCurrentMonthAndYear();
-    setMonthlySalesTrend([{ revenue: 0 }]);
-  } else {
-    const selectedData = salesTrend.find(
-      (trend) => trend.month === selectedMonthIndex + 1
+  // Handle month change for sales trend
+  const handleSalesTrend = (event) => {
+    const selectedMonthIndex = parseInt(event.target.value, 10);
+    setSelectedSalesTrendMonth(selectedMonthIndex);
+    setIsMonthSelected(true);
+
+    // Find the selected month's data
+    const selectedMonthData = salesTrend.find(
+      (trend) => {
+        const trendMonth = new Date(trend.month).getMonth();
+        return trendMonth === selectedMonthIndex;
+      }
     );
-    if (selectedData) {
-      setMonthlySalesTrend([{ revenue: selectedData.total_amount }]);
+
+    if (selectedMonthData && selectedMonthData.daily_sales) {
+      // Set daily trends for the selected month
+      setDailyTrends(selectedMonthData.daily_sales);
+    } else {
+      // If no daily trends are available, reset to an empty array
+      setDailyTrends([]);
     }
-  }
-};
+  };
   
-  const sales_trend = async () => {
+   // Fetch sales trend
+   const sales_trend = async () => {
     if (crop_id) {
       try {
-      const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/monthly_sales_overview/${crop_id}`);
-      const data = response.data;
-      setSalesTrend(data);
-      setMonthlySalesTrend([{revenue:0}])  
-      setShowModal(false);
-      calculatePerformance(data);
-    } catch (err) {
-      console.log('err', err);
+        const response = await axios(`http://127.0.0.1:8000/agriLink/monthly_sales_overview/${crop_id}/${user?.user_id}`);
+        const data = response.data;
+        setSalesTrend(data.monthly_sales || []);
+        setMonthlySalesTrend([{ revenue: 0 }]);
+        setShowModal(false);
+        calculatePerformance(data.monthly_sales);
+      } catch (err) {
+        console.log('err', err);
+      }
     }
-  }
-};
+  };
+
+  
  
   useEffect(() =>{
     fetchFarmerCrops()
@@ -226,77 +239,50 @@ const handleSalesTrend = (event) => {
 useEffect(() => {
   monthly_sales();
   sales_trend()
-  crop_logs()
+  // crop_logs()
   FarmerPricing()
 }, [crop_id]); 
 
-// Automatically set stats if only one month is available in monthlySales
-useEffect(() => {
-  if (monthlySales.length === 0) {
-    // If monthlySales is empty, use the current month and year
-    const { month, year } = getCurrentMonthAndYear();
-    setSelectedMonthData({
-      revenue: 0,
-      quantity: 0,
-    });
-  } else {
-    // If monthlySales has data, find the current month and year
-    const { month, year } = getCurrentMonthAndYear();
-    const currentMonthData = monthlySales.find(
-      (sale) => sale.month === month && sale.year === year
-    );
 
-    if (currentMonthData) {
-      setSelectedMonthData({
-        revenue: currentMonthData.total_amount,
-        quantity: currentMonthData.total_quantity,
-      });
-    } else {
-      // If current month and year are not in monthlySales, set default values
-      setSelectedMonthData({
-        revenue: 0,
-        quantity: 0,
-      });
-    }
-  }
-}, [monthlySales]);
-
-// Automatically set stats if only one month is available in salesTrend
-useEffect(() => {
-  if (salesTrend.length === 0) {
-    // If salesTrend is empty, use the current month and year
-    const { month, year } = getCurrentMonthAndYear();
-    setMonthlySalesTrend([
-      {
-        revenue: 0,
-      },
-    ]);
-  } else {
-    // If salesTrend has data, find the current month and year
-    const { month, year } = getCurrentMonthAndYear();
-    const currentMonthData = salesTrend.map(
-      (trend) => trend.year === year ? trend.month && trend.total_amount : ''
-    );
-    if (currentMonthData) {
-      setMonthlySalesTrend(
-        currentMonthData.map(amount =>{
-          return (
-            {
-              revenue:amount
-            }
-          )
-        })
-      );
-    } else {
-      // If current month and year are not in salesTrend, set default values
+  // Automatically set stats if only one month is available in salesTrend
+  useEffect(() => {
+    if (salesTrend.length === 0) {
+      // If salesTrend is empty, use the current month and year
+      const { month, year } = getCurrentMonthAndYear();
       setMonthlySalesTrend([
         {
           revenue: 0,
         },
       ]);
+    } else {
+      // If salesTrend has data, find the current month and year
+      const { month, year } = getCurrentMonthAndYear();
+      const currentMonthData = salesTrend.find(
+        (trend) => {
+          const trendMonth = new Date(trend.month).getMonth() + 1;
+          const trendYear = new Date(trend.month).getFullYear();
+          return trendMonth === month && trendYear === year;
+        }
+      );
+
+      if (currentMonthData && currentMonthData.daily_sales) {
+        // Set daily trends for the current month
+        setDailyTrends(currentMonthData.daily_sales);
+        setMonthlySalesTrend(
+          currentMonthData.daily_sales.map((day) => ({
+            revenue: day.amount || 0,
+          }))
+        );
+      } else {
+        // If current month and year are not in salesTrend, set default values
+        setMonthlySalesTrend([
+          {
+            revenue: 0,
+          },
+        ]);
+      }
     }
-  }
-}, [salesTrend]);
+  }, [salesTrend]);
 
 
 // Automatically set stats if only one month is available in cropLogs
@@ -329,43 +315,105 @@ useEffect(() => {
   }
 }, [cropLogs]);
 
- // Calculate sales performance
- const calculatePerformance = (data) => {
-  if (data.length >= 2) {
-    const currentMonth = data[data.length - 1].total_quantity;
-    const previousMonth = data[data.length - 2].total_quantity;
+// Automatically set stats if only one month is available in monthlySales
+useEffect(() => {
+  if (monthlySales.length === 0) {
+    // If monthlySales is empty, use the current month and year
+    const { month, year } = getCurrentMonthAndYear();
+    setSelectedMonthData({
+      revenue: 0,
+      quantity: 0,
+    });
+  } else {
+    // If monthlySales has data, find the current month and year
+    const { month, year } = getCurrentMonthAndYear();
+    const currentMonthData = monthlySales.find(
+      (sale) => sale.month === month && sale.year === year
+    );
 
-    if (previousMonth === 0) {
-      setSalesPerformance("N/A");
+    if (currentMonthData) {
+      setSelectedMonthData({
+        revenue: currentMonthData.total_amount,
+        quantity: currentMonthData.total_quantity,
+      });
     } else {
-      const performance = ((currentMonth - previousMonth) / previousMonth) * 100;
-      setSalesPerformance(performance.toFixed(1));
+      // If current month and year are not in monthlySales, set default values
+      setSelectedMonthData({
+        revenue: 0,
+        quantity: 0,
+      });
     }
   }
+}, [monthlySales]);
+
+ // Get current month's daily sales
+ const getCurrentMonthDailySales = () => {
+  const currentDate = new Date();
+  const currentMonth = currentDate.toLocaleString("default", { month: "long" });
+  const currentYear = currentDate.getFullYear();
+  const currentMonthKey = `${currentMonth} ${currentYear}`;
+
+  const currentMonthData = salesTrend.find(
+    (sale) => sale.month === currentMonthKey
+  );
+
+  if (currentMonthData && currentMonthData.daily_sales) {
+    return currentMonthData.daily_sales;
+  }
+  return [];
 };
 
-const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
+  // Calculate sales performance
+  const calculatePerformance = (data) => {
+    if (data.length >= 2) {
+      const currentMonth = data[data.length - 1].total_quantity;
+      const previousMonth = data[data.length - 2].total_quantity;
 
-   // Chart configuration
-   const overallPerformanceConfig = {
-    series: [{ name: "Sales", data: PerformanceRevenue }],
+      if (previousMonth === 0) {
+        setSalesPerformance("N/A");
+      } else {
+        const performance = ((currentMonth - previousMonth) / previousMonth) * 100;
+        setSalesPerformance(performance.toFixed(1));
+      }
+    }
+  };
+
+    // Simplify x-axis labels
+  const simplifyXAxisLabels = (dailySales) => {
+    if (dailySales.length === 0) return [];
+
+    const firstDay = dailySales[0];
+    const middleDay = dailySales[Math.floor(dailySales.length / 2)];
+    const lastDay = dailySales[dailySales.length - 1];
+
+    return [firstDay, middleDay, lastDay].map((day) => {
+      const date = new Date(day.date);
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    });
+  };
+
+  // Chart configuration
+  const overallPerformanceConfig = {
+    series: [
+      {
+        name: "Sales",
+        data: getCurrentMonthDailySales().map((day) => day.amount || 0),
+      },
+    ],
     options: {
       chart: { type: "line", height: 150 },
       colors: ["#4CAF50"],
       xaxis: {
-        categories: isMonthSelected ? [months[selectedSalesTrendMonth]] : months, // Conditional logic
+        categories: simplifyXAxisLabels(getCurrentMonthDailySales()),
         labels: {
-          formatter: function (value, timestamp, index) {
-            // Highlight the current month
-            const currentMonth = new Date().getMonth();
-            return index === currentMonth ? `**${value}**` : value;
-          }
-        }
+          formatter: function (value) {
+            return value;
+          },
+        },
       },
       dataLabels: { enabled: false },
     },
   };
-
 
   return (
     <>
@@ -523,6 +571,7 @@ const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
 </select>
 </div>
       </div>
+
       <Grid container spacing={2} className="mt-3">
         {/* First Row */}
         <Grid item xs={12} md={12} sm={12}>
@@ -535,10 +584,10 @@ const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
                 Sales Perfomance Trend
               </Typography>
               <Chart
-              className='sm-12'
+                className="sm-12"
                 options={overallPerformanceConfig.options}
                 series={overallPerformanceConfig.series}
-                type="line"
+                type="area"
                 height={300}
               />
 
@@ -565,24 +614,24 @@ const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
           <div className="col -md-5 sm-12 average_price">
             <h4>Market Average Price</h4>
            <span><span>
-  {farmerPricing && farmerPricing.crop === crop_id && farmerPricing.average_price_per_kg
-    ? `UGX ${farmerPricing.average_price_per_kg} `
-    : 'Data Not Available'}
-</span></span>
-          </div>
+              {farmerPricing && farmerPricing.crop === crop_id && farmerPricing.average_price_per_kg
+                ? `UGX ${farmerPricing.average_price_per_kg} `
+                : 'Data Not Available'}
+            </span></span>
+                      </div>
 
-          <div className="col-md-6 sm-12 farmer_pricing">
-            <h4>Different Farmer Prices</h4>
-            <ul>
-  {farmerPricing && farmerPricing.crop === crop_id && Array.isArray(farmerPricing.farmer_pricing) && farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).length > 0 ? (
-    farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).map((price, index) => {
-      const { price_per_unit, unit, farm_Name } = price;
-      return (
-        <li key={index}>
-          {farm_Name} (UGX {price_per_unit} / {unit})
-        </li>
-      );
-    })
+                      <div className="col-md-6 sm-12 farmer_pricing">
+                        <h4>Different Farmer Prices</h4>
+                        <ul>
+              {farmerPricing && farmerPricing.crop === crop_id && Array.isArray(farmerPricing.farmer_pricing) && farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).length > 0 ? (
+                farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).map((price, index) => {
+                  const { price_per_unit, unit, farm_Name } = price;
+                  return (
+                    <li key={index}>
+                      {farm_Name} (UGX {price_per_unit} / {unit})
+                    </li>
+                  );
+                })
   ) : (
     <span>No pricing data available</span>
   )}
@@ -592,7 +641,6 @@ const PerformanceRevenue = monthlysalesTrend.map((sale) => sale.revenue || 0)
       </Grid>
     </Box>
 
-    
       {/* Custom Modal */}
        {showModal && (
         <div className="custom-modal-overlay">

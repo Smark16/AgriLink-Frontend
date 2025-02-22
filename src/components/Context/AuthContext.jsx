@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
-import axios from 'axios';
 
 export const AuthContext = createContext();
 
@@ -37,55 +36,56 @@ export const AuthProvider = ({ children }) => {
   }, [addedItem]);
 
 
-  // real-time crop logs
-  useEffect(() =>{
-    socketRef.current = new WebSocket(`wss://agrilink-backend-hjzl.onrender.com/ws/user_logs/${user?.user_id}/`);
-  
+// real-time crop logs
+useEffect(() => {
+  if (user) {  // Only establish WebSocket connection for farmers
+    socketRef.current = new WebSocket(`wss://agrilink-backend-hjzl.onrender.com/ws/user_logs/`);
     socketRef.current.onopen = () => {
-      console.log('WebSocket connection established');
+      console.log('WebSocket connection established for farmer');
     };
 
-    socketRef.current.onclose =() =>{
-      console.log('websocket connection disconnected')
-    }
-  
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Received message:', data);
-      setCropLogs(prev => [...prev, {'action':data.action, 'crop':data.crop, 'monthly_stats':data.monthly_stats}])
-  
+
       if (data.type === 'user_logs') {
-        // Merge new stats with existing cropLogs
-       
+        data.monthly_stats.map(stat =>(
+          setCropLogs([stat])
+        ))
+        
+
         // Update selectMonthLogs if the selected month is in the new stats
         setSelectMonthLogs((prevLogs) => {
           const selectedMonthStat = data.monthly_stats.find(
             (stat) => stat.year === prevLogs.year && stat.month === prevLogs.month
           );
-  
+
           if (selectedMonthStat) {
             return {
               views: selectedMonthStat.views,
               purchases: selectedMonthStat.purchases,
             };
           }
-  
+
           return prevLogs;
         });
       }
     };
-  
-    socketRef.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
+
+    socketRef.current.onclose = () => {
+      console.log('WebSocket connection disconnected for farmer');
     };
 
-         //Cleanup function to close the WebSocket connection when the component unmounts
-          return () => {
-            if (socketRef.current) {
-              socketRef.current.close();
-          }
-        };
-  }, [user])
+    socketRef.current.onerror = (error) => {
+      console.error('WebSocket error for farmer:', error);
+    };
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }
+}, [user]);
   
 const handleViewLog = (id)=>{
   if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {

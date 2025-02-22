@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../Authenticate/Auth.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import farmer from "../images/signupImage.jpeg";
+import farmer from "../images/agritea.webp";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';

@@ -14,12 +14,13 @@
 .signup{
     padding: 10px;
     width: 500px;
-    height: 130vh;
+    height: 100%;
     background-color: #fff;
     box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.1);
 }
 .welcome img{
-    height: 780px;
+    height: 100%;
+    width: 500px;
 }
 .signup .choose{
     display: flex;
