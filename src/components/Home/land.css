@@ -298,6 +298,13 @@ footer p{
 .james, .sarah{
   width: 100%;
 }
+.sarah{
+  color: white;
+  background-color: #04770e;
+  z-index: 10px;
+  object-fit: cover;
+  margin-left: 0px;
+}
   .join h4{
   z-index: 10;
   }
