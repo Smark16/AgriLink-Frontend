@@ -9,4 +9,12 @@
         width: 100%;
         margin-left:0px;
     }
+    .pro_email{
+        word-break: break-word;
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+        -webkit-line-clamp: 1; 
+        display: -webkit-box; 
+        -webkit-box-orient: vertical; 
+    }
 }

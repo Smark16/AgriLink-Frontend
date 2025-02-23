@@ -141,7 +141,7 @@ function BuyerProfile() {
           <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`} className="profile" />
           <div className="email">
             <h5>{userData.get_full_name}</h5>
-            <span>{userData.email}</span>
+            <span className='pro_email'>{userData.email}</span>
           </div>
           <div className="edit_profile_btn ms-auto">
             <button onClick={() => setShowModal(true)}>Edit</button>

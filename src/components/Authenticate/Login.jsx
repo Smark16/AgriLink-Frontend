@@ -87,9 +87,9 @@ function Login() {
       icon: "success",
       timer: 6000,
       toast: true,
-      position: 'top-right',
+      position: 'top',
       timerProgressBar: true,
-      showConfirmButton: true,
+      showConfirmButton: false,
     });
   };
 
