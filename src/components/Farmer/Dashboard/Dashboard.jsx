@@ -10,7 +10,7 @@ import UseHook from "../../CustomHook/UseHook";
 import { AuthContext} from "../../Context/AuthContext";
 import { Link } from "react-router-dom";
 import moment from "moment";
-import vector_1 from '../../images/vector_3.svg'
+// import vector_1 from '../../images/vector_3.svg'
 import vector_2 from '../../images/vector_4.svg'
 
 function Dashboard() {
