@@ -10,6 +10,8 @@ import UseHook from "../../CustomHook/UseHook";
 import { AuthContext} from "../../Context/AuthContext";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import vector_1 from '../../images/vector_3.svg'
+import vector_2 from '../../images/vector_4.svg'
 
 function Dashboard() {
   const {loader, filteredCrops, FarmerOrders, loading} = UseHook()
@@ -567,7 +569,7 @@ const [BarData, setBarData] = useState({
               return (
                 <>
               <li>
-              {crop_name}: <i class="bi bi-bar-chart-fill text-success"></i> <strong>UGX {average_price_per_kg}/ KG</strong> <i class="bi bi-arrow-up text-success"></i>
+              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ KG</strong> <i class="bi bi-arrow-up text-success"></i>
               </li>
                 </>
               )
