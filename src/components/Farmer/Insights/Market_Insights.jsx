@@ -11,7 +11,8 @@ import Chart from "react-apexcharts";
 import '../Insights/market.css'
 import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
-import vector_2 from '../../images/vector_4.svg'
+// import vector_2 from '../../images/vector_4.svg'
+// const vector_2 = '/vector_4.svg'
 
 const Market_Insights = () => {
   const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, socketRef} = useContext(AuthContext)
@@ -629,7 +630,7 @@ useEffect(() => {
                   const { price_per_unit, unit, farm_Name, Location } = price;
                   return (
                     <li key={index} className='d-block'>
-                      <span><strong>{farm_Name}</strong>  <img src={vector_2}></img>   UGX {price_per_unit} / {unit}</span> <br></br>
+                      <span><strong>{farm_Name}</strong>  UGX {price_per_unit} / {unit}</span> <br></br>
                       <span>{Location} District</span>
                     </li>
                   );
