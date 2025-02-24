@@ -11,7 +11,6 @@ import Chart from "react-apexcharts";
 import '../Insights/market.css'
 import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
-import vector_1 from '../../images/vector_3.svg'
 import vector_2 from '../../images/vector_4.svg'
 
 const Market_Insights = () => {
