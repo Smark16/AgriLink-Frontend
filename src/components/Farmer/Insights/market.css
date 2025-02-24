@@ -30,11 +30,14 @@ gap: 5px;
 
  /* perfomance metrics */
  .market_insight_header{
-   background-color: var(--primary-color);
+   background-color: var(--background-color);
  }
  .market_trend_header{
   font-weight: bolder;
   font-size: 30px;
+ }
+ .farmer_pricing h4{
+  background-color: var(--background-color);
  }
  .crop_perfomance_metrics{
    display: flex;

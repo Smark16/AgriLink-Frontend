@@ -10,8 +10,8 @@ import UseHook from "../../CustomHook/UseHook";
 import { AuthContext} from "../../Context/AuthContext";
 import { Link } from "react-router-dom";
 import moment from "moment";
-// import vector_1 from '../../images/vector_3.svg'
-// import vector_2 from '../../images/vector_4.svg'
+import vector_2 from '../../images/Vector_4.svg'
+
 
 function Dashboard() {
   const {loader, filteredCrops, FarmerOrders, loading} = UseHook()
@@ -258,22 +258,7 @@ useEffect(() => {
   }
 }, [SalesTrend, orderTrends, cropSales]);
 
-
   // Line Chart Data
- 
-  // Memoize sales and order_trend arrays
-  // const sales = useMemo(() => 
-  //   SalesTrend.flatMap(trend => trend.daily_sales.map(daily => daily.amount)),
-  //   [SalesTrend]
-  // );
-
-  // const order_trend = useMemo(() =>
-  //   orderTrends.flatMap(trend => trend.daily_trends.map(daily => daily.count)),
-  //   [orderTrends]
-  // );
-
-  // console.log('sales', sales, 'orders', order_trend);
-
   // Memoize chartData
   const [chartData, setChartData] = useState({
     series: [
@@ -569,7 +554,7 @@ const [BarData, setBarData] = useState({
               return (
                 <>
               <li>
-              {crop_name}: <i class="bi bi-bar-chart-fill text-success"></i> <strong>UGX {average_price_per_kg}/ KG</strong> <i class="bi bi-arrow-up text-success"></i>
+              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ KG</strong> <i class="bi bi-arrow-up text-success"></i>
               </li>
                 </>
               )
