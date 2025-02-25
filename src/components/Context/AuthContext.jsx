@@ -91,7 +91,7 @@ useEffect(() => {
 // real time market-trends
 useEffect(()=>{
   if(user){
-    trendRef.current = new WebSocket('ws://127.0.0.1:8000/ws/market_trends/')
+    trendRef.current = new WebSocket('wss://agrilink-backend-hjzl.onrender.com/ws/market_trends/')
 
     trendRef.current.onopen =()=>{
       console.log('websockect conection established for market trends')
