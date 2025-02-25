@@ -15,7 +15,7 @@ import vector_2 from '../../images/Vector_4.svg'
 
 
 const Market_Insights = () => {
-  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, socketRef} = useContext(AuthContext)
+  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, prices, setPrices} = useContext(AuthContext)
   
   const encodedUserId = encodeURIComponent(user.user_id);
   
@@ -106,21 +106,25 @@ let today = getFormattedDate();
       }
     }
   };
-  console.log('monthly sales', monthlySales)
-
+  
   // farmer pricing
-  const FarmerPricing = async()=>{
-    if(crop_id){
-      try{
-        const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/crop_market_insights/${crop_id}`)
-        const data = response.data
-        setFarmerPricing(data)
-        setShowModal(false)
-      }catch(err){
-        console.log('err', err)
-      }
+  useEffect(()=>{
+    const FarmerPricing = async()=>{
+        try{
+          const response = await axios(`http://127.0.0.1:8000/agriLink/crop_market_insights/${crop_id}`)
+          const data = response.data
+          setFarmerPricing(data)
+          setPrices(data.farmer_pricing)
+          setShowModal(false)
+        }catch(err){
+          console.log('err', err)
+        }
     }
-  }
+
+    if(crop_id){
+      FarmerPricing()
+    }
+  }, [prices])
 
   // Selected month data
   const handleMonthChange = (event) => {
@@ -191,8 +195,6 @@ const handleMonthLog = (event) => {
   }
 };
 
- console.log(salesTrend)
-
   // Handle month change for sales trend
   const handleSalesTrend = (event) => {
     const selectedMonthIndex = parseInt(event.target.value, 10);
@@ -241,8 +243,6 @@ const handleMonthLog = (event) => {
 useEffect(() => {
   monthly_sales();
   sales_trend()
-  // crop_logs()
-  FarmerPricing()
 }, [crop_id]); 
 
 

@@ -23,7 +23,7 @@ const post_crops_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post
 const MARKET_TREND = 'https://agrilink-backend-hjzl.onrender.com/agriLink/market-trends/'
 function Upload_List() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, marketrendUpload } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
   const [crop, setCrop] = useState({
     user: user?.user_id,
@@ -123,6 +123,8 @@ function Upload_List() {
       setLoading(false);
       showSuccessAlert('Product uploaded successfully');
       navigate('/farmer/listings');
+
+      marketrendUpload(response.data.id)
     } catch (err) {
       setLoading(false);
       showErrorAlert('An error occurred while uploading the crop. Please try again.');

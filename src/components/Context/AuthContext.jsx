@@ -24,9 +24,11 @@ export const AuthProvider = ({ children }) => {
   const [activatedAddress, setActivatedAddress] = useState({})
   const [notificationCount, setNotificationCount] = useState(0);
   const [cropLogs, setCropLogs] = useState([])
-   const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
+  const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
+  const [prices, setPrices] = useState([])
    
   const socketRef = useRef(null)
+  const trendRef = useRef(null)
   
   const navigate = useNavigate();
 
@@ -52,7 +54,6 @@ useEffect(() => {
           setCropLogs([stat])
         ))
         
-
         // Update selectMonthLogs if the selected month is in the new stats
         setSelectMonthLogs((prevLogs) => {
           const selectedMonthStat = data.monthly_stats.find(
@@ -86,7 +87,43 @@ useEffect(() => {
     };
   }
 }, [user]);
-  
+
+// real time market-trends
+useEffect(()=>{
+  if(user){
+    trendRef.current = new WebSocket('ws://127.0.0.1:8000/ws/market_trends/')
+
+    trendRef.current.onopen =()=>{
+      console.log('websockect conection established for market trends')
+    }
+
+    trendRef.current.onmessage = (event) => {
+      console.log('market trends received', event.data);
+      const data = JSON.parse(event.data); // Parse the entire event.data
+      const marketTrend = data.market_trend; // Access market_trend
+       console.log('current trends', marketTrend.farmer_pricing)
+      if(data.type === 'market_trends'){
+        setPrices([...marketTrend.farmer_pricing]); // Create a new array
+      }
+  };
+
+    trendRef.current.onclose = () => {
+      console.log('WebSocket connection disconnected for market trends');
+    };
+
+    trendRef.current.onerror = (error) => {
+      console.error('WebSocket error for market trends:', error);
+    };
+
+    return () => {
+      if (trendRef.current) {
+        trendRef.current.close();
+      }
+    };
+  }
+}, [user])
+
+ //user logs 
 const handleViewLog = (id)=>{
   if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
     socketRef.current.send(JSON.stringify({
@@ -95,6 +132,15 @@ const handleViewLog = (id)=>{
     }));
   }
 } 
+
+//market trends
+const marketrendUpload = (id)=>{
+  if (trendRef.current && trendRef.current.readyState === WebSocket.OPEN) {
+    trendRef.current.send(JSON.stringify({
+      crop:id
+    }))
+  }
+}
   // Update handleCart
   const handleCart = (item) => {
     setAddedItem(prevItems => {
@@ -293,9 +339,12 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     cropLogs, 
     setCropLogs,
     handleViewLog,
+    marketrendUpload,
     selectMonthLogs, 
     setSelectMonthLogs,
-    socketRef
+    socketRef,
+    prices, 
+    setPrices
   };
 
   return (
