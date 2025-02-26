@@ -378,15 +378,16 @@ function Upload_List() {
             
             {/* transport details */}
 
+            <TransportDetails/>
+
           <button
             type="submit"
             className='upload_btn'
             disabled={loading || !crop.crop_name || !crop.unit || !crop.description || !crop.price_per_unit || !crop.InitialAvailability || !crop.image}
             >
-            {loading ? 'Uploading...' : 'Upload Crop'}
+            {loading ? 'Uploading...' : 'Upload Product'}
           </button>
         </form>
-            <TransportDetails/>
       </div>
     </div>
     </>
