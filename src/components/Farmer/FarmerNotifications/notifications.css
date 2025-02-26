@@ -9,16 +9,18 @@
     background-color: white;
     border-radius: 10px;
     border: 1px solid #ccc;
-    z-index: 10000;
-    position: absolute;
-    top: 10%;
+    z-index: 1000;
+    position: fixed;
+    top: 11%;
     margin-left: 70%;
     overflow-y: auto;
 }
+
 .message{
     border-bottom: 1px solid #ccc;
     padding: 10px;
 }
+
 .message:hover{
     background-color:#f8f9fa;
     cursor: pointer;
@@ -27,6 +29,7 @@
 .notify_header{
     border-bottom: 1px solid #ccc;
 }
+
 .icons{
     display: flex;
     gap: 3px;

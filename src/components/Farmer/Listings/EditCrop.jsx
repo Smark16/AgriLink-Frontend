@@ -33,6 +33,7 @@ function EditCrop() {
   });
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [loadContent, setLoadContent] = useState(false)
 
   // Fetch all categories
   const fetch_categories = async () => {
@@ -47,6 +48,7 @@ function EditCrop() {
 
   // Fetch crop detail
   const fetch_crop_detail = async () => {
+    setLoadContent(true)
     try {
       const response = await axios.get(detail_url);
       const data = response.data;
@@ -56,6 +58,7 @@ function EditCrop() {
         ...data,
         weight: data.weight.map(w => ({ ...w, quantity: 0 })) || crop.weight // If weight is not provided, use default
       });
+      setLoadContent(false)
     } catch (err) {
       console.log('An error occurred while fetching crop details.', err);
     }
@@ -161,7 +164,9 @@ function EditCrop() {
   return (
     <>
       <h4>EDIT CROP</h4>
-      <div className="crop_upload bg-white p-2">
+
+      {loadContent ? (<div className="list_loader"></div>) : (<>
+        <div className="crop_upload bg-white p-2">
         <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
           <div className="image_bordering">
             <label htmlFor='image' className='text-primary text-decoration-underline upload_label form-label'>Choose Image to Upload</label>
@@ -300,6 +305,8 @@ function EditCrop() {
           </button>
         </form>
       </div>
+      </>)}
+      
     </>
   );
 }

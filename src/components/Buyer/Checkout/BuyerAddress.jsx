@@ -171,7 +171,11 @@ function BuyerAddress() {
 
           <div className="shipping-address">
             {fetchLoader ? (
-              <h5>Loading...</h5>
+              <div className="loading-container">
+              <div className="spinner-border text-primary text-center" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
             ) : addresses.length === 0 ? (
               <h5>No Addresses</h5>
             ) : (
@@ -216,7 +220,13 @@ function BuyerAddress() {
           <div className="person_name mt-2">
             <h5>{userName}</h5>
           </div>
-            {fetchLoader ? (<h6>loading...</h6>) : (
+            {fetchLoader ? (
+              <div className="loading-container">
+              <div className="spinner-border text-primary text-center" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            ) : (
                 <div className="more-address">
                 {addresses.find(addr => addr.active) ? (
                   <>

@@ -415,7 +415,13 @@ const handleConfirm = async () => {
                                 {/* <h6 className='ms-auto'>change</h6> */}
                             </div>
                             
-                            {optionLoader ? (<h6>Loading...</h6>) : (
+                            {optionLoader ? (
+                                <div className="loading-container">
+                                <div className="spinner-border text-primary text-center" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </div>
+                              </div>
+                            ) : (
                                    <>
                             {/* Delivery Options */}
                             <div className="delivery-detail w-100">
@@ -467,7 +473,13 @@ const handleConfirm = async () => {
                                 <h3>Payment Methods Available</h3>
                             </div>
                            
-                           {optionLoader ? (<h6>Loading...</h6>) : (<>
+                           {optionLoader ? (
+                            <div className="loading-container">
+                            <div className="spinner-border text-primary text-center" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                           ) : (<>
                             <div className="choose p-2">
                                 {Object.keys(payment).map(farmerId => (
                                     <div key={farmerId} className='pay-service-options'>

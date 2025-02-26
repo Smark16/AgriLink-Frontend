@@ -23,12 +23,15 @@ function Detail() {
   const [allDiscounts, setAllDiscounts] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [currentDiscount, setCurrentDiscount] = useState(null);
+  const [loadDetail, setLoadDetail] = useState(false)
 
   // Fetch crop details
   const fetchCropDetail = async () => {
+    setLoadDetail(true)
     try {
       const response = await axios.get(detail_url);
       setCropDetail(response.data);
+      setLoadDetail(false)
     } catch (err) {
       console.error('Error fetching crop details:', err);
     }
@@ -164,7 +167,10 @@ function Detail() {
   return (
     <div>
       <h4>Product Detail Page</h4>
-      <div className="detail_wrapper">
+
+      {loadDetail ? (<div className='list_loader'></div>) : (
+        <>
+        <div className="detail_wrapper">
         <div className="row details">
           <div className="crop_image col-md-5 sm-12">
             <img src={cropDetail.image || '/placeholder.jpg'} alt="Crop" />
@@ -324,6 +330,9 @@ function Detail() {
           </button>
         </div>
       </div>
+        </>
+      )}
+      
     </div>
   );
 }

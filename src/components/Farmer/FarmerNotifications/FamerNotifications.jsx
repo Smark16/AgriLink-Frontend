@@ -5,7 +5,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import '../FarmerNotifications/notifications.css';
 
 function FarmerNotifications() {
-  const { user, FarmerNotification, setFarmerNotification, notifications, setNotifications } = useContext(AuthContext);
+  const { user, setFarmerNotification, notifications, setNotifications,showNotificationPage, setShowNotificationPage } = useContext(AuthContext);
   const encodedUserId = encodeURIComponent(user.user_id);
 
   const user_notifications = `https://agrilink-backend-hjzl.onrender.com/agriLink/user_notifications/${encodedUserId}`;
@@ -53,7 +53,12 @@ function FarmerNotifications() {
   return (
     <>
       <div className="notifications">
-        <h5 className="notify_header">Notifications</h5>
+        <div className="notify_header p-2 d-flex">
+        <h5>Notifications</h5>
+        <button type="button" className="close ms-auto bg-danger text-white" onClick={() => setShowNotificationPage(false)}>
+                &times;
+              </button>
+        </div>
         {notifications.length === 0 ? (
           <h5>You have no notifications</h5>
         ) : (

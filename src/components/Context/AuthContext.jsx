@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
   const [cropLogs, setCropLogs] = useState([])
   const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
   const [prices, setPrices] = useState([])
+  const [showNotificationPage, setShowNotificationPage] = useState(false);
    
   const socketRef = useRef(null)
   const trendRef = useRef(null)
@@ -343,9 +344,10 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     selectMonthLogs, 
     setSelectMonthLogs,
     socketRef,
-    trendRef,
     prices, 
-    setPrices
+    setPrices,
+    showNotificationPage, 
+    setShowNotificationPage
   };
 
   return (

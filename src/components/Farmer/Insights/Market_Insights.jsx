@@ -33,6 +33,7 @@ const Market_Insights = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSalesTrendMonth, setSelectedSalesTrendMonth] = useState(new Date().getMonth());
   const [priceLoader, setPriceLoader] = useState(false)
+  const [trendMonths, setTrendMonths] = useState([])
   const [isMonthSelected, setIsMonthSelected] = useState(false);
   const [dailyTrends, setDailyTrends] = useState([]);
   
@@ -59,6 +60,14 @@ let today = getFormattedDate();
     } else {
       return "Invalid month index";
     }
+  };
+
+  // format date
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const month = date.toLocaleString('en-US', { month: 'short' }); // Gets "Feb"
+    const day = date.getDate(); // Gets day (e.g., 17)
+    return `${month} ${day}`; // Returns "Feb 17"
   };
 
   // get current month and year
@@ -109,7 +118,6 @@ let today = getFormattedDate();
     }
   };
   
-  // farmer pricing
    // farmer pricing
    useEffect(()=>{
     const FarmerPricing = async()=>{
@@ -233,6 +241,11 @@ const handleMonthLog = (event) => {
         const data = response.data;
         setSalesTrend(data.monthly_sales || []);
         setMonthlySalesTrend([{ revenue: 0 }]);
+
+        // get months
+        const saleMonths = data.monthly_sales.map(salemonth => salemonth.month)
+        setTrendMonths(saleMonths)
+        
         setShowModal(false);
         calculatePerformance(data.monthly_sales);
       } catch (err) {
@@ -248,7 +261,6 @@ const handleMonthLog = (event) => {
 useEffect(() => {
   monthly_sales();
   sales_trend()
-  FarmerPricing()
 }, [crop_id]); 
 
 
@@ -355,7 +367,8 @@ useEffect(() => {
 }, [monthlySales]);
 
  // Get current month's daily sales
- const getCurrentMonthDailySales = () => {
+// Get current month's daily sales
+const getCurrentMonthDailySales = () => {
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
   const currentYear = currentDate.getFullYear();
@@ -387,42 +400,116 @@ useEffect(() => {
   };
 
     // Simplify x-axis labels
-  const simplifyXAxisLabels = (dailySales) => {
-    if (dailySales.length === 0) return [];
-
-    const firstDay = dailySales[0];
-    const middleDay = dailySales[Math.floor(dailySales.length / 2)];
-    const lastDay = dailySales[dailySales.length - 1];
-
-    return [firstDay, middleDay, lastDay].map((day) => {
-      const date = new Date(day.date);
-      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    });
-  };
-
+    const simplifyXAxisLabels = (dailySales) => {
+      if (dailySales.length === 0) return [];
+    
+      const fullDates = dailySales.map(item => formatDate(item.date)); // ["Feb 21", "Feb 22", ...]
+      const currentDateStr = formatDate(new Date()); // "Feb 26" (today)
+      const currentDayIndex = dailySales.findIndex(item => formatDate(item.date) === currentDateStr);
+    
+      // If data is short (≤ 4), show all dates
+      if (dailySales.length <= 4) return fullDates;
+    
+      const simplifiedLabels = [];
+      const indices = [];
+    
+      // First date
+      simplifiedLabels.push(fullDates[0]);
+      indices.push(0);
+    
+      // Two middle dates (roughly 1/3 and 2/3 through the data)
+      const third = Math.floor(dailySales.length / 3); // e.g., index 2 ("Feb 23")
+      const twoThirds = Math.floor((dailySales.length * 2) / 3); // e.g., index 4 ("Feb 25")
+      if (third !== 0 && third !== dailySales.length - 1) {
+        simplifiedLabels.push(fullDates[third]);
+        indices.push(third);
+      }
+      if (twoThirds !== 0 && twoThirds !== dailySales.length - 1 && twoThirds !== third) {
+        simplifiedLabels.push(fullDates[twoThirds]);
+        indices.push(twoThirds);
+      }
+    
+      // Current date (if not already included)
+      if (currentDayIndex !== -1 && !indices.includes(currentDayIndex)) {
+        simplifiedLabels.push(fullDates[currentDayIndex]);
+        indices.push(currentDayIndex);
+      }
+    
+      // Ensure at least 4 dates by adding the last date if needed
+      if (simplifiedLabels.length < 4 && !indices.includes(dailySales.length - 1)) {
+        simplifiedLabels.push(fullDates[dailySales.length - 1]);
+        indices.push(dailySales.length - 1);
+      }
+    
+      return indices
+        .sort((a, b) => a - b)
+        .map(index => fullDates[index]);
+    };
+    
+    // Full x-axis labels for default (large screens) and tooltip
+    const getFullXAxisLabels = (dailySales) => {
+      return dailySales.map(item => formatDate(item.date)); // ["Feb 21", "Feb 22", ...]
+    };
+    
   // Chart configuration
   const overallPerformanceConfig = {
     series: [
       {
         name: "Sales",
-        data: getCurrentMonthDailySales().map((day) => day.amount || 0),
+        data: getCurrentMonthDailySales().map((day) => day.amount || 0), // [0, 0, 0, 0, 10000, 0]
       },
     ],
     options: {
-      chart: { type: "line", height: 150 },
+      chart: {
+        type: "area",
+        height: 300,
+        zoom: {
+          enabled: false,
+        },
+      },
       colors: ["#4CAF50"],
       xaxis: {
-        categories: simplifyXAxisLabels(getCurrentMonthDailySales()),
+        categories: getFullXAxisLabels(getCurrentMonthDailySales()), // All dates by default
         labels: {
-          formatter: function (value) {
-            return value;
+          rotate: -45,
+          rotateAlways: true,
+          hideOverlappingLabels: true, // Prevents overlap on large screens with many dates
+          style: {
+            fontSize: '12px',
+          },
+        },
+        // No tickAmount restriction for large screens; show all
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      tooltip: {
+        x: {
+          formatter: function (val, { dataPointIndex }) {
+            const fullLabels = getFullXAxisLabels(getCurrentMonthDailySales());
+            return fullLabels[dataPointIndex] || val; // Exact date on hover
           },
         },
       },
-      dataLabels: { enabled: false },
+      responsive: [
+        {
+          breakpoint: 600, // Mobile breakpoint
+          options: {
+            xaxis: {
+              categories: simplifyXAxisLabels(getCurrentMonthDailySales()), // Simplified for mobile
+              labels: {
+                rotate: -45,
+                style: {
+                  fontSize: '10px',
+                },
+              },
+              tickAmount: 3, // 4 labels on mobile (first, two middle, current)
+            },
+          },
+        },
+      ],
     },
   };
-
   return (
     <>
     
@@ -568,14 +655,16 @@ useEffect(() => {
         </option>
 
         {/* Include months and years from salesTrend */}
-        {salesTrend.map((trend) => {
-          const { year, month } = trend;
-          return (
-            <option key={`${year}-${month}`} value={month - 1}>
-              {show_month(new Date().getMonth()) === show_month(month - 1) ? '' : `${show_month(month - 1)} ${year}`}
-            </option>
-          );
-        })}
+        {trendMonths
+            .filter((monthData) => {
+              const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+              return !monthData.startsWith(currentMonth); // Exclude current month
+            })
+            .map((monthData) => (
+              <option key={monthData} value={monthData}>
+                {monthData}
+              </option>
+            ))}
 </select>
 </div>
       </div>
