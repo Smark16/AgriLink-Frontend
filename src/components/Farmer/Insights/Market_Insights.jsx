@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState} from "react";
 import {
   Box,
   Typography,
@@ -32,9 +32,10 @@ const Market_Insights = () => {
   const [cropLoader, setCropLoader] = useState(false)
   const [showModal, setShowModal] = useState(false);
   const [selectedSalesTrendMonth, setSelectedSalesTrendMonth] = useState(new Date().getMonth());
+  const [priceLoader, setPriceLoader] = useState(false)
   const [isMonthSelected, setIsMonthSelected] = useState(false);
   const [dailyTrends, setDailyTrends] = useState([]);
-
+  
   const months = [
     "January", "February", "March", "April", "May", "June", 
     "July", "August", "September", "October", "November", "December"
@@ -89,6 +90,7 @@ let today = getFormattedDate();
     if (id) {
       setCrop_id(id);
       setShowModal(true)
+      setHasNewWebSocketData(false); // Reset flag for new crop
     }
   };
 
@@ -108,13 +110,16 @@ let today = getFormattedDate();
   };
   
   // farmer pricing
-  useEffect(()=>{
+   // farmer pricing
+   useEffect(()=>{
     const FarmerPricing = async()=>{
+      setPriceLoader(true)
         try{
-          const response = await axios(`http://127.0.0.1:8000/agriLink/crop_market_insights/${crop_id}`)
+          const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/crop_market_insights/${crop_id}`)
           const data = response.data
-          setFarmerPricing(data)
-          setPrices(data.farmer_pricing)
+          // setFarmerPricing(data)
+          setPrices(data?.farmer_pricing || [])
+          setPriceLoader(false)
           setShowModal(false)
         }catch(err){
           console.log('err', err)
@@ -124,7 +129,10 @@ let today = getFormattedDate();
     if(crop_id){
       FarmerPricing()
     }
-  }, [prices])
+  }, [crop_id])
+
+console.log('farmer prices', prices)
+
 
   // Selected month data
   const handleMonthChange = (event) => {
@@ -151,13 +159,12 @@ let today = getFormattedDate();
     }
   };
 
-
     useEffect(() => {
       const fetchInitialData = async () => {
         try {
           const response = await axios.get(`https://agrilink-backend-hjzl.onrender.com/agriLink/get_crop_actions/${crop_id}`);
           const data = response.data;
-          setCropLogs(data[0].monthly_stats || []);
+          setCropLogs(data[0]?.monthly_stats || []);
           setShowModal(false);
         } catch (err) {
           console.error('Error fetching initial crop logs:', err);
@@ -234,8 +241,6 @@ const handleMonthLog = (event) => {
     }
   };
 
-  
- 
   useEffect(() =>{
     fetchFarmerCrops()
   }, [])
@@ -243,6 +248,7 @@ const handleMonthLog = (event) => {
 useEffect(() => {
   monthly_sales();
   sales_trend()
+  FarmerPricing()
 }, [crop_id]); 
 
 
@@ -622,24 +628,35 @@ useEffect(() => {
             </span></span>
                       </div>
 
-                      <div className="col-md-6 sm-12 farmer_pricing">
+                    <div className="col-md-6 sm-12 farmer_pricing">
                         <h4 className="text-white p-2 text-center">Different Farmer Prices</h4>
                         <ul>
-              {farmerPricing && farmerPricing.crop === crop_id && Array.isArray(farmerPricing.farmer_pricing) && farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).length > 0 ? (
-                farmerPricing.farmer_pricing.filter(farm => farm.farmer !== user.username).map((price, index) => {
-                  const { price_per_unit, unit, farm_Name, Location } = price;
-                  return (
-                    <li key={index} className='d-block'>
-                      <span><strong>{farm_Name}</strong>  <img src={vector_2}></img> UGX {price_per_unit} / {unit}</span> <br></br>
-                      <span>{Location} District</span>
-                    </li>
-                  );
-                })
-  ) : (
-    <span>No pricing data available</span>
-  )}
-</ul>
-          </div>
+                          {priceLoader ? (
+                            <h6>Loading...</h6>
+                          ) : (
+                            <>
+                              {prices && prices.length > 0 ? (
+                                prices
+                                  .filter((farm) => farm.farmer !== user.username)
+                                  .map((price, index) => {
+                                    const { price_per_unit, unit, farm_Name, Location } = price;
+                                    return (
+                                      <li key={index} className="d-block">
+                                        <span>
+                                          <strong>{farm_Name}</strong> <img src={vector_2} alt="Vector" /> UGX {price_per_unit} / {unit}
+                                        </span>
+                                        <br />
+                                        <span>{Location} District</span>
+                                      </li>
+                                    );
+                                  })
+                              ) : (
+                                <span>No pricing data available</span>
+                              )}
+                            </>
+                          )}
+                        </ul>
+                      </div>
         </div>
       </Grid>
     </Box>

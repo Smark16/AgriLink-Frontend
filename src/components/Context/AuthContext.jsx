@@ -102,9 +102,9 @@ useEffect(()=>{
       const data = JSON.parse(event.data); // Parse the entire event.data
       const marketTrend = data.market_trend; // Access market_trend
        console.log('current trends', marketTrend.farmer_pricing)
-      if(data.type === 'market_trends'){
-        setPrices([...marketTrend.farmer_pricing]); // Create a new array
-      }
+      
+        setPrices(marketTrend.farmer_pricing); // Create a new array
+      
   };
 
     trendRef.current.onclose = () => {
@@ -343,6 +343,7 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     selectMonthLogs, 
     setSelectMonthLogs,
     socketRef,
+    trendRef,
     prices, 
     setPrices
   };
