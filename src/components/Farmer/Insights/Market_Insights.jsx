@@ -117,7 +117,7 @@ let today = getFormattedDate();
         try{
           const response = await axios(`https://agrilink-backend-hjzl.onrender.com/agriLink/crop_market_insights/${crop_id}`)
           const data = response.data
-          // setFarmerPricing(data)
+          setFarmerPricing(data)
           setPrices(data?.farmer_pricing || [])
           setPriceLoader(false)
           setShowModal(false)
