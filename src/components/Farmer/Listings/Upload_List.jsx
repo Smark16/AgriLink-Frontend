@@ -310,7 +310,7 @@ function Upload_List() {
           </div>
 
           <div className="col-md-6">
-            <label htmlFor="pricePerUnit" className="form-label">Price per {crop.unit || 'unit'}</label>
+            <label htmlFor="pricePerUnit" className="form-label">Price per {crop.unit === 'Livestock' ? 'Animal' : crop.unit === 'Poultry' ? 'Bird' : crop.unit === 'Produce' ? 'Fruit' : crop.unit || 'unit'}</label>
             <input
               type="number"
               className="form-control"
