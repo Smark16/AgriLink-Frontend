@@ -552,10 +552,18 @@ const [BarData, setBarData] = useState({
             {trend.map(price =>{
               const {average_price_per_kg, crop_name, crop} = price
               const product = filteredCrops && filteredCrops.find(product => product.id === crop)
+
+               // Handle undefined product
+              const unit = product ? (
+                product.unit === 'Poultry' ? 'Bird' :
+                product.unit === 'Livestock' ? 'Animal' :
+                product.unit === 'Produce' ? 'Fruit' :
+                product.unit
+              ) : 'Unit'; // Fallback value if product is undefined
               return (
                 <>
               <li>
-              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ {product.unit === 'Poultry' ? 'Bird' : product.unit === 'Livestock' ? 'Animal' : product.unit === 'Produce' ? 'Fruit' : product.unit}</strong> <i class="bi bi-arrow-up text-success"></i>
+              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ {unit}</strong> <i class="bi bi-arrow-up text-success"></i>
               </li>
                 </>
               )
