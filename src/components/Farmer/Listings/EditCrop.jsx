@@ -222,13 +222,43 @@ function EditCrop() {
               value={crop.unit}
               onChange={(e) => setCrop({ ...crop, unit: e.target.value })}
             >
-              <option value="">Choose Unit</option>
-              <option value="Tray">Tray</option>
-              <option value="Kg">Kg</option>
-              <option value="Cluster">Cluster</option>
-              <option value="Litre">Litre</option>
-              <option value="(Bag/sack)">Bags/sacks</option>
-              <option value="Whole Item">Whole Item (cow, hen)</option>
+             <option value="">Choose Unit</option>
+              {/* <!-- Weight Units --> */}
+              
+              <optgroup label="Weight">
+                <option value="Kg" title="Kilograms - Used for measuring weight (e.g., 1 Kg of tomatoes)">
+                  🥔 Kg (Kilograms)
+                </option>
+                <option value="Tray" title="Tray - A standard container for produce (e.g., 1 tray of eggs)">
+                  🥚 Tray
+                </option>
+                <option value="Bag/Sack" title="Bag/Sack - A large container for bulk items (e.g., 1 bag of maize)">
+                  🛍️ Bag/Sack
+                </option>
+              </optgroup>
+
+              {/* <!-- Volume Units --> */}
+              <optgroup label="Volume">
+                <option value="Litre" title="Litre - Used for measuring liquids (e.g., 1 litre of milk)">
+                  🥛 Litre
+                </option>
+              </optgroup>
+
+              {/* <!-- Count Units --> */}
+              <optgroup label="Count">
+                <option value="Cluster" title="Cluster - A group of items (e.g., 1 cluster of matoke)">
+                  🍌 Cluster
+                </option>
+                <option value="Livestock" title="Livestock - A single animal (e.g., 1 cow, 1 goat)">
+                  🐄 Livestock (e.g., cow, goat)
+                </option>
+                <option value="Poultry" title="Poultry - A single bird (e.g., 1 hen, 1 duck)">
+                  🐔 Poultry (e.g., hen, duck)
+                </option>
+                <option value="Produce" title="Produce - A single item (e.g., 1 pumpkin, 1 watermelon)">
+                  🍉 Produce (e.g., pumpkin, watermelon)
+                </option>
+              </optgroup>
             </select>
           </div>
           <div className="col-md-6">

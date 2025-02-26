@@ -168,7 +168,7 @@ function Cart() {
                               {crop_name}
                             </td>
                             <td className="align-middle">
-                              UGX {finalPrice} / {unit}
+                              UGX {finalPrice} / {unit === 'Poultry' ? 'Bird' : unit === 'Livestock' ? 'Animal' : unit === 'Produce' ? 'Fruit' : unit}
                             </td>
                             <td className="align-middle">
                               <div className="input-group quantity mx-auto" style={{ width: 120 }}>

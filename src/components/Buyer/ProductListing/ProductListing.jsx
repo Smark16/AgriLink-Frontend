@@ -200,7 +200,7 @@ function ProductListing() {
                         <div className="show-available d-flex">
                           <span className={`${isSoldOut(product) ? 'text-danger' : 'text-warning'}`}>
                             {product.availability > 0 ? product.availability : 0} 
-                            {product.weight?.length ? 'bags/sacks' : `${product.unit}${product.InitialAvailability > 1 ? 's' : ''}`}
+                            {product.weight?.length ? 'bags/sacks' : `${product.unit === 'Poultry' ? 'Bird' : product.unit === 'Livestock' ? 'Animal' : product.unit === 'Produce' ? 'Fruit' : product.unit}${product.InitialAvailability > 1 ? 's' : ''}`}
                           </span>
                           <div className="outer">
                             <div 

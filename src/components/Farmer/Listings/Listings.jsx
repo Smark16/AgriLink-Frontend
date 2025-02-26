@@ -96,7 +96,7 @@ function Listings() {
               </form>
               <span className="bg-success text-white p-2 cursor-pointer col-md-2 col-sm-12">
                 <Link to="/farmer/upload_crop" className="text-white text-decoration-none">
-                  UPLOAD CROP
+                  UPLOAD PRODUCT
                 </Link>
               </span>
             </div>
@@ -110,7 +110,7 @@ function Listings() {
             <>
               {filteredCrops.length === 0 && (
                 <div className="no_crops mt-5 text-center">
-                  <h5 className="text-muted">No crops uploaded</h5>
+                  <h5 className="text-muted">No Products uploaded</h5>
                   <i className="bi bi-tree-fill text-secondary" style={{ fontSize: '2rem' }}></i>
                 </div>
               )}

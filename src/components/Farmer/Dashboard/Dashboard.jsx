@@ -139,7 +139,7 @@ const fetchAveragePrice = async()=>{
     console.log('err', err)
   }
 }
-console.log(trend)
+
 useEffect(()=>{
   fetchAveragePrice()
 }, [])
@@ -345,7 +345,7 @@ const [BarData, setBarData] = useState({
             <i className="bi bi-tree-fill text-success"></i>
             <span><strong>{filteredCrops.length}</strong></span>
           </div>
-          <h6>Total Crops</h6>
+          <h6>Total Products</h6>
         </div>
 
         <div className="stat_sales col-md-3 sm-12">
@@ -428,7 +428,7 @@ const [BarData, setBarData] = useState({
   <>
   {filteredCrops.length === 0 && (<>
     <div className="no_crops mt-5 text-center">
-          <h5 className="text-muted">No crops found</h5>
+          <h5 className="text-muted">No Products found</h5>
           <i className="bi bi-tree-fill text-secondary" style={{ fontSize: "2rem" }}></i>
         </div>
   </>)}
@@ -550,11 +550,12 @@ const [BarData, setBarData] = useState({
           </>) : (
           <ul>
             {trend.map(price =>{
-              const {average_price_per_kg, crop_name} = price
+              const {average_price_per_kg, crop_name, crop} = price
+              const product = filteredCrops && filteredCrops.find(product => product.id === crop)
               return (
                 <>
               <li>
-              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ KG</strong> <i class="bi bi-arrow-up text-success"></i>
+              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ {product.unit === 'Poultry' ? 'Bird' : product.unit === 'Livestock' ? 'Animal' : product.unit === 'Produce' ? 'Fruit' : product.unit}</strong> <i class="bi bi-arrow-up text-success"></i>
               </li>
                 </>
               )

@@ -240,11 +240,11 @@ function Detail() {
                 <div className="strs">{renderStars(cropDetail.get_average_rating)}</div>
               </li>
               <li>
-                <h5>Crop Name:</h5>
+                <h5>Product Name:</h5>
                 <span>{cropDetail.crop_name || 'N/A'}</span>
               </li>
               <li>
-                <h5>Price Per {cropDetail.unit}:</h5>
+                <h5>Price Per {cropDetail.unit === 'Poultry' ? 'Bird' : cropDetail.unit === 'Livestock' ? 'Animal' : cropDetail.unit === 'Produce' ? 'Fruit' : cropDetail.unit}:</h5>
                 <span>UGX {cropDetail.price_per_unit || 'N/A'}</span>
               </li>
               {cropDetail.weight?.length ? (
@@ -287,7 +287,7 @@ function Detail() {
   } 
   ({cropDetail.weight?.length 
     ? 'bags/sacks' 
-    : `${cropDetail.unit}${cropDetail.InitialAvailability > 1 ? 's' : ''}`})
+    : `${cropDetail.unit === 'Poultry' ? 'Bird' : cropDetail.unit === 'Livestock' ? 'Animal' : cropDetail.unit === 'Produce' ? 'Fruit' : cropDetail.unit}${cropDetail.InitialAvailability > 1 ? 's' : ''}`})
 </span>
 
 <div className="outer">

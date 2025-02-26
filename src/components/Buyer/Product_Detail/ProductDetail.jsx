@@ -118,7 +118,7 @@ const isSoldOut = (crop) => {
           </div>
         <small className="pt-1">({Product.crop_review?.length} Reviews)</small>
         </div>
-        <h3 className="font-weight-semi-bold mb-4">UGX {Product.price_per_unit}/ {Product.unit}</h3>
+        <h3 className="font-weight-semi-bold mb-4">UGX {Product.price_per_unit}/ {Product.unit === 'Poultry' ? 'Bird' : Product.unit === 'Livestock' ? 'Animal' : Product.unit === 'Produce' ? 'Fruit' : Product.unit}</h3>
         <p className="mb-4 crop_desc">
          {Product.description}
         </p>
@@ -132,7 +132,7 @@ const isSoldOut = (crop) => {
   } 
   {Product.weight?.length 
     ? 'bags/sacks' 
-    : `${Product.unit}${Product.InitialAvailability > 1 ? 's' : ''}`}
+    : `${Product.unit === 'Poultry' ? 'Bird' : Product.unit === 'Livestock' ? 'Animal' : Product.unit === 'Produce' ? 'Fruit' : Product.unit}${Product.InitialAvailability > 1 ? 's' : ''}`}
 </span>
 <div className="outer">
   <div 

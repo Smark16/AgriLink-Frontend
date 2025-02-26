@@ -138,6 +138,7 @@ function FarmerListing() {
   
  
   return (
+    // <div className="container-fluid bg-white">
     <div className='listing_wrapper bg-white p-3'>
       <Typography gutterBottom variant="h4" component="div" className='user_name'>
         Hello, {userName || 'Guest'} 👋
@@ -226,6 +227,8 @@ function FarmerListing() {
         )}
       </div>
     </div>
+
+    // </div>
   );
 }
 
