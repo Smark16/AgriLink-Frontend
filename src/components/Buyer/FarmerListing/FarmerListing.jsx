@@ -13,7 +13,7 @@ import image from '../../images/maize.png';
 import '../FarmerListing/farmListing.css';
 
 const INTERESTS_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
-const FARMER_PROFILES_URL = 'http://127.0.0.1:8000/agriLink/farmer_profiles';
+const FARMER_PROFILES_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_profiles';
 
 function FarmerListing() {
   const { user } = useContext(AuthContext);
