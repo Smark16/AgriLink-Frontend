@@ -12,6 +12,7 @@ import UseHook from '../../CustomHook/UseHook';
 function FarmerProfile() {
   const { user } = useContext(AuthContext);
   const {previewImage, formData, setFormData, setPreviewImage, fetch_profile, profileLoader, showProfileModal} = UseHook()
+  const [farmImage, setFarmImage] = useState('')
   const axiosInstance = UseAxios()
 
    // Encode user_id to prevent injection
@@ -371,14 +372,14 @@ function FarmerProfile() {
                       // Handle file input change
                       const file = e.target.files[0];
                       if (file) {
+                      setFarmImage(URL.createObjectURL(file))
                         // Update your state or form data with the file
                         setFormData({ ...formData, farm_Image: file });
                       }
                     }}
                   />
-                  <img src={`https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/>
+                  <img src={farmImage || `https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/>
                 </div>
-
 
                 <button type="submit" className='update_profile'>
                 {update ? 'Updating...' : 'Update'}
