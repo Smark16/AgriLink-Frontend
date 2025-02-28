@@ -100,6 +100,11 @@ function FarmerProfile() {
     // Only append the image if it has been changed
     if (formData.image && typeof formData.image !== 'string') {
       formdata.append('image', formData.image);
+      formdata.append('farm_Image', formData.farm_Image)
+    }
+
+    if (formData.farm_Image && typeof formData.farm_Image !== 'string') {
+      formdata.append('farm_Image', formData.farm_Image)
     }
   
     try{
@@ -226,6 +231,25 @@ function FarmerProfile() {
                 value={formData.specialisation.map(special => special.name).join(', ')}
               />
             </div>
+
+            <div className="col-md-6">
+            <label htmlFor="farm_images" className="form-label">
+              <strong>Farm Image</strong>
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              className="form-control"
+              id="farm_image"
+              hidden
+             readOnly
+            />
+            {formData.farm_Image ? (
+              <p>File selected: {formData.farm_Image.name}</p>
+            ) : (
+              <p>No farm image available</p>
+            )}
+          </div>
           </>
         </form>
 
@@ -332,6 +356,29 @@ function FarmerProfile() {
                     placeholder='add bio.....'
                   />
                 </div>
+
+                <div className="mb-3">
+                  <label htmlFor="farm" className="form-label">
+                    Farm Image
+                  </label>
+                  <input
+                    type="file"
+                    accept='image/*'
+                    className="form-control"
+                    id="farm"
+                    onChange={(e) => {
+                      // Handle file input change
+                      const file = e.target.files[0];
+                      if (file) {
+                        // Update your state or form data with the file
+                        setFormData({ ...formData, farm_Image: file });
+                      }
+                    }}
+
+                    placeholder='add bio.....'
+                  />
+                </div>
+
 
                 <button type="submit" className='update_profile'>
                 {update ? 'Updating...' : 'Update'}

@@ -17,7 +17,7 @@ function UseHook() {
   const [loader, setLoader] = useState(false);
   const [FarmerOrders, setFarmerOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ user:user? user.user_id :'', image: null, contact: 0, location: '', bio: '', specialisation:[], farmName:'',});
+  const [formData, setFormData] = useState({ user:user? user.user_id :'', image: null, contact: 0, location: '', bio: '', specialisation:[], farmName:'', farm_Image:null});
   const [previewImage, setPreviewImage] = useState(null);
    const [userOrders, setUserOrders] = useState([]);
    const [Orderloading, setOrderLoading] = useState(false);

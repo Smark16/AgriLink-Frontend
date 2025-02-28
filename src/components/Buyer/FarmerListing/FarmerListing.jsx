@@ -13,7 +13,7 @@ import image from '../../images/maize.png';
 import '../FarmerListing/farmListing.css';
 
 const INTERESTS_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/all_specialisations';
-const FARMER_PROFILES_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/farmer_profiles';
+const FARMER_PROFILES_URL = 'http://127.0.0.1:8000/agriLink/farmer_profiles';
 
 function FarmerListing() {
   const { user } = useContext(AuthContext);
@@ -73,7 +73,7 @@ function FarmerListing() {
       console.error('Error fetching farmers:', error);
     }
   };
-
+console.log('farmer_ profile', farmers)
   useEffect(() => {
     fetchFarmers();
   }, []);
@@ -205,7 +205,7 @@ function FarmerListing() {
         ) : (
           filteredFarmers.map(farmer => (
             <Card key={farmer.id} sx={{ maxWidth: 345 }} className='col-md-3 sm-12'>
-              <CardMedia component="img" alt='crop name' height="140" image={farmer.image || image} />
+              <CardMedia component="img" alt='crop name' height="140" image={farmer.farm_Image ? farmer.farm_Image : image} />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
                   {farmer.farmName} - {farmer.location}
