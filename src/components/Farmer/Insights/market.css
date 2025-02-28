@@ -18,6 +18,10 @@ gap: 5px;
     font-weight: bolder;
     font-size: 30px;
  }
+ .farmer_pricing ul .price_lists:hover{
+  background-color: transparent;
+  color: black;
+ }
  .overall_desc{
     font-weight: bolder;
     font-size: 20px;

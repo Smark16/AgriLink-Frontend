@@ -12,6 +12,7 @@ import '../Insights/market.css'
 import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
 import vector_2 from '../../images/Vector_4.svg'
+import vector_3 from '../../images/Vector_3.svg'
 
 
 const Market_Insights = () => {
@@ -37,6 +38,7 @@ const Market_Insights = () => {
   const [isMonthSelected, setIsMonthSelected] = useState(false);
   const [dailyTrends, setDailyTrends] = useState([]);
   const [productQty, setProductQty] = useState({})
+  const [loggedInFarmerPricing, setLoggedInFarmerPricing] = useState('')
   
   const months = [
     "January", "February", "March", "April", "May", "June", 
@@ -133,6 +135,11 @@ let today = getFormattedDate();
           const data = response.data
           setFarmerPricing(data)
           setPrices(data?.farmer_pricing || [])
+
+          // logged in farmer pricing
+          const pricingObject = data.farmer_pricing.find(pricing => pricing.farmer === user.username)
+          setLoggedInFarmerPricing(pricingObject.price_per_unit)
+
           setPriceLoader(false)
           setShowModal(false)
         }catch(err){
@@ -145,7 +152,7 @@ let today = getFormattedDate();
     }
   }, [crop_id])
 
-console.log('farmer prices', prices)
+console.log('farmer prices', loggedInFarmerPricing)
 
   // Selected month data
   const handleMonthChange = (event) => {
@@ -734,9 +741,12 @@ const getCurrentMonthDailySales = () => {
                                   .map((price, index) => {
                                     const { price_per_unit, unit, farm_Name, Location } = price;
                                     return (
-                                      <li key={index} className="d-block">
+                                      <li key={index} className="d-block price_lists">
                                         <span>
-                                          <strong>{farm_Name}</strong> <img src={vector_2} alt="Vector" /> UGX {price_per_unit} / {unit === 'Poultry' ? 'Bird' : unit === 'Livestock' ? 'Animal' : unit === 'Produce' ? 'Fruit' : unit}
+                                          <strong>{farm_Name}</strong> 
+                                          {price_per_unit > loggedInFarmerPricing ? (<img src={vector_3} alt="Vector" />) : (<img src={vector_2} alt="Vector" />)} 
+                                          UGX {price_per_unit} / {unit === 'Poultry' ? 'Bird' : unit === 'Livestock' ? 'Animal' : unit === 'Produce' ? 'Fruit' : unit} 
+                                          {price_per_unit < loggedInFarmerPricing ? (<i className="bi bi-arrow-down text-danger animated-bounce"></i>) : (<i className="bi bi-arrow-up text-success animated-bounce"></i>)}
                                         </span>
                                         <br />
                                         <span>{Location} District</span>
@@ -744,7 +754,7 @@ const getCurrentMonthDailySales = () => {
                                     );
                                   })
                               ) : (
-                              prices.length === 0 ? (<span>No Price data available</span>) : ''
+                              prices.length === 0 && (<span>No Price data available</span>)
                               )}
                             </>
                           )}
