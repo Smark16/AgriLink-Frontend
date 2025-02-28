@@ -245,7 +245,7 @@ function FarmerProfile() {
              readOnly
             />
             {formData.farm_Image ? (
-              <p>File selected: {formData.farm_Image.name}</p>
+              <p>File selected: <img src={`https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/></p>
             ) : (
               <p>No farm image available</p>
             )}
@@ -357,15 +357,16 @@ function FarmerProfile() {
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label htmlFor="farm" className="form-label">
-                    Farm Image
+                <div className="mb-3 farm-edit">
+                  <label htmlFor="farm" className="form-label btn btn-success p-2 text-white">
+                    Edit Farm Image
                   </label>
                   <input
                     type="file"
                     accept='image/*'
                     className="form-control"
                     id="farm"
+                    hidden
                     onChange={(e) => {
                       // Handle file input change
                       const file = e.target.files[0];
@@ -374,9 +375,8 @@ function FarmerProfile() {
                         setFormData({ ...formData, farm_Image: file });
                       }
                     }}
-
-                    placeholder='add bio.....'
                   />
+                  <img src={`https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/>
                 </div>
 
 
