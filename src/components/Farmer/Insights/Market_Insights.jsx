@@ -152,7 +152,6 @@ let today = getFormattedDate();
     }
   }, [crop_id])
 
-console.log('farmer prices', loggedInFarmerPricing)
 
   // Selected month data
   const handleMonthChange = (event) => {
@@ -224,26 +223,113 @@ const handleMonthLog = (event) => {
 
   // Handle month change for sales trend
   const handleSalesTrend = (event) => {
-    const selectedMonthIndex = parseInt(event.target.value, 10);
-    setSelectedSalesTrendMonth(selectedMonthIndex);
+    const selectedMonth = event.target.value;
+    setSelectedSalesTrendMonth(selectedMonth);
     setIsMonthSelected(true);
-
-    // Find the selected month's data
-    const selectedMonthData = salesTrend.find(
-      (trend) => {
-        const trendMonth = new Date(trend.month).getMonth();
-        return trendMonth === selectedMonthIndex;
-      }
-    );
-
-    if (selectedMonthData && selectedMonthData.daily_sales) {
-      // Set daily trends for the selected month
-      setDailyTrends(selectedMonthData.daily_sales);
+  
+    const selectedSalesTrend = salesTrend.find(trend => trend.month === selectedMonth);
+  
+    if (selectedSalesTrend && selectedSalesTrend.daily_sales) {
+      const daily_trends = selectedSalesTrend.daily_sales.map(day => formatDate(day.date));
+      const daily_sales = selectedSalesTrend.daily_sales.map(sale => sale.amount || 0); // Ensure amounts are numbers
+  
+      setChartData({
+        series: [
+          {
+            name: "Sales",
+            data: daily_sales,
+          },
+        ],
+        options: {
+          ...chartData.options,
+          xaxis: {
+            ...chartData.options.xaxis,
+            categories: daily_trends,
+          },
+        },
+      });
     } else {
-      // If no daily trends are available, reset to an empty array
-      setDailyTrends([]);
+      // If no data is found, reset the chart
+      setChartData({
+        series: [
+          {
+            name: "Sales",
+            data: [],
+          },
+        ],
+        options: {
+          ...chartData.options,
+          xaxis: {
+            ...chartData.options.xaxis,
+            categories: [],
+          },
+        },
+      });
     }
   };
+
+  // initialize current trends for current month
+  useEffect(() => {
+    if (salesTrend.length > 0) {
+      const currentMonth = `${show_month(new Date().getMonth())} ${new Date().getFullYear()}`;
+      const currentMonthData = salesTrend.find(trend => trend.month === currentMonth);
+  
+      if (currentMonthData && currentMonthData.daily_sales) {
+        const daily_trends = currentMonthData.daily_sales.map(day => formatDate(day.date));
+        const daily_sales = currentMonthData.daily_sales.map(sale => sale.amount || 0);
+  
+        setChartData({
+          series: [
+            {
+              name: "Sales",
+              data: daily_sales,
+            },
+          ],
+          options: {
+            ...chartData.options,
+            xaxis: {
+              ...chartData.options.xaxis,
+              categories: daily_trends,
+            },
+          },
+        });
+      }
+    }
+  }, [salesTrend]); // Run this effect when salesTrend changes
+
+  
+// Calculate sales performance
+const calculatePerformance = (data) => {
+  // Check if we have at least 2 months of data
+  if (data.length < 2) {
+    setSalesPerformance("N/A"); // Not enough data for comparison
+    console.log("Not enough data for performance calculation");
+    return;
+  }
+
+  // Get previous month's total sales
+  const previousSalesTotal = data[data.length - 2]['daily_sales']
+    .map(sale => sale.amount)
+    .reduce((sum, total) => sum + total, 0);
+  console.log('Previous sales:', previousSalesTotal);
+
+  // Get current month's total sales
+  const currentSalesTotal = data[data.length - 1]['daily_sales']
+    .map(sale => sale.amount)
+    .reduce((sum, total) => sum + total, 0);
+  console.log('Current sales:', currentSalesTotal);
+
+  // Calculate performance
+  let performance;
+  if (data.length <= 1) {
+    performance = "N/A"; // Cannot calculate percentage if previous is zero
+  } else {
+    performance = ((currentSalesTotal - previousSalesTotal) /currentSalesTotal) * 100;
+    performance = performance.toFixed(2); // Round to 2 decimal places
+  }
+
+  setSalesPerformance(performance);
+};
   
    // Fetch sales trend
    const sales_trend = async () => {
@@ -395,20 +481,6 @@ const getCurrentMonthDailySales = () => {
   return [];
 };
 
-  // Calculate sales performance
-  const calculatePerformance = (data) => {
-    if (data.length >= 2) {
-      const currentMonth = data[data.length - 1].total_quantity;
-      const previousMonth = data[data.length - 2].total_quantity;
-
-      if (previousMonth === 0) {
-        setSalesPerformance("N/A");
-      } else {
-        const performance = ((currentMonth - previousMonth) / previousMonth) * 100;
-        setSalesPerformance(performance.toFixed(1));
-      }
-    }
-  };
 
     // Simplify x-axis labels
     const simplifyXAxisLabels = (dailySales) => {
@@ -463,11 +535,11 @@ const getCurrentMonthDailySales = () => {
     };
     
   // Chart configuration
-  const overallPerformanceConfig = {
+  const [chartData, setChartData] = useState({
     series: [
       {
         name: "Sales",
-        data: getCurrentMonthDailySales().map((day) => day.amount || 0), // [0, 0, 0, 0, 10000, 0]
+        data: [],
       },
     ],
     options: {
@@ -480,47 +552,53 @@ const getCurrentMonthDailySales = () => {
       },
       colors: ["#4CAF50"],
       xaxis: {
-        categories: getFullXAxisLabels(getCurrentMonthDailySales()), // All dates by default
+        categories: [],
         labels: {
           rotate: -45,
           rotateAlways: true,
-          hideOverlappingLabels: true, // Prevents overlap on large screens with many dates
           style: {
             fontSize: '12px',
           },
         },
-        // No tickAmount restriction for large screens; show all
       },
       dataLabels: {
         enabled: false,
       },
       tooltip: {
         x: {
-          formatter: function (val, { dataPointIndex }) {
-            const fullLabels = getFullXAxisLabels(getCurrentMonthDailySales());
-            return fullLabels[dataPointIndex] || val; // Exact date on hover
+          formatter: function (val, { dataPointIndex, series, seriesIndex, w }) {
+            // Get the x-axis categories (formatted dates)
+            const categories = w.globals.categoryLabels;
+            // Return the corresponding label for the hovered data point
+            return categories[dataPointIndex] || val;
+          },
+        },
+        y: {
+          formatter: function (val) {
+            return `UGX ${val}`; // Format the y-axis value as currency
           },
         },
       },
       responsive: [
         {
-          breakpoint: 600, // Mobile breakpoint
+          breakpoint: 600,
           options: {
             xaxis: {
-              categories: simplifyXAxisLabels(getCurrentMonthDailySales()), // Simplified for mobile
+              categories: [],
               labels: {
                 rotate: -45,
                 style: {
                   fontSize: '10px',
                 },
               },
-              tickAmount: 3, // 4 labels on mobile (first, two middle, current)
+              tickAmount: 3,
             },
           },
         },
       ],
     },
-  };
+  });
+
   return (
     <>
     
@@ -659,9 +737,9 @@ const getCurrentMonthDailySales = () => {
         </div>
 
       <div className="col-md-4 sm-12 ms-auto">
-      <select id="autoSizingSelect" className="form-select" onChange={handleSalesTrend} value={selectedSalesTrendMonth}>
+      <select id="autoSizingSelect" className="form-select" onChange={handleSalesTrend}>
         {/* Always include the current month and year */}
-        <option value={new Date().getMonth()}>
+        <option value={`${show_month(new Date().getMonth())} ${new Date().getFullYear()}`}>
           {show_month(new Date().getMonth())} {new Date().getFullYear()}
         </option>
 
@@ -693,8 +771,8 @@ const getCurrentMonthDailySales = () => {
               </Typography>
               <Chart
                 className="sm-12"
-                options={overallPerformanceConfig.options}
-                series={overallPerformanceConfig.series}
+                options={chartData.options}
+                series={chartData.series}
                 type="area"
                 height={300}
               />
