@@ -16,7 +16,7 @@ import axios from 'axios'
 
 
 function ConfirmPayment() {
-    const {user, performanceRef} = useContext(AuthContext)
+    const {user} = useContext(AuthContext)
     const location = useLocation();
     const farmerPayments = location.state?.farmerPayments || JSON.parse(sessionStorage.getItem('farmerPayments') || '{}');
     const cropIdsByFarmer = location.state?.cropIdsByFarmer || JSON.parse(sessionStorage.getItem('cropIdsByFarmer') || '{}');
@@ -61,60 +61,45 @@ function ConfirmPayment() {
 
 // Update savePaymentDetails to handle multiple farmers
 const savePaymentDetails = () => {
-    setLoading(true);
-  
+    setLoading(true)
     // Use individual farmer payment amounts
     for (const [farmerId, amount] of Object.entries(farmerPayments)) {
-      const orderId = allOrderIds[farmerId]; // Direct link to order ID per farmer
-      const cropId = cropIdsByFarmer[farmerId];
-      const quantities = quantitiesByFarmer[farmerId];
-      const Productamount = productAmountsByFarmer[farmerId];
-  
-      axios
-        .post('https://agrilink-backend-hjzl.onrender.com/agriLink/initiate-mobile-money-payment/', {
-          amount: Productamount, // Use the amount for each farmer
-          email: user?.email,
-          phone_number: phonenumber,
-          fullname: fullname,
-          tx_ref: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-          order: orderId,
-          network: operator,
-          crop: cropId,
-          quantity: quantities,
-        })
-        .then((res) => {
-          console.log('Payment response:', res.data.charge_response);
-          if (res.data.charge_response.status === 'success') {
-            setLoading(false);
-  
-            // Send WebSocket message for real-time updates
-            if (performanceRef && performanceRef.readyState === WebSocket.OPEN) {
-              const updateData = {
-                farmer_id: farmerId,
-                order_id: orderId,
-                crop_ids: cropId,
-                amount: Productamount,
-              };
-              performanceRef.send(JSON.stringify(updateData));
-              console.log('Update data sent to WebSocket');
+        const orderId = allOrderIds[farmerId]; // Direct link to order ID per farmer
+        const cropId = cropIdsByFarmer[farmerId];
+        const quantities = quantitiesByFarmer[farmerId]
+        const Productamount = productAmountsByFarmer[farmerId]
+
+        axios.post('https://agrilink-backend-hjzl.onrender.com/agriLink/initiate-mobile-money-payment/', {
+            amount: Productamount, // Use the amount for each farmer
+            email: user?.email,
+            phone_number: phonenumber,
+            fullname: fullname,
+            tx_ref: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+            order: orderId,
+            network: operator,
+            crop:cropId,
+            quantity:quantities
+        }).then(res => {
+            console.log('payment response', res.data.charge_response)
+            if(res.data.charge_response.status === "success") {
+                setLoading(false)
+                const redirectURL = res.data.charge_response?.data?.link;
+                // Only redirect after the last payment is processed successfully
+                if (Object.keys(farmerPayments).indexOf(farmerId) === Object.keys(farmerPayments).length - 1) {
+                    window.location.replace(redirectURL);
+                }
+            } else {
+                console.error('Payment initiation failed for farmer ' + farmerId + ':', res.data.message);
+                setLoading(false)
+                // Handle non-successful status here. Consider showing a message to the user or providing an option to retry.
             }
-  
-            // Redirect after the last payment is processed successfully
-            if (Object.keys(farmerPayments).indexOf(farmerId) === Object.keys(farmerPayments).length - 1) {
-              const redirectURL = res.data.charge_response?.data?.link;
-              window.location.replace(redirectURL);
-            }
-          } else {
-            console.error('Payment initiation failed for farmer ' + farmerId + ':', res.data.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error('Error processing payment for farmer ' + farmerId + ':', err);
-          setLoading(false);
+        }).catch(err => {
+            console.error('Error processing payment for farmer ' + farmerId + ':', err);
+             setLoading(false)
+            // Handle errors, maybe show an error message or allow retrying payment for this specific farmer.
         });
     }
-  };
+};
 
   return (
     <div className="container-fluid justify-content-center">

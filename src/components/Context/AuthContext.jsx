@@ -27,9 +27,11 @@ export const AuthProvider = ({ children }) => {
   const [selectMonthLogs, setSelectMonthLogs] = useState({views:0, purchases:0})
   const [prices, setPrices] = useState([])
   const [showNotificationPage, setShowNotificationPage] = useState(false);
+  const [monthlySales, setMonthlySales] = useState([])
    
   const socketRef = useRef(null)
   const trendRef = useRef(null)
+  const performanceRef = useRef(null)
   
   const navigate = useNavigate();
 
@@ -119,6 +121,37 @@ useEffect(()=>{
     return () => {
       if (trendRef.current) {
         trendRef.current.close();
+      }
+    };
+  }
+}, [user])
+
+// real time crop perfomance
+useEffect(()=>{
+  if(user){
+    performanceRef.current = new WebSocket('wss://agrilink-backend-hjzl.onrender.com/ws/crop-performance/')
+
+    performanceRef.current.onopen =()=>{
+      console.log('websockect conection established for performance')
+    }
+
+    performanceRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data); // Parse the entire event.data  
+      console.log('market performance', data);
+      setMonthlySales(data)
+  };
+
+    performanceRef.current.onclose = () => {
+      console.log('WebSocket connection disconnected for market trends');
+    };
+
+    performanceRef.current.onerror = (error) => {
+      console.error('WebSocket error for market trends:', error);
+    };
+
+    return () => {
+      if (performanceRef.current) {
+        performanceRef.current.close();
       }
     };
   }
@@ -344,10 +377,13 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     selectMonthLogs, 
     setSelectMonthLogs,
     socketRef,
+    performanceRef,
     prices, 
     setPrices,
     showNotificationPage, 
-    setShowNotificationPage
+    setShowNotificationPage,
+    monthlySales, 
+    setMonthlySales
   };
 
   return (

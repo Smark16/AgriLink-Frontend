@@ -105,7 +105,7 @@ const isSoldOut = (crop) => {
       <div className="col-lg-5 pb-5">
       <img
                 className="w-100 h-100"
-                src={Product.image}
+                src={`https://res.cloudinary.com/dnsx36nia/${Product.image}`}
                 alt="Image"
               />
               

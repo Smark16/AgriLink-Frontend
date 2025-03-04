@@ -84,7 +84,6 @@ function Order() {
     }
   };
 
-
   return (
     <div className="container-fluid pt-5">
 
@@ -232,7 +231,7 @@ function Order() {
             <div className="crop_container">
               <div className="crop_detail">
                 <img
-                  src={`https://agrilink-backend-hjzl.onrender.com${image}`}
+                  src={`https://res.cloudinary.com/dnsx36nia/${image}`}
                   alt={crop_name}
                   className="modalImg"
                 />

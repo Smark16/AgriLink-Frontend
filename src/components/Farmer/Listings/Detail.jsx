@@ -173,7 +173,7 @@ function Detail() {
         <div className="detail_wrapper">
         <div className="row details">
           <div className="crop_image col-md-5 sm-12">
-            <img src={cropDetail.image || '/placeholder.jpg'} alt="Crop" />
+            <img src={`https://res.cloudinary.com/dnsx36nia/${cropDetail.image}` || '/placeholder.jpg'} alt="Crop" />
 
             <div className="farmer_discount mt-3">
               <h5 className="text-white p-2 bg-success text-center">Discount</h5>

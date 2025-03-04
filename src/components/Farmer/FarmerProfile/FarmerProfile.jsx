@@ -101,7 +101,7 @@ function FarmerProfile() {
     // Only append the image if it has been changed
     if (formData.image && typeof formData.image !== 'string') {
       formdata.append('image', formData.image);
-      formdata.append('farm_Image', formData.farm_Image)
+      // formdata.append('farm_Image', formData.farm_Image)
     }
 
     if (formData.farm_Image && typeof formData.farm_Image !== 'string') {
@@ -123,8 +123,6 @@ function FarmerProfile() {
     }catch(err){
       console.log('err', err)
     }
-   
-    console.log(formdata)
   };
 
   const showSuccessAlert = (message) => {
@@ -143,7 +141,7 @@ function FarmerProfile() {
 
       <div className="profile_main">
         <div className="profile_email">
-          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`} className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://res.cloudinary.com/dnsx36nia/${Image}` : `https://res.cloudinary.com/dnsx36nia/${previewImage}` }`} className="profile" />
           <div className="email">
             <h5>{userData.get_full_name}</h5>
             <span>{userData.email}</span>
@@ -246,7 +244,7 @@ function FarmerProfile() {
              readOnly
             />
             {formData.farm_Image ? (
-              <p>File selected: <img src={`https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/></p>
+              <p>File selected: <img src={`https://res.cloudinary.com/dnsx36nia/${formData.farm_Image}`} className='farm_image'/></p>
             ) : (
               <p>No farm image available</p>
             )}
@@ -256,7 +254,7 @@ function FarmerProfile() {
 
         <h5 className="more_profile_title mt-4">My email Address</h5>
         <div className="more_profile_info">
-          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`}  className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://res.cloudinary.com/dnsx36nia/${Image}` : `https://res.cloudinary.com/dnsx36nia/${previewImage}` }`}  className="profile" />
           <div className="more_email">
             <span>{userData.email}</span>
             <span>{relativeTime}</span>
@@ -280,7 +278,7 @@ function FarmerProfile() {
               
                   <div className="photo">
                     <span>Photo</span>
-                    <Avatar alt={userData.get_full_name} src={previewImage || `https://agrilink-backend-hjzl.onrender.com${formData.image}`}  className="profile" />
+                    <Avatar alt={userData.get_full_name} src={previewImage || `https://res.cloudinary.com/dnsx36nia/${formData.image}`}  className="profile" />
                   </div>
                   <div className="actions">
                   <input
@@ -378,7 +376,7 @@ function FarmerProfile() {
                       }
                     }}
                   />
-                  <img src={farmImage || `https://agrilink-backend-hjzl.onrender.com${formData.farm_Image}`} className='farm_image'/>
+                  <img src={farmImage || `https://res.cloudinary.com/dnsx36nia/${formData.farm_Image}`} className='farm_image'/>
                 </div>
 
                 <button type="submit" className='update_profile'>
@@ -390,7 +388,6 @@ function FarmerProfile() {
         </div>
       )}
 
-      
       {/* Custom Modal */}
       {showProfileModal && profileLoader && (
         <div className="custom-modal-overlay">

@@ -262,7 +262,7 @@ function ResponsiveAppBar() {
                 )}
                 <Tooltip title={`${user?.is_buyer ? 'Buyer settings' : 'Farmer settings'}`}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.name} src={`https://agrilink-backend-hjzl.onrender.com${formData.image}`} />
+                    <Avatar alt={user.name} src={`https://res.cloudinary.com/dnsx36nia/${formData.image}`} />
                   </IconButton>
                 </Tooltip>
                 <Menu

@@ -119,7 +119,7 @@ function Listings() {
                   const { id, crop_name, description, image } = crop;
                   const shareUrl = encodeURIComponent(window.location.origin + `/farmer/detail/${id}`);
                   const encodedDescription = encodeURIComponent(description);
-                  const encodedImage = encodeURIComponent(`https://agrilink-backend-hjzl.onrender.com${image}`);
+                  const encodedImage = encodeURIComponent(`https://res.cloudinary.com/dnsx36nia/${image}`);
 
                   const soldOut = isSoldOut(crop); // Check if sold out
 
@@ -141,7 +141,7 @@ function Listings() {
                           component="img"
                           alt={crop_name}
                           height="140"
-                          image={`https://agrilink-backend-hjzl.onrender.com${image}`}
+                          image={`https://res.cloudinary.com/dnsx36nia/${image}`}
                         />
                         <CardContent>
                           <Typography gutterBottom variant="h5" component="div">

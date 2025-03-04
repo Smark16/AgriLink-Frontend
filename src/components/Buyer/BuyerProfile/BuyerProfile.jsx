@@ -138,7 +138,7 @@ function BuyerProfile() {
 
       <div className="profile_main">
         <div className="profile_email">
-          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`} className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://res.cloudinary.com/dnsx36nia/${Image}` : `https://res.cloudinary.com/dnsx36nia/${previewImage}` }`} className="profile" />
           <div className="email">
             <h5>{userData.get_full_name}</h5>
             <span className='pro_email'>{userData.email}</span>
@@ -232,7 +232,7 @@ function BuyerProfile() {
 
         <h5 className="more_profile_title mt-4">My email Address</h5>
         <div className="more_profile_info">
-          <Avatar alt={userData.get_full_name} src={`${Image ? `https://agrilink-backend-hjzl.onrender.com${Image}` : `https://agrilink-backend-hjzl.onrender.com${previewImage}` }`}  className="profile" />
+          <Avatar alt={userData.get_full_name} src={`${Image ? `https://res.cloudinary.com/dnsx36nia/${Image}` : `https://res.cloudinary.com/dnsx36nia/${previewImage}` }`}  className="profile" />
           <div className="more_email">
             <span>{userData.email}</span>
             <span>{relativeTime}</span>
@@ -256,7 +256,7 @@ function BuyerProfile() {
               
                   <div className="photo">
                     <span>Photo</span>
-                    <Avatar alt={userData.get_full_name} src={previewImage || `https://agrilink-backend-hjzl.onrender.com${formData.image}`}  className="profile" />
+                    <Avatar alt={userData.get_full_name} src={previewImage || `https://res.cloudinary.com/dnsx36nia/${formData.image}`}  className="profile" />
                   </div>
                   <div className="actions">
                   <input

@@ -17,6 +17,7 @@ function BuyerDashboard() {
   const { userOrders = [] } = UseHook();
   const [allCrops, setAllCrops] = useState([]);
   const [loading, setLoading] = useState(false);
+  console.log(allCrops)
 
   // Fetch all crops
   useEffect(() => {
@@ -97,7 +98,7 @@ function BuyerDashboard() {
                             component="img"
                             alt={crop_name}
                             height="140"
-                            image={image}
+                            image={`https://res.cloudinary.com/dnsx36nia/${image}`}
                           />
                           <CardContent>
                             <Typography gutterBottom variant="h5" component="div" className="crop_name">

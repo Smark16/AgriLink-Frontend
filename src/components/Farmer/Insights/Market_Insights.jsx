@@ -16,14 +16,14 @@ import vector_3 from '../../images/Vector_3.svg'
 
 
 const Market_Insights = () => {
-  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, prices, setPrices} = useContext(AuthContext)
+  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, prices, setPrices, monthlySales, setMonthlySales} = useContext(AuthContext)
   
   const encodedUserId = encodeURIComponent(user.user_id);
   
   const farmer_crops_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodedUserId}`
   
   const [farmerCrops, setFarmerCrops] = useState([])
-  const [monthlySales, setMonthlySales] = useState([])
+  // const [monthlySales, setMonthlySales] = useState([])
   const [salesTrend, setSalesTrend] = useState([])
   const [crop_id, setCrop_id] = useState(null); 
   const [selectedMonthData, setSelectedMonthData] = useState({ revenue: 0, quantity: 0 });
@@ -107,6 +107,9 @@ let today = getFormattedDate();
   };
 
   // monthly sales
+  // useEffect(()=>{
+
+  // }, [])
   const monthly_sales = async () => {
     if (crop_id) {
       try {
@@ -125,6 +128,8 @@ let today = getFormattedDate();
       }
     }
   };
+
+  console.log('monthly sales', monthlySales)
   
    // farmer pricing
    useEffect(()=>{

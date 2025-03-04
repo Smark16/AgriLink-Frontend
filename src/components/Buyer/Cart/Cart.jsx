@@ -120,7 +120,7 @@ function Cart() {
                             return (
                               <tr key={`${index}-${weightIndex}`}>
                                 <td className="align-middle">
-                                  <img src={image} alt="" style={{ width: 50 }} />{' '}
+                                  <img src={`https://res.cloudinary.com/dnsx36nia/${image}`} alt="" style={{ width: 50 }} />{' '}
                                   {crop_name}
                                 </td>
                                 <td className="align-middle">
@@ -164,7 +164,7 @@ function Cart() {
                         return (
                           <tr key={index}>
                             <td className="align-middle">
-                              <img src={image} alt="" style={{ width: 50 }} />{' '}
+                              <img src={`https://res.cloudinary.com/dnsx36nia/${image}`} alt="" style={{ width: 50 }} />{' '}
                               {crop_name}
                             </td>
                             <td className="align-middle">

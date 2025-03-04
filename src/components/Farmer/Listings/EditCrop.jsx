@@ -33,6 +33,7 @@ function EditCrop() {
   });
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [cropImage, setCropImage] = useState(null)
   const [loadContent, setLoadContent] = useState(false)
 
   // Fetch all categories
@@ -52,7 +53,7 @@ function EditCrop() {
     try {
       const response = await axios.get(detail_url);
       const data = response.data;
-      setPreviewImage(data.image);
+      setCropImage(data.image);
       // Adjusting data to match our state structure
       setCrop({
         ...data,
@@ -104,23 +105,12 @@ function EditCrop() {
     formData.append('weight', JSON.stringify(crop.weight.filter(w => w.available > 0)));
 
     if (crop.image instanceof File) {
+      // If the image is updated (a new file is selected), append it to FormData
       formData.append('image', crop.image);
     } else if (typeof crop.image === 'string') {
-      try {
-        // Download the image from the URL if it's not updated
-        const imageUrl = crop.image.replace('http://', 'https://')
-        const imageResponse = await axios.get(imageUrl, { responseType: 'blob' });
-        const imageBlob = new Blob([imageResponse.data], { type: imageResponse.headers['content-type'] });
-        const imageFile = new File([imageBlob], 'image.png');
-        formData.append('image', imageFile);
-      } catch (err) {
-        setLoading(false);
-        console.error(err);
-        showErrorAlert('An error occurred while processing the image.');
-        return;
-      }
+      // If the image is not updated (Cloudinary public ID), append the public ID directly
+      formData.append('image', crop.image);
     }
-
     try {
       await axios.put(edit_crops_url, formData, {
         headers: {
@@ -133,7 +123,7 @@ function EditCrop() {
     } catch (err) {
       setLoading(false);
       console.error(err);
-      showErrorAlert('An error occurred while updating the crop. Please try again.');
+      showErrorAlert('An error occurred while updating the product. Please try again.');
     }
   };
 
@@ -168,25 +158,37 @@ function EditCrop() {
       {loadContent ? (<div className="list_loader"></div>) : (<>
         <div className="crop_upload bg-white p-2">
         <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
-          <div className="image_bordering">
-            <label htmlFor='image' className='text-primary text-decoration-underline upload_label form-label'>Choose Image to Upload</label>
-            <input
-              type="file"
-              accept="image/*"
-              id="image"
-              className="form-control"
-              hidden
-              onChange={handleImageChange}
-            />
-            
-            <div className="image-upload-container p-3 text-center">
+        <div className="image_bordering">
+          <label htmlFor='image' className='text-primary text-decoration-underline upload_label form-label'>
+            Choose Image to Upload
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            id="image"
+            className="form-control"
+            hidden
+            onChange={handleImageChange}
+          />
+          
+          <div className="image-upload-container p-3 text-center">
+            {previewImage ? (
               <img
-                src={previewImage || ''}
+                src={previewImage}
                 alt="Preview"
                 className="uploaded_image"
               />
-            </div>
+            ) : cropImage ? (
+              <img
+                src={`https://res.cloudinary.com/dnsx36nia/${cropImage}`}
+                alt="Crop"
+                className="uploaded_image"
+              />
+            ) : (
+              <p>No image selected</p>
+            )}
           </div>
+        </div>
 
           <div className="col-md-6">
             <label htmlFor="cropName" className="form-label">Crop Name</label>

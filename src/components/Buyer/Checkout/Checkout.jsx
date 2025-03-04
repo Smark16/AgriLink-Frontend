@@ -264,11 +264,7 @@ const handleConfirm = async () => {
 
                     // Handle image upload
                     if (typeof product.image === 'string') {
-                        // Replace HTTP with HTTPS in the image URL
-                        const imageUrl = product.image.replace('http://', 'https://');
-                        const response = await fetch(imageUrl);
-                        const blob = await response.blob();
-                        productData.append('image', blob, 'image.jpg');
+                        productData.append('image', product.image);
                     } else {
                         productData.append('image', product.image, product.image.name || 'image.jpg');
                     }
@@ -294,11 +290,7 @@ const handleConfirm = async () => {
 
                 // Handle image upload
                 if (typeof item.image === 'string') {
-                    // Replace HTTP with HTTPS in the image URL
-                    const imageUrl = item.image.replace('http://', 'https://');
-                    const response = await fetch(imageUrl);
-                    const blob = await response.blob();
-                    formData.append('image', blob, 'image.jpg');
+                    formData.append('image', item.image);
                 } else {
                     formData.append('image', item.image, item.image.name || 'image.jpg');
                 }
@@ -507,25 +499,6 @@ const handleConfirm = async () => {
                                                     }
                                                 
                                                 </div>
-
-                                                {/* choose mobile options */}
-                                                {/* {selectedPayment[farmerId] === type && type === 'Flutter Wave' && (
-                                                        <ul className='choose-list'>
-                                                            <li>
-                                                                <h6 className='text-black'>Airtel</h6>
-                                                                <span>Pay bills through Airtel money</span>
-                                                            </li>
-                                                            <li>
-                                                                <h6 className='text-black'>MTN</h6>
-                                                                <span>Pay bills through MTN money</span>
-                                                            </li>
-
-                                                            <li>
-                                                                <button className='btn btn-success' onClick={savePaymentDetails}>Pay Now</button>
-                                                            </li>
-                                                        </ul>
-                                                        
-                                                    )} */}
                                                     </div>
                                                    
                                                     // end

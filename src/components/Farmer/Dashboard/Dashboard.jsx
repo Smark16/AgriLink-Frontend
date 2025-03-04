@@ -282,8 +282,6 @@ useEffect(() => {
     [filteredCrops]
   )
 
-  console.log(cropnames)
-   // Initialize BarData state
   // Initialize BarData state (similar to chartData)
 const [BarData, setBarData] = useState({
   series: [
@@ -442,7 +440,7 @@ const [BarData, setBarData] = useState({
         component="img"
         alt="green iguana"
         height="140"
-        image={`https://agrilink-backend-hjzl.onrender.com${image}`}
+        image={`https://res.cloudinary.com/dnsx36nia/${image}`}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div" className="crop_name">
@@ -563,7 +561,7 @@ const [BarData, setBarData] = useState({
               return (
                 <>
               <li>
-              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg}/ {unit}</strong> <i class="bi bi-arrow-up text-success"></i>
+              {crop_name}: <img src={vector_2}></img> <strong>UGX {average_price_per_kg.toFixed(2)}/ {unit}</strong> <i class="bi bi-arrow-up text-success"></i>
               </li>
                 </>
               )

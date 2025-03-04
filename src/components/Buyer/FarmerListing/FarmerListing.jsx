@@ -205,7 +205,7 @@ console.log('farmer_ profile', farmers)
         ) : (
           filteredFarmers.map(farmer => (
             <Card key={farmer.id} sx={{ maxWidth: 345 }} className='col-md-3 sm-12'>
-              <CardMedia component="img" alt='crop name' height="140" image={farmer.farm_Image ? farmer.farm_Image : image} />
+              <CardMedia component="img" alt='crop name' height="140" image={farmer.farm_Image ? `https://res.cloudinary.com/dnsx36nia/${farmer.farm_Image}` : image} />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
                   {farmer.farmName} - {farmer.location}
