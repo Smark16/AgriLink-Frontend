@@ -16,7 +16,7 @@ import axios from 'axios'
 
 
 function ConfirmPayment() {
-    const {user, performanceRef} = useContext(AuthContext)
+    const {user, performanceRef, redirectLink} = useContext(AuthContext)
     const location = useLocation();
     const farmerPayments = location.state?.farmerPayments || JSON.parse(sessionStorage.getItem('farmerPayments') || '{}');
     const cropIdsByFarmer = location.state?.cropIdsByFarmer || JSON.parse(sessionStorage.getItem('cropIdsByFarmer') || '{}');
@@ -69,50 +69,39 @@ const savePaymentDetails = () => {
       const cropId = cropIdsByFarmer[farmerId];
       const quantities = quantitiesByFarmer[farmerId];
       const Productamount = productAmountsByFarmer[farmerId];
-  
-      axios
-        .post('https://agrilink-backend-hjzl.onrender.com/agriLink/initiate-mobile-money-payment/', {
-          amount: Productamount, // Use the amount for each farmer
-          email: user?.email,
-          phone_number: phonenumber,
-          fullname: fullname,
-          tx_ref: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-          order: orderId,
-          network: operator,
-          crop: cropId,
-          quantity: quantities,
-        })
-        .then((res) => {
-          console.log('Payment response:', res.data.charge_response);
-          if (res.data.charge_response.status === 'success') {
-            setLoading(false);
-  
-            // Send WebSocket message for real-time updates
-            if (performanceRef && performanceRef.readyState === WebSocket.OPEN) {
-              const updateData = {
-                farmer_id: farmerId,
-                order_id: orderId,
-                crop_ids: cropId,
-                amount: Productamount,
-              };
-              performanceRef.send(JSON.stringify(updateData));
-              console.log('Update data sent to WebSocket');
-            }
-  
-            // Redirect after the last payment is processed successfully
+             
+      // Prepare WebSocket message
+      const updateData = {
+        amount: Productamount, // Use the amount for each farmer
+        email: user?.email,
+        phone_number: phonenumber,
+        fullname: fullname,
+        tx_ref: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+        order: orderId,
+        network: operator,
+        crop: cropId,
+        quantity: quantities,
+    };
+
+    // Send WebSocket message for real-time updates
+    if (performanceRef.current && performanceRef.current.readyState === WebSocket.OPEN) {
+        performanceRef.current.send(JSON.stringify(updateData));
+        console.log('Update data sent to WebSocket:', updateData);
+        if(redirectLink){
+           setLoading(false)
             if (Object.keys(farmerPayments).indexOf(farmerId) === Object.keys(farmerPayments).length - 1) {
-              const redirectURL = res.data.charge_response?.data?.link;
-              window.location.replace(redirectURL);
+               window.location.replace(redirectLink);
             }
-          } else {
-            console.error('Payment initiation failed for farmer ' + farmerId + ':', res.data.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error('Error processing payment for farmer ' + farmerId + ':', err);
-          setLoading(false);
-        });
+        } else {
+            console.error('Payment initiation failed for farmer');
+            setLoading(false)
+            // Handle non-successful status here. Consider showing a message to the user or providing an option to retry.
+        }
+    } else {
+        console.error('WebSocket connection is not open.');
+        setLoading(false);
+        return;
+    }
     }
   };
 
@@ -135,7 +124,7 @@ const savePaymentDetails = () => {
                             <img src={mtn} alt='mtn'></img>
                         </div>
                     </div>
-                  
+
                     <FormControl variant="standard" sx={{ m: 1, width:'95%' }}>
         <InputLabel id="demo-simple-select-standard-label">select Operator</InputLabel>
         <Select
@@ -145,6 +134,7 @@ const savePaymentDetails = () => {
           value={operator || ''}  
           onChange={handleChange}
         >
+          
           <MenuItem value='AIRTEL' className='text-success'>Airtel</MenuItem>
           <MenuItem value='MTN' className='text-success'>MTN</MenuItem>
         </Select>

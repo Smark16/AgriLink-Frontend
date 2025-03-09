@@ -16,15 +16,14 @@ import vector_3 from '../../images/Vector_3.svg'
 
 
 const Market_Insights = () => {
-  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, prices, setPrices, monthlySales, setMonthlySales} = useContext(AuthContext)
+  const {user, cropLogs, setCropLogs, selectMonthLogs, setSelectMonthLogs, prices, setPrices, monthlySales, setMonthlySales, salesTrend, 
+    setSalesTrend,} = useContext(AuthContext)
   
   const encodedUserId = encodeURIComponent(user.user_id);
   
   const farmer_crops_url = `https://agrilink-backend-hjzl.onrender.com/agriLink/farmer/${encodedUserId}`
   
   const [farmerCrops, setFarmerCrops] = useState([])
-  // const [monthlySales, setMonthlySales] = useState([])
-  const [salesTrend, setSalesTrend] = useState([])
   const [crop_id, setCrop_id] = useState(null); 
   const [selectedMonthData, setSelectedMonthData] = useState({ revenue: 0, quantity: 0 });
   const [monthlysalesTrend, setMonthlySalesTrend] = useState([{revenue:0}])
@@ -806,7 +805,7 @@ const getCurrentMonthDailySales = () => {
             <h4>Market Average Price</h4>
            <span><span>
               {farmerPricing && farmerPricing.crop === crop_id && farmerPricing.average_price_per_kg
-                ? `UGX ${farmerPricing.average_price_per_kg} `
+                ? `UGX ${farmerPricing.average_price_per_kg.toFixed(2)} `
                 : 'Data Not Available'}
             </span></span>
                       </div>
@@ -829,7 +828,7 @@ const getCurrentMonthDailySales = () => {
                                           <strong>{farm_Name}</strong> 
                                           {price_per_unit > loggedInFarmerPricing ? (<img src={vector_3} alt="Vector" />) : (<img src={vector_2} alt="Vector" />)} 
                                           UGX {price_per_unit} / {unit === 'Poultry' ? 'Bird' : unit === 'Livestock' ? 'Animal' : unit === 'Produce' ? 'Fruit' : unit} 
-                                          {price_per_unit < loggedInFarmerPricing ? (<i className="bi bi-arrow-down text-danger animated-bounce"></i>) : (<i className="bi bi-arrow-up text-success animated-bounce"></i>)}
+                                          {price_per_unit > loggedInFarmerPricing ? (<i className="bi bi-arrow-up text-success animated-bounce"></i>) : (<i className="bi bi-arrow-down text-danger animated-bounce"></i>)}
                                         </span>
                                         <br />
                                         <span>{Location} District</span>

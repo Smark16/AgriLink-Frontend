@@ -18,9 +18,6 @@ import moment from "moment";
 function Order() {
   const axiosInstance = UseAxios();
   const {FarmerOrders, loading, setFarmerOrders} = UseHook()
-  // const { messaging, generateToken} = useFCMToken()
-  // console.log(messaging)
- 
   const [showModal, setShowModal] = useState(false);
   const [usermadeItems, setUserMadeItems] = useState({});
   const [itemLoading, setItemLoading] = useState(false)

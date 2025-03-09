@@ -28,6 +28,8 @@ export const AuthProvider = ({ children }) => {
   const [prices, setPrices] = useState([])
   const [showNotificationPage, setShowNotificationPage] = useState(false);
   const [monthlySales, setMonthlySales] = useState([])
+  const [salesTrend, setSalesTrend] = useState([])
+  const [redirectLink, setRedirectLink] = useState('')
    
   const socketRef = useRef(null)
   const trendRef = useRef(null)
@@ -127,26 +129,50 @@ useEffect(()=>{
 }, [user])
 
 // real time crop perfomance
-useEffect(()=>{
-  if(user){
-    performanceRef.current = new WebSocket('wss://agrilink-backend-hjzl.onrender.com/ws/crop-performance/')
+useEffect(() => {
+  if (user) {
+    performanceRef.current = new WebSocket('wss://agrilink-backend-hjzl.onrender.com/ws/crop-performance/');
 
-    performanceRef.current.onopen =()=>{
-      console.log('websockect conection established for performance')
-    }
+    performanceRef.current.onopen = () => {
+      console.log('WebSocket connection established for performance');
+    };
 
     performanceRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data); // Parse the entire event.data  
-      console.log('market performance', data);
-      setMonthlySales(data)
-  };
+      try {
+        const data = JSON.parse(event.data); // Parse the WebSocket message
+
+        // Validate the data structure before accessing properties
+        if (data && typeof data === 'object') {
+          if (data.type === 'payment_result') {
+            console.log('payment_result', data);
+            if (data.res?.charge_response?.status === 'success') {
+              setRedirectLink(data.res.charge_response.data.link);
+            }
+          }
+
+          // Check if monthly_sales exists in the data
+          if (data.monthly_sales) {
+            setMonthlySales(data.monthly_sales);
+          }
+
+          // Check if daily_monthly_sales exists and has monthly_sales
+          if (data.daily_monthly_sales?.monthly_sales) {
+            setSalesTrend(data.daily_monthly_sales.monthly_sales);
+          }
+        } else {
+          console.error('Invalid WebSocket message format:', data);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
 
     performanceRef.current.onclose = () => {
-      console.log('WebSocket connection disconnected for market trends');
+      console.log('WebSocket connection disconnected for performance');
     };
 
     performanceRef.current.onerror = (error) => {
-      console.error('WebSocket error for market trends:', error);
+      console.error('WebSocket error for performance:', error);
     };
 
     return () => {
@@ -155,7 +181,7 @@ useEffect(()=>{
       }
     };
   }
-}, [user])
+}, [user]);
 
  //user logs 
 const handleViewLog = (id)=>{
@@ -383,7 +409,11 @@ const decrementWeightQuantity = (item, weightIndex)=>{
     showNotificationPage, 
     setShowNotificationPage,
     monthlySales, 
-    setMonthlySales
+    setMonthlySales,
+    salesTrend, 
+    setSalesTrend,
+    redirectLink, 
+    setRedirectLink
   };
 
   return (
