@@ -16,7 +16,7 @@ import axios from 'axios'
 
 
 function ConfirmPayment() {
-    const {user, performanceRef, redirectLink} = useContext(AuthContext)
+    const {user, performanceRef, redirectLink, setRedirectLink} = useContext(AuthContext)
     const location = useLocation();
     const farmerPayments = location.state?.farmerPayments || JSON.parse(sessionStorage.getItem('farmerPayments') || '{}');
     const cropIdsByFarmer = location.state?.cropIdsByFarmer || JSON.parse(sessionStorage.getItem('cropIdsByFarmer') || '{}');
@@ -69,7 +69,7 @@ const savePaymentDetails = () => {
       const cropId = cropIdsByFarmer[farmerId];
       const quantities = quantitiesByFarmer[farmerId];
       const Productamount = productAmountsByFarmer[farmerId];
-             
+  
       // Prepare WebSocket message
       const updateData = {
         amount: Productamount, // Use the amount for each farmer
@@ -81,27 +81,39 @@ const savePaymentDetails = () => {
         network: operator,
         crop: cropId,
         quantity: quantities,
-    };
-
-    // Send WebSocket message for real-time updates
-    if (performanceRef.current && performanceRef.current.readyState === WebSocket.OPEN) {
+      };
+  
+      // Send WebSocket message for real-time updates
+      if (performanceRef.current && performanceRef.current.readyState === WebSocket.OPEN) {
         performanceRef.current.send(JSON.stringify(updateData));
         console.log('Update data sent to WebSocket:', updateData);
-        if(redirectLink){
-           setLoading(false)
-            if (Object.keys(farmerPayments).indexOf(farmerId) === Object.keys(farmerPayments).length - 1) {
-               window.location.replace(redirectLink);
+  
+        // Listen for WebSocket response
+        performanceRef.current.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+  
+            // Check if the response contains a redirect link
+            if (data.res?.charge_response?.status === 'success' && data.res.charge_response.data?.link) {
+              setRedirectLink(data.res.charge_response.data.link);
+              setLoading(false);
+  
+              // Redirect the user to the payment link
+              window.location.replace(data.res.charge_response.data.link);
+            } else {
+              console.error('Payment initiation failed for farmer:', data);
+              setLoading(false);
             }
-        } else {
-            console.error('Payment initiation failed for farmer');
-            setLoading(false)
-            // Handle non-successful status here. Consider showing a message to the user or providing an option to retry.
-        }
-    } else {
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+            setLoading(false);
+          }
+        };
+      } else {
         console.error('WebSocket connection is not open.');
         setLoading(false);
         return;
-    }
+      }
     }
   };
 
