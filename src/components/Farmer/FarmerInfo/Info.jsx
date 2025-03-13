@@ -76,7 +76,11 @@ console.log(formData)
     e.preventDefault();
     setSuccessLoader(true)
     if (update_profile_url) {  // Check if URL is not empty
-      axios.put(update_profile_url, formData)
+      axios.put(update_profile_url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
         .then(response => {
           if(response.status === 200){
             navigate('/farmer/listings')
