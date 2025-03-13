@@ -27,6 +27,7 @@ function Signup() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [userNameErrror, setUserNameError] = useState('')
+  const [passwordError, setPasswordError] = useState([])
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -62,25 +63,11 @@ function Signup() {
       return;
     }
 
-    // Validate Password Match
-    if (formData.password !== formData.confirm_password) {
-      setError("Passwords do not match!");
-      setLoading(false);
-      return;
-    }
-
-    // Validate Password Length
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      setLoading(false);
-      return;
-    }
-
+    
     // Validate Phone Number
     if (!formData.contact || formData.contact.length < 10) {
       setError("Please enter a valid phone number.");
       setLoading(false);
-      return;
     }
 
     const endpoint = role === "buyer" ? buyerRegister : farmerRegister;
@@ -122,9 +109,10 @@ function Signup() {
     } catch (err) {
       setLoading(false);
       if (err.response) {
-        setError(err.response.data.detail || "An error occurred during registration.");
+       
         // console.log(err.response.data.contact)
         setUserNameError(err.response.data.contact)
+        setPasswordError(err.response.data.password)
       } else {
         setError("Failed to register. Please try again later.");
       }
@@ -253,8 +241,9 @@ function Signup() {
               />
             </div>
 
-            {error && <p className="text-danger">{error}</p>}
+            {/* {error && <p className="text-danger">{error}</p>} */}
             {success && <p className="text-success">{success}</p>}
+            {passwordError && passwordError.map(err => <p className="text-danger">{err}</p>)}
 
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? "Signing..." : "Sign up"}

@@ -375,9 +375,9 @@ function Upload_List() {
               </div>
             </div>
           )}
-            
-            {/* transport details */}
 
+            {/* transport details */}
+            
             <TransportDetails/>
 
           <button

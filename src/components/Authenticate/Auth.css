@@ -4,7 +4,7 @@
 }
 /* signup Page css */
 .main{
-    height:110vh;
+    height:120vh;
     display: flex;
     position:absolute;
     margin-top:33%;
@@ -17,6 +17,9 @@
     height: 100%;
     background-color: #fff;
     box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.1);
+}
+.welcome{
+    height: 100%;
 }
 .welcome img{
     height: 100%;
