@@ -185,7 +185,7 @@ function Upload_List() {
       </div>
 
       <div className="crop_upload bg-white p-2 mt-3">
-        <form className='row g-3 mt-3 p-2' onSubmit={handleSubmit}>
+        <form className='row g-3 mt-3 p-2'>
           <div className="image_bordering">
             <input
               type="file"
@@ -378,16 +378,17 @@ function Upload_List() {
 
             {/* transport details */}
             
+        </form>
             <TransportDetails/>
 
           <button
             type="submit"
             className='upload_btn'
+            onClick={handleSubmit}
             disabled={loading || !crop.crop_name || !crop.unit || !crop.description || !crop.price_per_unit || !crop.InitialAvailability || !crop.image}
             >
             {loading ? 'Uploading...' : 'Upload Product'}
           </button>
-        </form>
       </div>
     </div>
     </>

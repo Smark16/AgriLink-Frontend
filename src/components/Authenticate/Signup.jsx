@@ -51,16 +51,16 @@ function Signup() {
 
   // Submit form
   const handleSubmit = async (e) => {
-    e.preventDefault();
     setLoading(true);
+    e.preventDefault();
     setError("");
     setSuccess("");
 
     // Validate Full Name
-    if (formData.FullName.trim().split(" ").length < 2) {
+    if (formData.FullName.trim().split(/\s+/).length < 2) {
       setError("Please enter your full name, including both first and last name.");
       setLoading(false);
-      return;
+      return
     }
 
     
@@ -68,6 +68,7 @@ function Signup() {
     if (!formData.contact || formData.contact.length < 10) {
       setError("Please enter a valid phone number.");
       setLoading(false);
+      return; // Add return to stop further execution
     }
 
     const endpoint = role === "buyer" ? buyerRegister : farmerRegister;
@@ -241,11 +242,11 @@ function Signup() {
               />
             </div>
 
-            {/* {error && <p className="text-danger">{error}</p>} */}
+            {error && <p className="text-danger">{error}</p>}
             {success && <p className="text-success">{success}</p>}
             {passwordError && passwordError.map(err => <p className="text-danger">{err}</p>)}
 
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button type="submit" className="btn btn-primary">
               {loading ? "Signing..." : "Sign up"}
             </button>
 
