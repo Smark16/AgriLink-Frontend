@@ -59,7 +59,7 @@ function Sidebar() {
             <li><Link to='/farmer/dashboard' className='links text-black' onClick={handleLinkClick}>Dashboard</Link></li>
             <li><Link to='/farmer/listings' className='links text-black' onClick={handleLinkClick}>Products</Link></li>
             <li><Link to='/farmer/customer_orders' className='links text-black' onClick={handleLinkClick}>Orders</Link></li>
-            <li><Link to='/farmer/recommendations' className='links text-black' onClick={handleLinkClick}>Crop Recommendations</Link></li>
+            <li><Link to='/farmer/recommendations' className='links text-black' onClick={handleLinkClick}>Recommendations</Link></li>
           </ul>
         </div>
       </div>

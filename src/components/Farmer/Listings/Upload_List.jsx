@@ -383,7 +383,7 @@ function Upload_List() {
 
           <button
             type="submit"
-            className='upload_btn'
+            className='upload_btn mt-3'
             onClick={handleSubmit}
             disabled={loading || !crop.crop_name || !crop.unit || !crop.description || !crop.price_per_unit || !crop.InitialAvailability || !crop.image}
             >
