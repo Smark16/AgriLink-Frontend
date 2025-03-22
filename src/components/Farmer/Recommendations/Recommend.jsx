@@ -149,7 +149,7 @@ function TabPanel(props) {
 }
 
 // Intializing the end points
-const BASE_URL = 'http://127.0.0.1:8000/agriLink/'
+const BASE_URL = 'https://agrilink-backend-hjzl.onrender.com/agriLink/'
 
 export default function Recommend() {
   const {user} = useContext(AuthContext)
