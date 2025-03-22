@@ -25,7 +25,7 @@ import Cart from '../Buyer/Cart/Cart'
 import ProductListing from '../Buyer/ProductListing/ProductListing'
 import BuyerProfile from '../Buyer/BuyerProfile/BuyerProfile'
 import BuyerPassword from '../Buyer/PasswordChange/BuyerPassword'
-import BuyerDashboard from '../Buyer/BuyerDasboard/BuyerDashboard'
+import BuyerDashboard from '../Buyer/BuyerDasboard/buyerdashboard'
 import BuyerOrder from '../Buyer/BuyerOrder/BuyerOrder'
 import Info from '../Farmer/FarmerInfo/Info'
 import FarmerListing from '../Buyer/FarmerListing/FarmerListing'
@@ -37,6 +37,7 @@ import { AuthContext } from '../Context/AuthContext'
 import axios from 'axios'
 import ConfirmPayment from '../Buyer/Checkout/ConfirmPayment'
 import PaymentStatus from '../Buyer/Checkout/PaymentStatus'
+import BuyerDash from '../Buyer/BuyerDasboard/Buyerdash'
 
 
 function Show() {
@@ -135,6 +136,7 @@ function Show() {
         <Route path='all_farmers' element={<FarmerListing/>}/>
         <Route path='farmer_product_listing/:id' element={<ProductListing/>}/>
         <Route path='checkout' element={<Checkout/>}/>
+        <Route path='buyer_dashboard' element={<BuyerDash/>}/>
         <Route path='confirm-payment' element={<ConfirmPayment/>}/>
         <Route path='payment-callback/' element={<PaymentStatus/>}/>
       </Routes>

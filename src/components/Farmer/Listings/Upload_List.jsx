@@ -276,6 +276,9 @@ function Upload_List() {
                 <option value="Kg" title="Kilograms - Used for measuring weight (e.g., 1 Kg of tomatoes)">
                   🥔 Kg (Kilograms)
                 </option>
+                <option value="Kg" title="Kilograms - Used for measuring weight (e.g., 1 Kg of tomatoes)">
+                 ⚖️ Tones
+                </option>
                 <option value="Tray" title="Tray - A standard container for produce (e.g., 1 tray of eggs)">
                   🥚 Tray
                 </option>
@@ -295,6 +298,9 @@ function Upload_List() {
               <optgroup label="Count">
                 <option value="Cluster" title="Cluster - A group of items (e.g., 1 cluster of matoke)">
                   🍌 Cluster
+                </option>
+                <option value="Cluster" title="Cluster - A group of items (e.g., 1 cluster of matoke)">
+                 📦 Box
                 </option>
                 <option value="Livestock" title="Livestock - A single animal (e.g., 1 cow, 1 goat)">
                   🐄 Livestock (e.g., cow, goat)

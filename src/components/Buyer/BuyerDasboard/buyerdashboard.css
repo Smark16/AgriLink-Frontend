@@ -1,0 +1,151 @@
+/* Dashboard Styles */
+.user_dashboard {
+    font-weight: bold;
+    color: #333;
+  }
+  .dash_head{
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .dash_row {
+    margin-top: 10px;
+  }
+  
+  .dash_stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .stat_orders,
+  .stat_buyers,
+  .stat_sales {
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 150px;
+  }
+  
+  .stat_orders:hover,
+  .stat_buyers:hover,
+  .stat_sales:hover {
+    transform: translateY(-5px);
+  }
+  
+  .img_nums {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .img_nums i,
+  .img_nums svg {
+    font-size: 24px;
+    color: #2e7d32;
+  }
+  
+  .img_nums span {
+    font-size: 20px;
+  }
+  
+  /* Recent Crops Section */
+  .dash_recent_crops,
+  .recent_orders,
+  .recommendations_section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .recent_text,
+  .order_text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .show_all {
+    background-color: #2e7d32;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .show_all:hover {
+    background-color: #1b5e20;
+  }
+  
+  /* Product Cards */
+  .product_card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+  }
+  
+  .product_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .crop_name {
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Loading States */
+  .crop_loader,
+  .order_loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+  
+  .crop_loader::after {
+    content: "";
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #2e7d32;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Recommendation Card */
+  .recommendation_card {
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .dash_stats {
+      flex-direction: column;
+    }
+  
+    .recent_text,
+    .order_text {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .show_all {
+      margin-top: 10px;
+      width: 100%;
+    }
+  }
+  
+  
