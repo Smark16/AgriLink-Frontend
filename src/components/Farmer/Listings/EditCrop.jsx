@@ -231,6 +231,9 @@ function EditCrop() {
                 <option value="Kg" title="Kilograms - Used for measuring weight (e.g., 1 Kg of tomatoes)">
                   🥔 Kg (Kilograms)
                 </option>
+                <option value="Tones" title="Tones - Used for measuring weight (e.g., 1 Tone of posho)">
+                 ⚖️ Tones
+                </option>
                 <option value="Tray" title="Tray - A standard container for produce (e.g., 1 tray of eggs)">
                   🥚 Tray
                 </option>
@@ -250,6 +253,9 @@ function EditCrop() {
               <optgroup label="Count">
                 <option value="Cluster" title="Cluster - A group of items (e.g., 1 cluster of matoke)">
                   🍌 Cluster
+                </option>
+                <option value="Box" title="Box - (e.g., 1 box of tomatoes)">
+                 📦 Box
                 </option>
                 <option value="Livestock" title="Livestock - A single animal (e.g., 1 cow, 1 goat)">
                   🐄 Livestock (e.g., cow, goat)

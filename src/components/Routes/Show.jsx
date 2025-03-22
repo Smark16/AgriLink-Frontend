@@ -25,7 +25,6 @@ import Cart from '../Buyer/Cart/Cart'
 import ProductListing from '../Buyer/ProductListing/ProductListing'
 import BuyerProfile from '../Buyer/BuyerProfile/BuyerProfile'
 import BuyerPassword from '../Buyer/PasswordChange/BuyerPassword'
-import BuyerDashboard from '../../components/Buyer/BuyerDasboard/BuyerDashboard'
 import BuyerOrder from '../Buyer/BuyerOrder/BuyerOrder'
 import Info from '../Farmer/FarmerInfo/Info'
 import FarmerListing from '../Buyer/FarmerListing/FarmerListing'
@@ -131,7 +130,6 @@ function Show() {
         <Route path='profile' element={<BuyerProfile/>}/>
         <Route path='logout' element={<Logout/>}/>
         <Route path='change-password' element={<BuyerPassword/>}/>
-        <Route path='dashboard' element={<BuyerDashboard/>}/>
         <Route path='orders' element={<BuyerOrder/>}/>
         <Route path='all_farmers' element={<FarmerListing/>}/>
         <Route path='farmer_product_listing/:id' element={<ProductListing/>}/>

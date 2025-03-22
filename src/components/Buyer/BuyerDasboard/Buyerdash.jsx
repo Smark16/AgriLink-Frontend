@@ -34,6 +34,7 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp"
 
 import '../BuyerDasboard/buyerdashboard.css'
 import { AuthContext } from "../../Context/AuthContext"
+import { ratio } from "fuzzball";
 
 const ALL_CROPS_URL = "https://agrilink-backend-hjzl.onrender.com/agriLink/all_crops"
 
@@ -61,14 +62,16 @@ function BuyerDash() {
   const [loading, setLoading] = useState(false)
   const [tabValue, setTabValue] = useState(0)
   const [userName, setUserName] = useState(null);
-
+  
+  const RECOMMENDED_CROPS_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/recommendations/buyer/${user?.user_id}/` : '';
   const SINGLE_PROFILE_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/profile/${user.user_id}` : '';
 
-    useEffect(() => {
-      if (user) {
-        fetchUserName();
-      }
-    }, [user]);
+  useEffect(() => {
+    if (user) {
+      fetchUserName();
+      fetchRecommendedCrops();
+    }
+  }, [user]);
   
     const fetchUserName = async () => {
       try {
@@ -78,56 +81,106 @@ function BuyerDash() {
         console.error('Failed to fetch user name:', error);
       }
     };
-  
 
-  const categories = ["All", "Vegetables", "Fruits", "Grains", "Dairy"]
+    // recommended products
+    const fetchRecommendedCrops = async () => {
+      setLoading(true);
+      try {
+        const [allResponse, recResponse] = await Promise.all([
+          axios.get(ALL_CROPS_URL),
+          axios.get(RECOMMENDED_CROPS_URL)
+        ]);
+        const { results } = allResponse.data;
+        setAllCrops(results);
+  
+        const recommendedData = recResponse.data; // e.g., {"Buyer 3": {"general_name": [...], "confidence_score": [...]}}
+        const buyerId = user.user_id;
+        const recommendations = recommendedData[buyerId] || { general_name: [], confidence_score: [] };
+  
+        console.log("General names from backend:", recommendations.general_name);
+  
+        // Map general_name to specific crops with stricter matching
+        const matchedCrops = recommendations.general_name.map((generalName, index) => {
+          const matches = results
+            .map(crop => {
+              const similarity = ratio(generalName.toLowerCase(), crop.crop_name.toLowerCase());
+              console.log(`Comparing "${generalName}" to "${crop.crop_name}": similarity = ${similarity}`);
+              return { ...crop, similarity };
+            })
+            .filter(crop => crop.similarity >= 85) // Stricter threshold
+            .sort((a, b) => b.similarity - a.similarity || b.date_added.localeCompare(a.date_added)) // Sort by similarity, then recency
+            .slice(0, 1); // Take the best match
+  
+          return matches[0] ? { ...matches[0], confidence_score: recommendations.confidence_score[index] } : null;
+        }).filter(Boolean);
+  
+        console.log("Matched crops:", matchedCrops);
+        setRecommendedCrops(matchedCrops);
+        setLoading(false);
+      } catch (err) {
+        console.log("Error fetching crops:", err);
+        setLoading(false);
+      }
+    };
+  console.log('recommeded crops', recommendedCrops)
+  const categories = ["All"]
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue)
   }
 
-  // Fetch all crops
-  useEffect(() => {
-    const fetchCrops = async () => {
-      setLoading(true)
-      try {
-        const response = await axios.get(ALL_CROPS_URL)
-        const { results } = response.data
-        setAllCrops(results)
-
-        // Create mock recommended crops with additional data
-        if (results && results.length > 0) {
-          const mockRecommended = results.map((crop) => ({
-            ...crop,
-            price: Math.floor(Math.random() * 50000) + 5000, // Random price between 5000 and 55000
-            rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3 and 5
-            farmer: {
-              name: `Farmer ${Math.floor(Math.random() * 10) + 1}`,
-              location: ["Kampala", "Wakiso", "Jinja", "Mbarara", "Gulu"][Math.floor(Math.random() * 5)],
-            },
-            category: ["Vegetables", "Fruits", "Grains", "Dairy", "Meat"][Math.floor(Math.random() * 5)],
-          }))
-
-          setRecommendedCrops(mockRecommended)
-        }
-
-        setLoading(false)
-      } catch (err) {
-        console.log("err", err)
-        setLoading(false)
-      }
-    }
-    fetchCrops()
-  }, [])
-
-  // Filter recommended crops by category
   const getFilteredCrops = () => {
-    if (tabValue === 0) return recommendedCrops
-    return recommendedCrops.filter((crop) => crop.category.toLowerCase() === categories[tabValue].toLowerCase())
-  }
+    if (tabValue === 0) return recommendedCrops;
+    return recommendedCrops.filter(crop => {
+      const category = crop.crop_name.split(' ')[0].toLowerCase(); // Simple category derivation
+      return category === categories[tabValue].toLowerCase();
+    });
+  };
 
   const filteredRecommendedCrops = getFilteredCrops()
+
+  // Fetch all crops
+  // useEffect(() => {
+  //   const fetchCrops = async () => {
+  //     setLoading(true)
+  //     try {
+  //       const response = await axios.get(ALL_CROPS_URL)
+  //       const { results } = response.data
+  //       setAllCrops(results)
+
+  //       // Create mock recommended crops with additional data
+  //       if (results && results.length > 0) {
+  //         const mockRecommended = results.map((crop) => ({
+  //           ...crop,
+  //           price: Math.floor(Math.random() * 50000) + 5000, // Random price between 5000 and 55000
+  //           rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3 and 5
+  //           farmer: {
+  //             name: `Farmer ${Math.floor(Math.random() * 10) + 1}`,
+  //             location: ["Kampala", "Wakiso", "Jinja", "Mbarara", "Gulu"][Math.floor(Math.random() * 5)],
+  //           },
+  //           category: ["Vegetables", "Fruits", "Grains", "Dairy", "Meat"][Math.floor(Math.random() * 5)],
+  //         }))
+
+  //         setRecommendedCrops(mockRecommended)
+  //       }
+
+  //       setLoading(false)
+  //     } catch (err) {
+  //       console.log("err", err)
+  //       setLoading(false)
+  //     }
+  //   }
+  //   fetchCrops()
+  // }, [])
+
+  // // Filter recommended crops by category
+  // const getFilteredCrops = () => {
+  //   if (tabValue === 0) return recommendedCrops
+  //   return recommendedCrops.filter((crop) => crop.category.toLowerCase() === categories[tabValue].toLowerCase())
+  // }
+
+  // const filteredRecommendedCrops = getFilteredCrops()
 
   return (
     <div className="container-fluid pt-2 bg-white">
@@ -210,83 +263,67 @@ function BuyerDash() {
                 </Box>
 
                 <TabPanel value={tabValue} index={tabValue}>
-                  {loading ? (
-                    <div className="crop_loader"></div>
-                  ) : filteredRecommendedCrops.length === 0 ? (
-                    <div className="no_crops mt-5 text-center">
-                      <h5 className="text-muted">No Products Found in this Category</h5>
-                      <ForestIcon style={{ fontSize: "2rem" }} className="text-secondary" />
-                    </div>
-                  ) : (
-                    <Grid container spacing={3} className="mt-2">
-                      {filteredRecommendedCrops.slice(0, 6).map((crop) => (
-                        <Grid item xs={12} sm={6} md={4} key={crop.id}>
-                          <Card className="product_card h-100">
-                            <Box sx={{ position: "relative" }}>
-                              <CardMedia
-                                component="img"
-                                height="180"
-                                image={`https://res.cloudinary.com/dnsx36nia/${crop.image}`}
-                                alt={crop.crop_name}
-                              />
-                              <Chip
-                                label="New"
-                                color="success"
-                                size="small"
-                                sx={{
-                                  position: "absolute",
-                                  top: 8,
-                                  right: 8,
-                                  fontWeight: "bold",
-                                }}
-                              />
-                            </Box>
-                            <CardContent>
-                              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                <Box>
-                                  <Typography gutterBottom variant="h6" component="div" className="crop_name">
-                                    {crop.crop_name}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary">
-                                    {crop.category}
-                                  </Typography>
-                                </Box>
-                                <Typography variant="h6" color="success.main" fontWeight="bold">
-                                  UGX {crop.price.toLocaleString()}
-                                </Typography>
-                              </Box>
-
-                              <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                                <Rating value={Number.parseFloat(crop.rating)} precision={0.5} readOnly size="small" />
-                                <Typography variant="body2" sx={{ ml: 1 }}>
-                                  {crop.rating}
-                                </Typography>
-                              </Box>
-
-                              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                From: {crop.farmer.name} • {crop.farmer.location}
-                              </Typography>
-
-                              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                                <Button variant="outlined" size="small" startIcon={<ThumbUpIcon />}>
-                                  Save
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  color="success"
-                                  size="small"
-                                  startIcon={<ShoppingCartIcon />}
-                                >
-                                  Add to Cart
-                                </Button>
-                              </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                </TabPanel>
+        {loading ? (
+          <div className="crop_loader"></div>
+        ) : filteredRecommendedCrops.length === 0 ? (
+          <div className="no_crops mt-5 text-center">
+            <h5 className="text-muted">No Products Found in this Category</h5>
+            <ForestIcon style={{ fontSize: "2rem" }} className="text-secondary" />
+          </div>
+        ) : (
+          <Grid container spacing={3} className="mt-2">
+            {filteredRecommendedCrops.slice(0, 6).map((crop) => (
+              <Grid item xs={12} sm={6} md={4} key={crop.id}>
+                <Card className="product_card h-100">
+                  <Box sx={{ position: "relative" }}>
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={`https://res.cloudinary.com/dnsx36nia/${crop.image}`}
+                      alt={crop.crop_name}
+                    />
+                    <Chip
+                      label="New"
+                      color="success"
+                      size="small"
+                      sx={{ position: "absolute", top: 8, right: 8, fontWeight: "bold" }}
+                    />
+                  </Box>
+                  <CardContent>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography gutterBottom variant="h6" component="div" className="crop_name">
+                          {crop.crop_name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Confidence: {crop.confidence_score}%
+                        </Typography>
+                      </Box>
+                      <Typography variant="h6" color="success.main" fontWeight="bold">
+                        UGX {crop.price_per_unit.toLocaleString()}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                      <Button variant="outlined" size="small" startIcon={<ThumbUpIcon />}>
+                        Save
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        startIcon={<ShoppingCartIcon />}
+                        onClick={() => addToCart(crop.id)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </TabPanel>
               </CardContent>
             </Card>
           </div>

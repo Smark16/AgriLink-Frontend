@@ -32,7 +32,6 @@ const authPages = [
 
 const navpages = [
   {name: 'Available Farms', path: '/Buyer/all_farmers'},
-  {name: 'Dashboard', path: '/Buyer/dashboard'},
   {name: 'Buyer dashboard', path: '/Buyer/buyer_dashboard'}
 ]
 const Buyer_settings = [

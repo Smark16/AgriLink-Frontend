@@ -25,6 +25,7 @@
     "dayjs": "^1.11.13",
     "firebase": "^11.2.0",
     "framer-motion": "^12.5.0",
+    "fuzzball": "^2.2.1",
     "jquery": "^3.7.1",
     "jquery.counterup": "^2.1.0",
     "jwt-decode": "^4.0.0",
