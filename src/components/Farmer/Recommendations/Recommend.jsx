@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -39,16 +39,13 @@ import {
   LightMode,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+// import {BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,Legend,} from "recharts";
+import { DataGrid } from '@mui/x-data-grid';
+
+import { AuthContext } from "../../Context/AuthContext";
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import '../Recommendations/recommend.css'
 
 // Create custom theme
 const getTheme = (mode) =>
@@ -151,118 +148,222 @@ function TabPanel(props) {
   );
 }
 
+// Intializing the end points
+const BASE_URL = 'http://127.0.0.1:8000/agriLink/'
+
 export default function Recommend() {
+  const {user} = useContext(AuthContext)
   const [mode, setMode] = useState("light");
   const theme = React.useMemo(() => getTheme(mode), [mode]);
-  const [language, setLanguage] = useState("english");
   const [region, setRegion] = useState("all");
   const [tabValue, setTabValue] = useState(0);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [showModal, setShowModal] = useState(false)
+  const [recommendations, setRecommendations] = useState([])
+  const [recommendLoader, setRecommendLoader] = useState(false)
+  const [buyers, setBuyers] = useState([])
+  const [InterestedBuyers, setInterestedBuyers] = useState([])
+  const [buyerAddresses, setBuyerAddresses] = useState({});
+
+    // Add state for selected buyers
+    const [selectedBuyerIds, setSelectedBuyerIds] = useState([]);
+    const [farmName, setFarmName] = useState('');
+    const [message, setMessage] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const [isFetchingBuyers, setIsFetchingBuyers] = useState(false); // New loading state
+
+  // end points
+  const FARMER_RECOMMENDATIONS = `${BASE_URL}recommendations/farmer/${user?.user_id}/`
+  const BUYERS = `${BASE_URL}buyers`
+  const SEND_EMAILS = `${BASE_URL}send_emails`
 
   const toggleColorMode = () => {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
-  // const handleLanguageChange = (event) => {
-  //   setLanguage(event.target.value);
-  // };
+// fetch recommendations
+const fetchRecommendations = async()=>{
+  try{
+    setRecommendLoader(true)
+    const response = await axios(FARMER_RECOMMENDATIONS)
+    const data = response.data
+    console.log(data)
+    setRecommendations(data)
+    setRecommendLoader(false)
+  }catch(err){
+    console.log('recommend err', err)
+    setRecommendLoader(false)
+  }
+}
 
-  // const handleRegionChange = (event) => {
-  //   setRegion(event.target.value);
-  // };
+// fetch buyers
+const fetchBuyers = async()=>{
+  try{
+   const response = await axios.get(BUYERS)
+   const data = response.data
+   setBuyers(data)
+  }catch(err){
+    console.log('err fetching buyers', err)
+  }
+}
+useEffect(()=>{
+  fetchRecommendations()
+  fetchBuyers()
+}, [])
+
+  // get buyers with loading state
+  const getBuyers = async (buyer_ids) => {
+    setIsFetchingBuyers(true);
+    setShowModal(true);
+    
+    try {
+      // Filter buyers
+      const filteredBuyers = buyers.filter(buyer => buyer_ids.includes(buyer.id));
+      setInterestedBuyers(filteredBuyers);
+
+      // Fetch addresses for all buyers
+      const addressPromises = filteredBuyers.map(async (buyer) => {
+        const USER_ORDERS = `${BASE_URL}user_orders/${buyer.id}`;
+        
+        try {
+          const response = await axios.get(USER_ORDERS);
+          const orders = response.data;
+          const activeAddress = orders.find(order => order.address.active === true);
+          
+          return {
+            buyerId: buyer.id,
+            activeAddress: activeAddress ? activeAddress.address : null,
+            district: activeAddress ? activeAddress.address.district : null
+          };
+        } catch (err) {
+          console.log('Error fetching orders for buyer', buyer.id, err);
+          return {
+            buyerId: buyer.id,
+            activeAddress: null,
+            district: null
+          };
+        }
+      });
+
+      // Wait for all address fetches to complete
+      const addresses = await Promise.all(addressPromises);
+      const addressesMap = addresses.reduce((acc, curr) => {
+        acc[curr.buyerId] = { 
+          activeAddress: curr.activeAddress, 
+          district: curr.district 
+        };
+        return acc;
+      }, {});
+
+      setBuyerAddresses(addressesMap);
+    } catch (err) {
+      console.error('Error in getBuyers:', err);
+    } finally {
+      setIsFetchingBuyers(false);
+    }
+  };
+
+// MUI table 
+const columns = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'fullName', headerName: 'Full Name', width: 160 }, // Matches get_full_name
+  { field: 'email', headerName: 'Email', width: 200 },
+  { field: 'location', headerName: 'Location', width: 160 },
+];
+
+  // Map interestedBuyers to rows
+  const rows = InterestedBuyers.map(buyer => ({
+    id: buyer.id,
+    email: buyer.email,
+    fullName: buyer.get_full_name, 
+    location: buyerAddresses[buyer.id]?.district || 'Not Available'
+  }));
+
+  const paginationModel = { page: 0, pageSize: 5 };
+
+  // Handle row selection
+  const handleSelectionChange = (newSelection) => {
+    setSelectedBuyerIds(newSelection);
+  };
+
+    // Handle email sending
+    const handleSendEmails = async (e) => {
+      e.preventDefault();
+      
+      if (selectedBuyerIds.length === 0) {
+            Swal.fire({
+              title: 'Please select at least one buyer',
+              icon: "error",
+              timer: 6000,
+              toast: true,
+              position: 'top',
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+        return;
+      }
+  
+      if (!farmName || !message) {
+        Swal.fire({
+          title: 'Please fill in both farm name and message',
+          icon: "error",
+          timer: 6000,
+          toast: true,
+          position: 'top',
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+        return;
+      }
+  
+      setIsSending(true);
+      
+      try {
+        const emailData = {
+          user: selectedBuyerIds,
+          farm_name: farmName,
+          message: message,
+          selected: true
+        };
+  
+        const response = await axios.post(SEND_EMAILS, emailData);
+        console.log('Emails sent successfully:', response.data);
+        
+        // Reset form and selection
+        setFarmName('');
+        setMessage('');
+        setSelectedBuyerIds([]);
+        setShowModal(false);
+        
+        Swal.fire({
+          title: 'Emails sent successfully!',
+          icon: "success",
+          timer: 6000,
+          toast: true,
+          position: 'top',
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        console.error('Error sending emails:', err);
+        Swal.fire({
+          title: 'Failed to send emails. Please try again.',
+          icon: "error",
+          timer: 6000,
+          toast: true,
+          position: 'top',
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      } finally {
+        setIsSending(false);
+      }
+    };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
-
-  // Sample data for recommendations
-  const recommendations = [
-    {
-      crop: "Tomatoes",
-      confidence: 90,
-      demand: "High",
-      buyers: 15,
-      demandValue: 70,
-      profitMargin: "22%",
-      growthTime: "3-4 months",
-      waterNeeds: "Medium",
-      region: "Central",
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      crop: "Maize",
-      confidence: 85,
-      demand: "Moderate",
-      buyers: 10,
-      demandValue: 50,
-      profitMargin: "18%",
-      growthTime: "4-5 months",
-      waterNeeds: "Low",
-      region: "Eastern",
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      crop: "Beans",
-      confidence: 80,
-      demand: "Low",
-      buyers: 5,
-      demandValue: 30,
-      profitMargin: "15%",
-      growthTime: "2-3 months",
-      waterNeeds: "Low",
-      region: "Northern",
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    // {
-    //   crop: "Coffee",
-    //   confidence: 88,
-    //   demand: "Very High",
-    //   buyers: 20,
-    //   demandValue: 85,
-    //   profitMargin: "25%",
-    //   growthTime: "3-4 years",
-    //   waterNeeds: "Medium",
-    //   region: "Central",
-    //   image: "/placeholder.svg?height=100&width=100",
-    // },
-    // {
-    //   crop: "Avocado",
-    //   confidence: 92,
-    //   demand: "High",
-    //   buyers: 18,
-    //   demandValue: 75,
-    //   profitMargin: "30%",
-    //   growthTime: "3-5 years",
-    //   waterNeeds: "Medium",
-    //   region: "Western",
-    //   image: "/placeholder.svg?height=100&width=100",
-    // },
-    // {
-    //   crop: "Cassava",
-    //   confidence: 82,
-    //   demand: "Moderate",
-    //   buyers: 8,
-    //   demandValue: 45,
-    //   profitMargin: "16%",
-    //   growthTime: "9-12 months",
-    //   waterNeeds: "Low",
-    //   region: "Eastern",
-    //   image: "/placeholder.svg?height=100&width=100",
-    // },
-  ];
-
-  // Filter recommendations by region if needed
-  const filteredRecommendations =
-    region === "all"
-      ? recommendations
-      : recommendations.filter((rec) => rec.region === region);
-
-  // Chart data
-  const chartData = filteredRecommendations.map((rec) => ({
-    name: rec.crop,
-    value: rec.demandValue,
-    buyers: rec.buyers,
-  }));
 
   // Success stories
   const successStories = [
@@ -349,6 +450,7 @@ export default function Recommend() {
   };
 
   return (
+    <>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -373,20 +475,6 @@ export default function Recommend() {
                 <IconButton onClick={toggleColorMode} color="inherit">
                   {theme.palette.mode === "dark" ? <LightMode /> : <DarkMode />}
                 </IconButton>
-                {/* <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel id="language-select-label">Language</InputLabel>
-                  <Select
-                    labelId="language-select-label"
-                    id="language-select"
-                    value={language}
-                    label="Language"
-                    onChange={handleLanguageChange}
-                  >
-                    <MenuItem value="english">English</MenuItem>
-                    <MenuItem value="swahili">Swahili</MenuItem>
-                    <MenuItem value="luganda">Luganda</MenuItem>
-                  </Select>
-                </FormControl> */}
               </Box>
             </Box>
           </Container>
@@ -407,14 +495,14 @@ export default function Recommend() {
                 gutterBottom
                 sx={{ fontWeight: "bold", mb: 2 }}
               >
-                Smart Product Recommendations
+                Smart Buyer Recommendations
               </Typography>
               <Typography
                 variant="h6"
                 sx={{ mb: 3, color: "rgba(255, 255, 255, 0.9)" }}
               >
-                Data-driven insights to help you choose the most profitable products
-                for your region and market conditions.
+                Data-driven insights to help you get the most interested Buyers
+                for your region and market.
               </Typography>
               <Button
                 variant="contained"
@@ -454,26 +542,11 @@ export default function Recommend() {
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 {/* <FilterList color="action" /> */}
-                <Typography variant="h6">View Recommendations</Typography>
+                <Typography variant="h6">View Buyer Recommendations</Typography>
               </Box>
-              {/* <FormControl size="small" sx={{ minWidth: 180 }}>
-                <InputLabel id="region-select-label">Select Region</InputLabel>
-                <Select
-                  labelId="region-select-label"
-                  id="region-select"
-                  value={region}
-                  label="Select Region"
-                  onChange={handleRegionChange}
-                >
-                  <MenuItem value="all">All Regions</MenuItem>
-                  <MenuItem value="Central">Central</MenuItem>
-                  <MenuItem value="Eastern">Eastern</MenuItem>
-                  <MenuItem value="Western">Western</MenuItem>
-                  <MenuItem value="Northern">Northern</MenuItem>
-                </Select>
-              </FormControl> */}
             </Box>
           </Paper>
+
 
           {/* Tabs for different views */}
           <Box sx={{ mb: 4 }}>
@@ -484,13 +557,22 @@ export default function Recommend() {
               variant="fullWidth"
             >
               <Tab label="Card View" id="tab-0" aria-controls="tabpanel-0" />
-              <Tab label="Chart View" id="tab-1" aria-controls="tabpanel-1" />
+              {/* <Tab label="Chart View" id="tab-1" aria-controls="tabpanel-1" /> */}
             </Tabs>
 
             <TabPanel value={tabValue} index={0}>
               {/* Recommendations Cards */}
-              <Grid container spacing={3}>
-                {filteredRecommendations.map((rec, index) => (
+               {recommendLoader ? (
+                <div>
+                <div className="loader"></div>
+                <p className='text-center'>Loading data...</p>
+              </div>
+              ) : (
+                recommendations.length === 0 ? (<h6>No Recommendations yet</h6>) : (
+                  <>
+                   <Grid container spacing={3}>
+                {recommendations.map((rec, index) => (
+                
                   <Grid item xs={12} sm={6} lg={4} key={index}>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -508,15 +590,9 @@ export default function Recommend() {
                         <Box
                           sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
                         >
-                          {/* <CardMedia
-                            component="img"
-                            sx={{ width: 64, height: 64, borderRadius: 1 }}
-                            image={rec.image || "/placeholder.svg"}
-                            alt={rec.crop}
-                          /> */}
                           <Box>
                             <Typography variant="h6" component="h3">
-                              {rec.crop}
+                              {rec.product_name}
                             </Typography>
                             <Box
                               sx={{
@@ -532,7 +608,7 @@ export default function Recommend() {
                                 }}
                               />
                               <Typography variant="caption" color="text.secondary">
-                                {rec.region} Region
+                                any location
                               </Typography>
                             </Box>
                           </Box>
@@ -552,12 +628,18 @@ export default function Recommend() {
                                 Confidence Score
                               </Typography>
                               <Typography variant="body2" fontWeight="medium">
-                                {rec.confidence}%
+                                {rec.confidence_score.length > 0 
+                              ? rec.confidence_score.reduce((sum, total) => sum + total, 0) 
+                              / rec.confidence_score.length 
+                              : 0}%
                               </Typography>
                             </Box>
                             <LinearProgress
                               variant="determinate"
-                              value={rec.confidence}
+                              value= {rec.confidence_score.length > 0 
+                                ? rec.confidence_score.reduce((sum, total) => sum + total, 0) 
+                                / rec.confidence_score.length 
+                                : 0}
                               sx={{ height: 6, borderRadius: 3 }}
                             />
                           </Box>
@@ -570,10 +652,10 @@ export default function Recommend() {
                                 </Typography>
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                   <Typography variant="body2" fontWeight="medium">
-                                    {rec.demand}
+                                    {rec.market_demand}
                                   </Typography>
-                                  {(rec.demand === "High" ||
-                                    rec.demand === "Very High") && (
+                                  {(rec.market_demand === "moderate" ||
+                                    rec.market_demand === "high") && (
                                     <Chip
                                       label="Hot"
                                       size="small"
@@ -602,31 +684,13 @@ export default function Recommend() {
                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                   <People sx={{ fontSize: 14, mr: 0.5 }} />
                                   <Typography variant="body2" fontWeight="medium">
-                                    {rec.buyers}
+                                    {rec.buyer_id?.length}
                                   </Typography>
                                 </Box>
                               </Box>
                             </Grid>
                             <Grid item xs={6}>
-                              {/* <Box sx={styles.metricBox}>
-                                <Typography variant="caption" color="text.secondary">
-                                  Profit Margin
-                                </Typography>
-                                <Typography variant="body2" fontWeight="medium">
-                                  {rec.profitMargin}
-                                </Typography>
-                              </Box> */}
                             </Grid>
-                            {/* <Grid item xs={6}>
-                              <Box sx={styles.metricBox}>
-                                <Typography variant="caption" color="text.secondary">
-                                  Growth Time
-                                </Typography>
-                                <Typography variant="body2" fontWeight="medium">
-                                  {rec.growthTime}
-                                </Typography>
-                              </Box>
-                            </Grid> */}
                           </Grid>
                         </CardContent>
 
@@ -643,14 +707,15 @@ export default function Recommend() {
                             gap: 1,
                           }}
                         >
-                          {/* <Button
+                          <Button
                             variant="contained"
                             fullWidth
                             color="primary"
                             endIcon={<ArrowForward />}
+                            onClick={()=>getBuyers(rec.buyer_id)}
                           >
-                            Learn How to Grow
-                          </Button> */}
+                            Contact Buyers
+                          </Button>
                           <Button
                             variant="outlined"
                             fullWidth
@@ -667,58 +732,10 @@ export default function Recommend() {
                   </Grid>
                 ))}
               </Grid>
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={1}>
-              {/* Demand Visualization */}
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Market Demand Comparison
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    Visual comparison of market demand and interested buyers for
-                    recommended Products
-                  </Typography>
-                  <Box sx={{ height: 400, width: "100%" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={chartData}
-                        margin={{
-                          top: 20,
-                          right: 30,
-                          left: 20,
-                          bottom: 60,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                          dataKey="name"
-                          angle={-45}
-                          textAnchor="end"
-                          height={60}
-                          tick={{ fontSize: 12 }}
-                        />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar
-                          dataKey="value"
-                          name="Demand Score"
-                          fill={theme.palette.primary.main}
-                          radius={[4, 4, 0, 0]}
-                        />
-                        <Bar
-                          dataKey="buyers"
-                          name="Interested Buyers"
-                          fill={theme.palette.secondary.main}
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Box>
-                </CardContent>
-              </Card>
+                  </>
+                )
+               )}
+              
             </TabPanel>
           </Box>
 
@@ -798,31 +815,7 @@ export default function Recommend() {
                   suggest the most profitable products for your farm.
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                  {/* <Button
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      bgcolor: "white",
-                      color: theme.palette.primary.main,
-                      "&:hover": { bgcolor: "rgba(255, 255, 255, 0.9)" },
-                    }}
-                  >
-                    Get Started
-                  </Button> */}
-                  {/* <Button
-                    variant="outlined"
-                    size="large"
-                    sx={{
-                      borderColor: "white",
-                      color: "white",
-                      "&:hover": {
-                        borderColor: "white",
-                        bgcolor: "rgba(255, 255, 255, 0.1)",
-                      },
-                    }}
-                  >
-                    Talk to an Expert
-                  </Button> */}
+                 
                 </Box>
               </Box>
               <Box sx={styles.ctaBackground}>
@@ -869,5 +862,90 @@ export default function Recommend() {
         </Box>
       </Box>
     </ThemeProvider>
+
+    {showModal && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal modal_width">
+            <div className="custom-modal-header">
+              <h5 className="custom-modal-title">Contact Interested Buyers</h5>
+              <button 
+                type="button" 
+                className="close" 
+                onClick={() => setShowModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="custom-modal-body p-2 justify-content-center">
+              {isFetchingBuyers ? (
+                <div className="text-center py-4">
+                  <div className="loader"></div>
+                  <p>Loading buyer information...</p>
+                </div>
+              ) : (
+                <>
+                  <Paper sx={{ height: 400, width: '100%' }}>
+                    <DataGrid
+                      rows={rows}
+                      columns={columns}
+                      initialState={{ pagination: { paginationModel } }}
+                      pageSizeOptions={[5, 10]}
+                      checkboxSelection
+                      onRowSelectionModelChange={handleSelectionChange}
+                      rowSelectionModel={selectedBuyerIds}
+                      sx={{ border: 0 }}
+                    />
+                  </Paper>
+
+                  <form 
+                    className='mt-2 interest_form p-2 rounded'
+                    onSubmit={handleSendEmails}
+                  >
+                    <h6 className="p-2 int_header">
+                      <strong>Send Reminders to selected Buyers</strong>
+                    </h6>
+                    <div className="mb-3">
+                      <label htmlFor="farmName" className="form-label">
+                        Farm Name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="farmName"
+                        value={farmName}
+                        onChange={(e) => setFarmName(e.target.value)}
+                        disabled={isSending}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="message" className="form-label">
+                        Message
+                      </label>
+                      <textarea
+                        className="form-control"
+                        id="message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        disabled={isSending}
+                        rows={4}
+                      />
+                    </div>
+
+                    <button 
+                      className='btn bg-success text-white text-center p-2 mt-2 rounded'
+                      type="submit"
+                      disabled={isSending}
+                    >
+                      {isSending ? 'Sending...' : 'Send Email'}
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+</>
   );
 }
