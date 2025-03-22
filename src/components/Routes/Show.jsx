@@ -25,7 +25,7 @@ import Cart from '../Buyer/Cart/Cart'
 import ProductListing from '../Buyer/ProductListing/ProductListing'
 import BuyerProfile from '../Buyer/BuyerProfile/BuyerProfile'
 import BuyerPassword from '../Buyer/PasswordChange/BuyerPassword'
-import BuyerDashboard from '../Buyer/BuyerDasboard/buyerdashboard'
+import BuyerDashboard from '../../components/Buyer/BuyerDasboard/BuyerDashboard'
 import BuyerOrder from '../Buyer/BuyerOrder/BuyerOrder'
 import Info from '../Farmer/FarmerInfo/Info'
 import FarmerListing from '../Buyer/FarmerListing/FarmerListing'
@@ -37,7 +37,7 @@ import { AuthContext } from '../Context/AuthContext'
 import axios from 'axios'
 import ConfirmPayment from '../Buyer/Checkout/ConfirmPayment'
 import PaymentStatus from '../Buyer/Checkout/PaymentStatus'
-import BuyerDash from '../Buyer/BuyerDasboard/Buyerdash'
+import BuyerDash from '../../components/Buyer/BuyerDasboard/Buyerdash'
 
 
 function Show() {

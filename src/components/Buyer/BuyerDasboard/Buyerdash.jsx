@@ -53,7 +53,7 @@ function TabPanel(props) {
   )
 }
 
-function BuyerDashboard() {
+function BuyerDash() {
   const {user} = useContext(AuthContext)
   const { userOrders = [] } = UseHook()
   const [allCrops, setAllCrops] = useState([])
@@ -418,5 +418,5 @@ function BuyerDashboard() {
   )
 }
 
-export default BuyerDashboard
+export default BuyerDash
 
