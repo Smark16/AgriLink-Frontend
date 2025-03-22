@@ -65,7 +65,7 @@ function BuyerDash() {
   
   const RECOMMENDED_CROPS_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/recommendations/buyer/${user?.user_id}/` : '';
   const SINGLE_PROFILE_URL = user ? `https://agrilink-backend-hjzl.onrender.com/agriLink/profile/${user.user_id}` : '';
-
+  
   useEffect(() => {
     if (user) {
       fetchUserName();
@@ -92,13 +92,13 @@ function BuyerDash() {
         ]);
         const { results } = allResponse.data;
         setAllCrops(results);
-  
+    
         const recommendedData = recResponse.data; // e.g., {"Buyer 3": {"general_name": [...], "confidence_score": [...]}}
         const buyerId = user.user_id;
         const recommendations = recommendedData[buyerId] || { general_name: [], confidence_score: [] };
-  
+    
         console.log("General names from backend:", recommendations.general_name);
-  
+    
         // Map general_name to specific crops with stricter matching
         const matchedCrops = recommendations.general_name.map((generalName, index) => {
           const matches = results
@@ -110,12 +110,37 @@ function BuyerDash() {
             .filter(crop => crop.similarity >= 85) // Stricter threshold
             .sort((a, b) => b.similarity - a.similarity || b.date_added.localeCompare(a.date_added)) // Sort by similarity, then recency
             .slice(0, 1); // Take the best match
-  
+    
           return matches[0] ? { ...matches[0], confidence_score: recommendations.confidence_score[index] } : null;
         }).filter(Boolean);
-  
-        console.log("Matched crops:", matchedCrops);
-        setRecommendedCrops(matchedCrops);
+    
+        console.log("Initial matched crops:", matchedCrops);
+    
+        // Fetch farmer profiles for each matched crop
+        const enrichedCrops = await Promise.all(
+          matchedCrops.map(async (crop) => {
+            const FARMER_PROFILE_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/profile/${crop.user}`;
+            try {
+              const response = await axios.get(FARMER_PROFILE_URL);
+              const data = response.data;
+              return {
+                ...crop,
+                farm_Name: data.profile.farmName || "Unnamed Farm",
+                farm_location: data.profile.location || "Unknown",
+              };
+            } catch (err) {
+              console.log(`Error fetching farmer profile for user ${crop.user}:`, err);
+              return {
+                ...crop,
+                farm_Name: "Unnamed Farm",
+                farm_location: "Unknown",
+              }; // Fallback values in case of error
+            }
+          })
+        );
+    
+        console.log("Enriched crops with farmer details:", enrichedCrops);
+        setRecommendedCrops(enrichedCrops);
         setLoading(false);
       } catch (err) {
         console.log("Error fetching crops:", err);
@@ -139,6 +164,19 @@ function BuyerDash() {
   };
 
   const filteredRecommendedCrops = getFilteredCrops()
+
+  const renderStars = (averageRating) => {
+    const stars = [];
+    const ratedStars = Math.round(averageRating || 0);
+
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <i key={i} className={`bi ${i < ratedStars ? 'bi-star-fill' : 'bi-star'}`} />
+      );
+    }
+
+    return stars;
+  };
 
   // Fetch all crops
   // useEffect(() => {
@@ -264,7 +302,7 @@ function BuyerDash() {
 
                 <TabPanel value={tabValue} index={tabValue}>
         {loading ? (
-          <div className="crop_loader"></div>
+          <div className="loader"></div>
         ) : filteredRecommendedCrops.length === 0 ? (
           <div className="no_crops mt-5 text-center">
             <h5 className="text-muted">No Products Found in this Category</h5>
@@ -298,6 +336,15 @@ function BuyerDash() {
                         <Typography variant="body2" color="text.secondary">
                           Confidence: {crop.confidence_score}%
                         </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {crop.farm_Name} - {crop.farm_location}
+                        </Typography>
+                        
+                        <Typography variant="body2" className="mt-3">
+                        <div className="farmer_product_rating mr-2">
+                            {renderStars(crop.get_average_rating)}
+                          </div>
+                        </Typography>
                       </Box>
                       <Typography variant="h6" color="success.main" fontWeight="bold">
                         UGX {crop.price_per_unit.toLocaleString()}
@@ -307,15 +354,16 @@ function BuyerDash() {
                       <Button variant="outlined" size="small" startIcon={<ThumbUpIcon />}>
                         Save
                       </Button>
+
+                      <Link to={`/Buyer/product_detail/${crop.id}`}>
                       <Button
                         variant="contained"
                         color="success"
                         size="small"
-                        startIcon={<ShoppingCartIcon />}
-                        onClick={() => addToCart(crop.id)}
                       >
-                        Add to Cart
+                        view Detail
                       </Button>
+                      </Link>
                     </Box>
                   </CardContent>
                 </Card>
