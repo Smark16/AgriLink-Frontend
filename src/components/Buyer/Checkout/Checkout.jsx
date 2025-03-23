@@ -339,7 +339,7 @@ const handleConfirm = async () => {
                    }
 
                    if(selectedPayment[farmerId] === 'Pay On Delivery'){
-                    navigate('/Buyer/dashboard')
+                    navigate('/Buyer/buyer_dashboard')
                     Swal.fire({
                         title: 'Order Confirmed',
                         icon: "success",
