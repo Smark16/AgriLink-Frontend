@@ -156,8 +156,8 @@ const handleConfirm = async () => {
 
         // Extract crop IDs, quantities, and amounts for each farmer
         const cropIdsByFarmer = {};
-        const quantitiesByFarmer = {}; // Stores quantities for each product
-        const productAmountsByFarmer = {}; // Stores amounts for each product
+        const quantitiesByFarmer = {};
+        const productAmountsByFarmer = {};
 
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
             cropIdsByFarmer[farmerId] = farmerProducts.map(product => product.id);
@@ -165,20 +165,18 @@ const handleConfirm = async () => {
                 id: product.id,
                 quantity: product.quantity
             }));
-
-            // Calculate the total amount for each product (price_per_unit * quantity)
             productAmountsByFarmer[farmerId] = farmerProducts.map(product => ({
                 id: product.id,
                 amount: (product.get_discounted_price > 0 ? product.get_discounted_price : product.price_per_unit) * product.quantity
             }));
         }
 
-        // Store crop IDs, quantities, and amounts in sessionStorage
+        // Store in sessionStorage
         sessionStorage.setItem('cropIdsByFarmer', JSON.stringify(cropIdsByFarmer));
         sessionStorage.setItem('quantitiesByFarmer', JSON.stringify(quantitiesByFarmer));
         sessionStorage.setItem('productAmountsByFarmer', JSON.stringify(productAmountsByFarmer));
 
-        // Separating farmer amounts to be paid by buyer
+        // Calculate farmer payments
         const farmerPayments = {};
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
             let farmerTotal = farmerProducts.reduce((sum, item) => {
@@ -195,7 +193,6 @@ const handleConfirm = async () => {
                 }
             }, 0);
 
-            // Check if Door Delivery is selected for this farmer
             const isDoorDeliverySelected = selectedDelivery[farmerId]?.includes('Door Delivery');
             let deliveryFee = 0;
 
@@ -206,35 +203,24 @@ const handleConfirm = async () => {
             farmerPayments[farmerId] = (farmerTotal + deliveryFee).toFixed(2);
         }
 
-        // Store farmerPayments in sessionStorage or pass it via state/context to ConfirmPayment
         sessionStorage.setItem('farmerPayments', JSON.stringify(farmerPayments));
-
-        console.log('farmer-payments', farmerPayments);
-        console.log('crop-ids-by-farmer', cropIdsByFarmer);
-        console.log('quantities-by-farmer', quantitiesByFarmer); // Log quantities
-        console.log('product-amounts-by-farmer', productAmountsByFarmer); // Log amounts
 
         // Store all created order IDs
         let allOrderResponses = {};
 
-        // Iterate through each farmer's products
+        // Process each farmer's order
         for (const [farmerId, farmerProducts] of Object.entries(productsByFarmer)) {
-
-            // 1️⃣ Update availability for each product in this farmer's list
+            // 1️⃣ Update availability for each product
             await Promise.all(farmerProducts.map(async (item) => {
                 const EDIT_AVAILABILITY_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_quantity/${item.id}`;
-
-                let remained = 0;  // Reset for each item
+                let remained = 0;
 
                 if (item.weight && item.weight.length > 0) {
-                    // If product has weights, calculate new availability based on weights
                     remained = item.weight.reduce((sum, w) => sum + Math.max(w.available - w.quantity, 0), 0);
                 } else {
-                    // If no weights, use direct quantity
                     remained = item.availability - item.quantity;
                 }
 
-                console.log('remained availability', remained);
                 await axios.patch(EDIT_AVAILABILITY_URL, { "availability": remained });
             }));
 
@@ -242,27 +228,23 @@ const handleConfirm = async () => {
             await Promise.all(farmerProducts.map(async (product) => {
                 if (product.weight && product.weight.length > 0) {
                     const UPDATE_WEIGHT_URL = `https://agrilink-backend-hjzl.onrender.com/agriLink/update_weight/${product.id}`;
-
                     let productData = new FormData();
                     productData.append("user", product.user);
                     productData.append("specialisation", product.specialisation);
                     productData.append("crop_name", product.crop_name);
                     productData.append("description", product.description);
 
-                    // Update weight availability
                     const updatedWeights = product.weight.map(w => ({
                         weight: w.weight,
                         quantity: 0,
-                        available: Math.max(w.available - w.quantity, 0) // Ensure available doesn't go negative
+                        available: Math.max(w.available - w.quantity, 0)
                     }));
                     productData.append("weight", JSON.stringify(updatedWeights));
                     productData.append("price_per_unit", product.price_per_unit);
                     productData.append("unit", product.unit);
                     productData.append("InitialAvailability", product.InitialAvailability);
-                    // Here, we update availability based on the sum of all weights' available
                     productData.append("availability", updatedWeights.reduce((sum, w) => sum + w.available, 0));
 
-                    // Handle image upload
                     if (typeof product.image === 'string') {
                         productData.append('image', product.image);
                     } else {
@@ -278,7 +260,6 @@ const handleConfirm = async () => {
                 let formData = new FormData();
                 formData.append('user', item.user);
 
-                // Calculate total quantity
                 const totalQuantity = item.weight.length > 0
                     ? item.weight.reduce((sum, w) => sum + parseFloat(w.weight.replace('kg', '').trim()) * w.quantity, 0) * item.quantity
                     : item.quantity;
@@ -287,8 +268,8 @@ const handleConfirm = async () => {
                 formData.append('weights', JSON.stringify(item.weight));
                 formData.append('price_per_unit', item.get_discounted_price > 0 ? item.get_discounted_price : item.price_per_unit);
                 formData.append('unit', item.unit);
+                formData.append('crop', item.id);
 
-                // Handle image upload
                 if (typeof item.image === 'string') {
                     formData.append('image', item.image);
                 } else {
@@ -303,76 +284,120 @@ const handleConfirm = async () => {
             const orderCropResponses = await Promise.all(orderCropDataList.map(formData =>
                 axios.post(POST_ORDER_CROPS, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
             ));
-
-            // Extract orderCrop IDs
             const orderCropIds = orderCropResponses.map(response => response.data.id);
 
-            // 5️⃣ Create an order for this farmer
+            // 5️⃣ Create an order for this farmer with validation
+            if (!user?.user_id) {
+                alert('User information is missing. Please log in again.');
+                setLoading(false);
+                return;
+            }
+
+            if (!activatedAddress || !activatedAddress.id) {
+                Swal.fire({
+                    title: 'Please select an active address before confirming your order.',
+                    icon: "error",
+                    timer: 6000,
+                    toast: true,
+                    position: 'top',
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                  });
+                setLoading(false);
+                return;
+            }
+
+            const deliveryOption = selectedDelivery[farmerId] || 'Not Selected';
+            if (deliveryOption === 'Not Selected') {
+                Swal.fire({
+                    title: `Please select a delivery option for farmer.`,
+                    icon: "error",
+                    timer: 6000,
+                    toast: true,
+                    position: 'top',
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                  });
+                setLoading(false);
+                return;
+            }
+
+            const paymentMethod = selectedPayment[farmerId] || 'Not Selected';
+            if (paymentMethod === 'Not Selected') {
+                 Swal.fire({
+                          title: `Please select a payment method for farmer.`,
+                          icon: "error",
+                          timer: 6000,
+                          toast: true,
+                          position: 'top',
+                          timerProgressBar: true,
+                          showConfirmButton: false,
+                        });
+                setLoading(false);
+                return;
+            }
+
             const orderResponse = await axios.post(POST_ORDER_URL, {
-                user: user?.user_id,  // The buyer
-                address: activatedAddress ? activatedAddress.id : null,
+                user: user.user_id,
+                address: activatedAddress.id,
                 status: "Pending",
-                delivery_option: selectedDelivery[farmerId] || 'Not Selected',
-                payment_method: selectedPayment[farmerId] || 'Not Selected'
+                delivery_option: deliveryOption,
+                payment_method: paymentMethod
             });
 
             sessionStorage.setItem('currentOrderID', orderResponse.data.id);
-
-            console.log(`Order for Farmer ${farmerId}:`, orderResponse.data);
-
-            // Store this order ID with farmer ID
             allOrderResponses[farmerId] = orderResponse.data.id;
-            console.log('order_ids', allOrderResponses);
 
             // 6️⃣ Attach orderCropIds to this specific order
             const details = new FormData();
-            details.append("order", orderResponse.data?.id);
+            details.append("order", orderResponse.data.id);
             orderCropIds.forEach(id => details.append("crop", id));
 
             await axios.post(POST_ORDER_DETAIL_URL, details)
-            .then(res => {
-                if(res.status === 201){
-                   if(selectedPayment[farmerId] === 'Flutter Wave'){
-                    // navigate('/Buyer/confirm-payment')
-                    sessionStorage.setItem('allOrderResponses', JSON.stringify(allOrderResponses));
-                    navigate('/Buyer/confirm-payment', { state: { farmerPayments, cropIdsByFarmer, quantitiesByFarmer, productAmountsByFarmer }});
-                   }
+                .then(res => {
+                    if (res.status === 201) {
+                        if (paymentMethod === 'Flutter Wave') {
+                            sessionStorage.setItem('allOrderResponses', JSON.stringify(allOrderResponses));
+                            navigate('/Buyer/confirm-payment', { state: { farmerPayments, cropIdsByFarmer, quantitiesByFarmer, productAmountsByFarmer } });
+                        } else if (paymentMethod === 'Pay On Delivery') {
+                            navigate('/Buyer/buyer_dashboard');
+                            Swal.fire({
+                                title: 'Order Confirmed',
+                                icon: "success",
+                                timer: 2000,
+                            });
+                        }
 
-                   if(selectedPayment[farmerId] === 'Pay On Delivery'){
-                    navigate('/Buyer/buyer_dashboard')
-                    Swal.fire({
-                        title: 'Order Confirmed',
-                        icon: "success",
-                        timer: 2000,
-                      });
-                   }
-                   setLoading(false);
-                   
-                   for(let item of addedItem){
-                    if(socketRef.current && socketRef.current.readyState === WebSocket.OPEN){
-                        socketRef.current.send(JSON.stringify({
-                            action:'purchase',
-                            crop: item.id
-                        }))
-                   }
-                   }
-            
-                }
-            }).catch(err => {
-                console.log(err);
-                setLoading(false); // Ensure loading state is turned off even if there's an error
-            });
+                        // Notify via WebSocket
+                        for (let item of farmerProducts) {
+                            if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+                                socketRef.current.send(JSON.stringify({
+                                    action: 'purchase',
+                                    crop: item.id
+                                }));
+                            }
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Error attaching order details:', err);
+                    alert('Failed to attach order details. Please try again.');
+                    setLoading(false);
+                    return;
+                });
         }
 
         // ✅ All orders created successfully, clear cart
         setAddedItem([]);
         localStorage.removeItem('cartItem');
-        localStorage.removeItem('quantities')
-        localStorage.removeItem('selectedQuantities')
+        localStorage.removeItem('quantities');
+        localStorage.removeItem('selectedQuantities');
+        setLoading(false);
 
     } catch (err) {
-        console.log('Error:', err);
-        setLoading(false); // Ensure to turn off loading state on errors
+        console.error('Error in handleConfirm:', err);
+        alert('An error occurred while processing your order. Please try again.');
+        setLoading(false);
     }
 };
 
