@@ -302,6 +302,9 @@ function Upload_List() {
                 <option value="Box" title="Box -  (e.g., 1 box of tomatoes)">
                  📦 Box
                 </option>
+                <option value="Fish" title="Fish -  (e.g., 1 Fish)">
+                 🐠 Fish
+                </option>
                 <option value="Livestock" title="Livestock - A single animal (e.g., 1 cow, 1 goat)">
                   🐄 Livestock (e.g., cow, goat)
                 </option>
