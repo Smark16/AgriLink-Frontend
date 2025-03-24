@@ -97,7 +97,6 @@
   }
   
   /* Loading States */
-  .crop_loader,
   .order_loading-container {
     display: flex;
     justify-content: center;
@@ -105,7 +104,7 @@
     min-height: 200px;
   }
   
-  .crop_loader::after {
+  /* .crop_loader::after {
     content: "";
     width: 50px;
     height: 50px;
@@ -113,7 +112,7 @@
     border-top: 5px solid #2e7d32;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-  }
+  } */
   
   @keyframes spin {
     0% {
