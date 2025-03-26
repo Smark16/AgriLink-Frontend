@@ -97,6 +97,7 @@ function FarmerProfile() {
     // profile info
     formdata.append('bio', formData.bio)
     formdata.append('location', formData.location)
+    formdata.append('farmName', formData.farmName)
 
     // Only append the image if it has been changed
     if (formData.image && typeof formData.image !== 'string') {
@@ -353,6 +354,21 @@ function FarmerProfile() {
                     value={formData.bio}
                     onChange={handleProfile}
                     placeholder='add bio.....'
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="bio" className="form-label">
+                    Farm Name
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="bio"
+                    name="farmName"
+                    value={formData.farmName}
+                    onChange={handleProfile}
+                    placeholder='add farm name.....'
                   />
                 </div>
 
