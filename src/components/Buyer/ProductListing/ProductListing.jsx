@@ -34,8 +34,8 @@ function ProductListing() {
       setLoader(true);
       const response = await axios.get(FarmerCropsUrl);
       const { results, next, previous, count } = response.data;
-      setCrops(results.crops);
-      setFilteredCrops(results.crops);
+      setCrops(results);
+      setFilteredCrops(results);
       setPagination({ next, previous, count });
     } catch (err) {
       console.error("Error fetching farmer crops:", err);
@@ -50,8 +50,8 @@ function ProductListing() {
       setLoader(true);
       const response = await axios.get(url);
       const { results, next, previous, count } = response.data;
-      setCrops(results.crops);
-      setFilteredCrops(results.crops);
+      setCrops(results);
+      setFilteredCrops(results);
       setPagination({ next, previous, count });
       setCurrentPage((prevPage) => direction === "next" ? prevPage + 1 : prevPage - 1);
     } catch (err) {

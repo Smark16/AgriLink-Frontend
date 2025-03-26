@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
 import '../Listings/Listings.css';
 
 function Listings() {
-  const { crops, currentPage, pagination, loader, filteredCrops, setFilteredCrops, handlePageChange } = UseHook();
+  const { crops, currentPage, pagination, loader, filteredCrops, setFilteredCrops, handlePageChange} = UseHook();
   const [search, setSearch] = useState('');
   const [showOptions, setShowOptions] = useState({}); // Track options for each crop
   const [loading, setLoading] = useState(false);

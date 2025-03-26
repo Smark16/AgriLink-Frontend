@@ -628,10 +628,12 @@ const columns = [
                                 Confidence Score
                               </Typography>
                               <Typography variant="body2" fontWeight="medium">
-                                {rec.confidence_score.length > 0 
-                              ? rec.confidence_score.reduce((sum, total) => sum + total, 0) 
-                              / rec.confidence_score.length 
-                              : 0}%
+                                {rec.confidence_score?.length > 0 
+                                  ? `${(
+                                      rec.confidence_score.reduce((sum, current) => sum + current, 0) / 
+                                      rec.confidence_score.length
+                                    ).toFixed(2)}%`
+                                  : '0%'}
                               </Typography>
                             </Box>
                             <LinearProgress

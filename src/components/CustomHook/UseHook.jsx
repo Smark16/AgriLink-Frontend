@@ -54,8 +54,8 @@ function UseHook() {
       setLoader(true);
       const response = await axios.get(FarmerCropsUrl);
       const { results, next, previous, count } = response.data;
-      setCrops(results.crops);
-      setFilteredCrops(results.crops);
+      setCrops(results);
+      setFilteredCrops(results);
       setPagination({ next, previous, count });
     } catch (err) {
       console.error("Error fetching farmer crops:", err);
@@ -63,7 +63,7 @@ function UseHook() {
       setLoader(false);
     }
   };
-
+console.log('crops', crops)
   // Fetch orders
   const fetch_farmer_orders = async () => {
     if (!user) return;
@@ -85,8 +85,8 @@ function UseHook() {
       axios.get(url)
         .then((response) => {
           const { results, next, previous, count } = response.data;
-          setCrops(results.crops);
-          setFilteredCrops(results.crops);
+          setCrops(results);
+          setFilteredCrops(results);
           setPagination({ next, previous, count });
           setCurrentPage(prev => direction === "next" ? prev + 1 : prev - 1);
         })
@@ -141,7 +141,7 @@ function UseHook() {
     Orderloading,
     profileLoader,
     showProfileModal, 
-    setShowProfileModal
+    setShowProfileModal,
   };
 }
 

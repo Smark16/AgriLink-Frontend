@@ -269,6 +269,7 @@ const handleConfirm = async () => {
                 formData.append('price_per_unit', item.get_discounted_price > 0 ? item.get_discounted_price : item.price_per_unit);
                 formData.append('unit', item.unit);
                 formData.append('crop', item.id);
+                formData.append('buyer_id', user?.user_id)
 
                 if (typeof item.image === 'string') {
                     formData.append('image', item.image);
