@@ -23,6 +23,8 @@ function TransportDetails() {
     const [currentDeliver, setCurrentDeliver] = useState(null);
     const [currentMethod, setCurrentMethod] = useState(null)
 
+    const [load, setLoad] = useState(false)
+
     const EDIT_PAYMENT_METHOD = `https://agrilink-backend-hjzl.onrender.com/agriLink/edit_payment`;
     const EDIT_DELIVERY_OPTION = `https://agrilink-backend-hjzl.onrender.com/agriLink/edit_delivery`;
 
@@ -30,9 +32,11 @@ function TransportDetails() {
         // Fetch all payments
         const fetchPayment = async () => {
             try {
+                setLoad(true)
                 const response = await axios.get(LIST_PAYMENT_URL);
                 const { payment_method } = response.data;
                 setAllPayment(payment_method);
+                setLoad(false)
             } catch (err) {
                 console.log('err', err);
             }
@@ -41,9 +45,11 @@ function TransportDetails() {
         // Fetch delivery options
         const fetchdelivery = async () => {
             try {
+                setLoad(true)
                 const response = await axios.get(LIST_DELIVERY_URL);
                 const { delivery_options } = response.data;
                 setAllDelivery(delivery_options);
+                setLoad(false)
             } catch (err) {
                 console.log('err', err);
             }
@@ -160,6 +166,11 @@ function TransportDetails() {
                 <h4 className='p-2 mt-2 text-center'>Delivery Options</h4>
                 {allDelivery.length > 0 && !editdeliverMode ? (
                     <>
+                    {load ? (
+                        <div>
+                        <div className='loader'></div>
+                    </div>
+                        ) : (<>
                         <div className="showdelivery w-100 p-2">
                             {allDelivery.map((deliver, index) => {
                                 const { id, fee, duration } = deliver;
@@ -183,9 +194,17 @@ function TransportDetails() {
                                 );
                             })}
                         </div>
+                    </>)}
+                        
                     </>
                 ) : (
-                    <form className="crop-delivery-options" onSubmit={handleSubmit}>
+                    <>
+                    {load ? (
+                         <div>
+                         <div className='loader'></div>
+                     </div>
+                        ) : (<>
+                        <form className="crop-delivery-options" onSubmit={handleSubmit}>
                         <div className="options">
                             <div className="first-del-option mb-4">
                                 <input
@@ -252,13 +271,23 @@ function TransportDetails() {
                         `${deliverLoader ? 'Updating...' : 'Update'}` : 
                         `${deliverLoader ? 'Saving...' : 'Save'}`}</button>
                     </form>
+
+                    </>)}
+                    
+                    </>
+                  
                 )}
 
                 {/* Payment Methods */}
                 <h4 className='p-2 mt-2 text-center'>Payment Methods</h4>
                 {allPayment.length > 0 && !editpayMode ? (
                     <>
-                     <div className="showdelivery w-100 p-2">
+                    {load ? (
+                        <div>
+                        <div className='loader'></div>
+                    </div>
+                        ) : (<>
+                        <div className="showdelivery w-100 p-2">
                             {allPayment.map((pay, index) => {
                                 const { id, contact_email, contact_name, contact_phone} = pay;
                                 return (
@@ -283,9 +312,17 @@ function TransportDetails() {
                                 );
                             })}
                         </div>
+                    </>)}
+                    
                     </>
                   ) : (
-                    <form className="crop-payment-options col-lg-12" onSubmit={paySubmit}>
+                    <>
+                    {load ? (
+                        <div>
+                            <div className='loader'></div>
+                        </div>
+                        ) : (<>
+                        <form className="crop-payment-options col-lg-12" onSubmit={paySubmit}>
                         <div className="method-type">
                             <div className="pay-on mb-4">
                                 <input
@@ -361,6 +398,10 @@ function TransportDetails() {
                         `${payLoader ? 'Updating...' : 'Update'}` : 
                         `${payLoader ? 'Saving...' : 'Save'}`}</button>
                     </form>
+
+                    </>)}
+                    </>
+                   
                 )}
             </div>
         </>
