@@ -407,5 +407,4 @@ function TransportDetails() {
         </>
     );
 }
-
 export default TransportDetails;

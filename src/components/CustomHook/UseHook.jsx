@@ -71,7 +71,8 @@ console.log('crops', crops)
       setLoading(true);
       const response = await axios.get(farmer_order_url);
       const { orders } = response.data;
-      setFarmerOrders(orders);
+      const selectedOrders = orders.filter(order => order.status === 'Pending')
+      setFarmerOrders(selectedOrders);
     } catch (error) {
       console.error("Error fetching farmer orders:", error);
     } finally {
