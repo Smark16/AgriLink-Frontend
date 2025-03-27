@@ -15,6 +15,14 @@ import UseAxios from "../../AxiosInstance/AxiosInstance";
 import UseHook from "../../CustomHook/UseHook";
 import moment from "moment";
 
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell"
+import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
+import Paper from "@mui/material/Paper"
+
 function Order() {
   const axiosInstance = UseAxios();
   const {FarmerOrders, loading, setFarmerOrders} = UseHook()
@@ -102,35 +110,36 @@ function Order() {
         </div>
       ) : (
         <div className="cust_orders bg-white p-2 col-lg-12 table-responsive mb-5">
-          <table id="myTable" className="table table-bordered mb-0">
-            <thead>
-              <tr>
-                <th scope="col">ORDER ID</th>
-                <th scope="col">Buyer Name</th>
-                <th scope="col">District</th>
-                <th scope="col">Delivery Option</th>
-                <th scope="col">Payment method</th>
-                <th scope="col">Payment</th>
-                <th scope="col">Contact</th>
-                <th scope="col">Status</th>
-                <th scope="col">Created At</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+          <TableContainer component={Paper}>
+          <Table id="myTable" className="table table-bordered mb-0" aria-label="orders table">
+            <TableHead>
+              <TableRow>
+                <TableCell scope="col">ORDER ID</TableCell>
+                <TableCell scope="col">Buyer Name</TableCell>
+                <TableCell scope="col">District</TableCell>
+                <TableCell scope="col">Delivery Option</TableCell>
+                <TableCell scope="col">Payment method</TableCell>
+                <TableCell scope="col">Payment</TableCell>
+                <TableCell scope="col">Contact</TableCell>
+                <TableCell scope="col">Status</TableCell>
+                <TableCell scope="col">Created At</TableCell>
+                <TableCell scope="col">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {FarmerOrders.map((order) => {
                 const { order_id, buyer_name, status, district, contact, created_at, delivery_Option, payment_method } = order;
                 const orderTime = moment(created_at).fromNow()
                 return (
-                  <tr key={order_id}>
-                    <td>{order_id}</td>
-                    <td>{buyer_name}</td>
-                    <td>{district}</td>
-                    <td>{delivery_Option}</td>
-                    <td>{payment_method}</td>
-                    <td>{order.payment?.status}</td>
-                    <td>{contact}</td>
-                    <td>
+                  <TableRow key={order_id}>
+                    <TableCell>{order_id}</TableCell>
+                    <TableCell>{buyer_name}</TableCell>
+                    <TableCell>{district}</TableCell>
+                    <TableCell>{delivery_Option}</TableCell>
+                    <TableCell>{payment_method}</TableCell>
+                    <TableCell>{order.payment?.status}</TableCell>
+                    <TableCell>{contact}</TableCell>
+                    <TableCell>
                       {statusLoaders[order_id] ? (
                        <div class="orderloader"></div>
                       ) : (<>
@@ -151,9 +160,9 @@ function Order() {
                       )}
                       
                       </>)}
-                    </td>
-                    <td>{orderTime}</td>
-                    <td>
+                    </TableCell>
+                    <TableCell>{orderTime}</TableCell>
+                    <TableCell>
                       <div className="actions">
                         {/* Dropdown */}
                         <div className="dropdown ms-4">
@@ -197,12 +206,14 @@ function Order() {
                         {/* <i className="bi bi-eye text-success" onClick={() => showOrder(order_id)}></i> */}
                             </Tooltip>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
+          </TableContainer>
+          
         </div>
       )}
 
