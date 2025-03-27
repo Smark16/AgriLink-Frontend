@@ -86,10 +86,10 @@ let today = getFormattedDate();
     try {
       const response = await axios(farmer_crops_url);
       const {results} = response.data
-      setFarmerCrops(results.crops);
+      setFarmerCrops(results);
       setCropLoader(false)
-      if (results.crops.length > 0) {
-        setCrop_id(results.crops[0].id); // Set crop_id once crops are fetched
+      if (results.length > 0) {
+        setCrop_id(results[0].id); // Set crop_id once crops are fetched
       }
     } catch (err) {
       console.log('err', err);
@@ -633,6 +633,7 @@ const getCurrentMonthDailySales = () => {
           marginBottom: "20px",
           boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
         }}
+         className="table-responsive"
       >
         {cropLoader ? (<h6>Fetching Products...</h6>) : (
           farmerCrops.map((crop) => (
