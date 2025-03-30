@@ -37,14 +37,14 @@
 .gri{
   color: #fff;
 }
-.intro_img{
+/* .intro_img{
   background: linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(../images/planteee.webp);
   background-position:center;
   background-size: cover;
   background-repeat: no-repeat;
   height: 100vh;
   width: 100%;
-}
+} */
 .intro img{
   margin-top: 20px;
   width: 800px;

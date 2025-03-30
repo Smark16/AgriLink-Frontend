@@ -44,6 +44,7 @@ import rec3 from '../images/rec_3.png';
 import rec4 from '../images/rec_4.png';
 
 import axios from "axios"
+import '../Home/land.css'
 const images = {
   avatars: [rec1, rec2, rec3, rec4],
   partners: [
@@ -103,6 +104,12 @@ const styles = {
     color: "white",
     overflow: "hidden",
     padding: "4rem 1rem",
+    // background: "linear-gradient(rgba(4,9,30,0.7), rgba(4,9,30,0.7)), url(./images/planteee.webp)",
+    // backgroundPosition: "center",
+    // backgroundSize: "cover",
+    // backgroundRepeat: "no-repeat",
+    // height: "100vh",
+    // width: "100%"
   },
   heroOverlay: {
     position: "absolute",
@@ -342,12 +349,12 @@ export default function LandingPage() {
           >
             WELCOME TO AGRILINK
           </Typography>
-          <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 500 }}>
+          <Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 800 }}>
             Empowering Farmers,
             <br />
             Connecting Buyers With <span style={{ color: "#a5d6a7" }}>AgriLink</span>
           </Typography>
-          <Typography variant="h6" sx={{ mb: 4, color: "#e8f5e9" }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "#e8f5e9", fontWeight: 800 }}>
             Your Marketplace for Fresh, Direct-from-Farm Produce!
           </Typography>
           <Box
@@ -1236,15 +1243,15 @@ export default function LandingPage() {
               <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0 }}>
                 <Box component="li" sx={{ mb: 1, display: "flex", alignItems: "center" }}>
                   <i className="bi bi-envelope me-2"></i>
-                  support@agrilink.com
+                  agrilink143@gmail.com
                 </Box>
                 <Box component="li" sx={{ mb: 1, display: "flex", alignItems: "center" }}>
                   <i className="bi bi-telephone me-2"></i>
-                  +1 123 456 7890
+                  +25675203972
                 </Box>
                 <Box component="li" sx={{ mb: 1, display: "flex", alignItems: "center" }}>
                   <i className="bi bi-geo-alt me-2"></i>
-                  123 AgriTech Park, Farmville, CA 94107
+                  123 AgriTech Park
                 </Box>
               </Box>
               <Box sx={{ mt: 3 }}>
@@ -1289,7 +1296,7 @@ export default function LandingPage() {
           </Grid>
 
           <Box sx={{ borderTop: "1px solid #2e7d32", pt: 3, textAlign: "center" }}>
-            <Typography variant="body2">© 2024 AgriLink. All Rights Reserved</Typography>
+            <Typography variant="body2">© 2025 AgriLink. All Rights Reserved</Typography>
           </Box>
         </Container>
       </Box>
