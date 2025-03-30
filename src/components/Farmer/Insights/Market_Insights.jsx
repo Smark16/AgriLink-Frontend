@@ -809,6 +809,13 @@ const getCurrentMonthDailySales = () => {
                 ? `UGX ${farmerPricing.average_price_per_kg.toFixed(2)} `
                 : 'Data Not Available'}
             </span></span>
+
+            <div className="keys mt-4 p-2">
+              <h6><strong>KEYS</strong></h6>
+               
+              <span><strong>Down Arrow</strong> <i className="bi bi-arrow-down text-danger animated-bounce"></i>: Product sold at lower price</span>
+              <span><strong>Up Arrow</strong> <i className="bi bi-arrow-up text-success animated-bounce"></i>: Product sold at higher price</span>
+            </div>
                       </div>
 
                     <div className="col-md-6 sm-12 farmer_pricing">

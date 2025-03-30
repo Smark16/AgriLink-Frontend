@@ -5,6 +5,11 @@
 /* .donut{
     border:2px solid red
 } */
+ .keys{
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+ }
  .sale_desc{
 display: flex;
 align-items: center;

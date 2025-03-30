@@ -37,6 +37,7 @@ import axios from 'axios'
 import ConfirmPayment from '../Buyer/Checkout/ConfirmPayment'
 import PaymentStatus from '../Buyer/Checkout/PaymentStatus'
 import BuyerDash from '../../components/Buyer/BuyerDasboard/Buyerdash'
+import LandingPage from '../Home/Test'
 
 
 function Show() {
@@ -91,6 +92,7 @@ function Show() {
 
       {/* public routes */}
    <Route path='/' element={<MacbookPro/>}/> 
+   <Route path='/test' element={<LandingPage/>}/>
     <Route path='/signup' element={<Signup/>}/>
     <Route path='/login' element={<Login/>}/>
     

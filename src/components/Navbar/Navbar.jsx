@@ -43,7 +43,7 @@ const Buyer_settings = [
 
 const Farmer_settings = [
   { name: 'Profile', path: '/farmer/profile' },
-  { name: 'Market Insights', path: '/farmer/insights' },
+  // { name: 'Market Insights', path: '/farmer/insights' },
   { name: 'Change Password', path: '/farmer/change-password' },
   { name: 'Logout', path: '/farmer/logout' },
 ]

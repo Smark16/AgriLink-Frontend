@@ -11,6 +11,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 
 import TransportDetails from './TransportDetails';
+import UseHook from '../../CustomHook/UseHook';
 
 const steps = [
   'Product Information',
@@ -22,6 +23,8 @@ const all_categories_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/
 const post_crops_url = 'https://agrilink-backend-hjzl.onrender.com/agriLink/post_crops';
 const MARKET_TREND = 'https://agrilink-backend-hjzl.onrender.com/agriLink/market-trends/'
 function Upload_List() {
+  const {crops} = UseHook()
+  const [nameCheck, setNameCheck] = useState(false)
   const navigate = useNavigate();
   const { user, marketrendUpload } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
@@ -235,15 +238,25 @@ function Upload_List() {
           </div>
 
           <div className="col-md-6">
-            <label htmlFor="cropName" className="form-label">Product Name</label>
-            <input
-              type="text"
-              className="form-control"
-              id="cropName"
-              value={crop.crop_name}
-              onChange={(e) => setCrop({ ...crop, crop_name: e.target.value })}
-            />
-          </div>
+          <label htmlFor="cropName" className="form-label">Product Name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="cropName"
+            value={crop.crop_name}
+            onChange={(e) => {
+              setCrop({ ...crop, crop_name: e.target.value });
+            }}
+          />
+          {crop.crop_name && (
+            <p style={{ color: crops.some(c => c.crop_name.toLowerCase() === crop.crop_name.toLowerCase()) ? 'red' : 'green' }}>
+              {crops.some(c => c.crop_name.toLowerCase() === crop.crop_name.toLowerCase()) 
+                ? `${crop.crop_name} is already taken` 
+                : `${crop.crop_name} is available`}
+            </p>
+          )}
+        </div>
+
           <div className="col-md-6">
             <label htmlFor="specialisation" className="form-label">Product Category</label>
             <select
