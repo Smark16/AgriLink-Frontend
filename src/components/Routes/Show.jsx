@@ -3,7 +3,6 @@ import '../Routes/show.css'
 import {Route, Routes} from 'react-router-dom'
 import PrivateRoute from '../PrivateRoute'
 import ResponsiveAppBar from '../Navbar/Navbar'
-import MacbookPro from '../Home/land'
 import Signup from '../Authenticate/Signup'
 import Login from '../Authenticate/Login'
 import Dashboard from '../Farmer/Dashboard/Dashboard'
@@ -37,7 +36,7 @@ import axios from 'axios'
 import ConfirmPayment from '../Buyer/Checkout/ConfirmPayment'
 import PaymentStatus from '../Buyer/Checkout/PaymentStatus'
 import BuyerDash from '../../components/Buyer/BuyerDasboard/Buyerdash'
-import LandingPage from '../Home/Test'
+import LandingPage from '../Home/land'
 
 
 function Show() {
@@ -91,8 +90,7 @@ function Show() {
      <Routes>
 
       {/* public routes */}
-   <Route path='/' element={<MacbookPro/>}/> 
-   <Route path='/test' element={<LandingPage/>}/>
+   <Route path='/' element={<LandingPage/>}/>
     <Route path='/signup' element={<Signup/>}/>
     <Route path='/login' element={<Login/>}/>
     
